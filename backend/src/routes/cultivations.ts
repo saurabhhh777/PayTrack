@@ -1,6 +1,7 @@
 import express, { Request, Response } from 'express';
 import { body, validationResult } from 'express-validator';
 import Cultivation from '../models/Cultivation';
+import Payment from '../models/Payment';
 import { auth } from '../middleware/auth';
 
 const router = express.Router();
@@ -42,7 +43,6 @@ router.get('/:id', auth, async (req, res) => {
     }
 
     // Fetch payments for this cultivation
-    const Payment = require('../models/Payment');
     const payments = await Payment.find({ cultivationId: cultivation._id })
       .sort({ date: -1 });
 
@@ -53,9 +53,17 @@ router.get('/:id', auth, async (req, res) => {
     };
 
     res.json(cultivationWithPayments);
-  } catch (error) {
+  } catch (error: any) {
     console.error('Get cultivation error:', error);
-    res.status(500).json({ message: 'Server error' });
+    console.error('Error details:', {
+      message: error.message,
+      stack: error.stack,
+      name: error.name
+    });
+    res.status(500).json({ 
+      message: 'Server error',
+      error: process.env.NODE_ENV === 'development' ? error.message : 'Internal server error'
+    });
   }
 });
 
