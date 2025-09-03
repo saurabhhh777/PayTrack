@@ -861,7 +861,7 @@ const Agriculture = () => {
                       setShowForm(false)
                       setEditingCultivation(null)
                       setForm({
-                        name: '',
+                        personId: '',
                         cropName: '',
                         area: '',
                         ratePerBigha: '',

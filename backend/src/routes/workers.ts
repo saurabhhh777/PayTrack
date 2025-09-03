@@ -19,7 +19,7 @@ router.get('/', auth, async (req: Request, res: Response) => {
 });
 
 // @route   GET /api/workers/:id
-// @desc    Get worker by ID
+// @desc    Get worker by ID with attendance and payment summaries
 // @access  Private
 router.get('/:id', auth, async (req: Request, res: Response) => {
   try {
@@ -27,7 +27,45 @@ router.get('/:id', auth, async (req: Request, res: Response) => {
     if (!worker) {
       return res.status(404).json({ message: 'Worker not found' });
     }
-    res.json(worker);
+
+    // Import models for attendance and payments
+    const Attendance = require('../models/Attendance');
+    const Payment = require('../models/Payment');
+
+    // Fetch attendance records for this worker
+    const attendance = await Attendance.find({ workerId: worker._id })
+      .sort({ date: -1 });
+
+    // Fetch payment records for this worker
+    const payments = await Payment.find({ workerId: worker._id })
+      .sort({ date: -1 });
+
+    // Calculate attendance summary
+    const attendanceSummary = {
+      totalDays: attendance.length,
+      present: attendance.filter((a: any) => a.status === 'Present').length,
+      absent: attendance.filter((a: any) => a.status === 'Absent').length,
+      halfDay: attendance.filter((a: any) => a.status === 'HalfDay').length
+    };
+
+    // Calculate payment summary
+    const totalPaid = payments.reduce((sum: number, payment: any) => sum + payment.amount, 0);
+    const paymentSummary = {
+      totalSalary: worker.salary * 12, // Annual salary
+      paid: totalPaid,
+      pending: Math.max(0, (worker.salary * 12) - totalPaid)
+    };
+
+    // Combine worker data with summaries
+    const workerWithDetails = {
+      ...worker.toObject(),
+      attendance,
+      payments,
+      attendanceSummary,
+      paymentSummary
+    };
+
+    res.json(workerWithDetails);
   } catch (error) {
     console.error('Get worker error:', error);
     res.status(500).json({ message: 'Server error' });

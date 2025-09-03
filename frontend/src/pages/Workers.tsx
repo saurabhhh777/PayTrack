@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { Link } from 'react-router-dom'
 import { Plus, Edit, Trash2, Eye, DollarSign, Calendar, Clock, Users } from 'lucide-react'
 import { api } from '../lib/api'
 import { format } from 'date-fns'
@@ -378,7 +379,12 @@ const Workers = () => {
                 {workers.map((worker) => (
                   <tr key={worker._id}>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm font-medium text-gray-900">{worker.name}</div>
+                      <Link
+                        to={`/workers/${worker._id}`}
+                        className="text-sm font-medium text-blue-600 hover:text-blue-800 hover:underline cursor-pointer transition-colors duration-150"
+                      >
+                        {worker.name}
+                      </Link>
                       <div className="text-sm text-gray-500">{worker.address}</div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{worker.phone}</td>

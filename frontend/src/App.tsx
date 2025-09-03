@@ -4,6 +4,7 @@ import Layout from './components/Layout'
 import Login from './pages/Login'
 import Dashboard from './pages/Dashboard'
 import Workers from './pages/Workers'
+import WorkerDetail from './pages/WorkerDetail'
 import Attendance from './pages/Attendance'
 import Agriculture from './pages/Agriculture'
 import PersonDetail from './pages/PersonDetail'
@@ -26,6 +27,7 @@ function App() {
         <Route index element={<Navigate to="/dashboard" replace />} />
         <Route path="dashboard" element={<Dashboard />} />
         <Route path="workers" element={<Workers />} />
+        <Route path="workers/:id" element={<WorkerDetail />} />
         <Route path="attendance" element={<Attendance />} />
         <Route path="agriculture" element={<Agriculture />} />
         <Route path="person/:id" element={<PersonDetail />} />
