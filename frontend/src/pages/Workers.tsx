@@ -453,7 +453,7 @@ const Workers = () => {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">₹{payment.amount.toLocaleString()}</td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      {format(new Date(payment.date), 'MMM dd, yyyy')}
+                      {format(new Date(payment.date), 'dd/MM/yyyy')}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
@@ -509,7 +509,7 @@ const Workers = () => {
                       <div className="text-sm text-gray-500">{record.workerId.phone}</div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      {format(new Date(record.date), 'MMM dd, yyyy')}
+                      {format(new Date(record.date), 'dd/MM/yyyy')}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
@@ -563,78 +563,138 @@ const Workers = () => {
 
       {/* Worker Form Modal */}
       {showWorkerForm && (
-        <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
-          <div className="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
-            <div className="mt-3">
-              <h3 className="text-lg font-medium text-gray-900 mb-4">
-                {editingWorker ? 'Edit Worker' : 'Add New Worker'}
-              </h3>
-              <form onSubmit={handleWorkerSubmit} className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">Name</label>
-                  <input
-                    type="text"
-                    required
-                    value={workerForm.name}
-                    onChange={(e) => setWorkerForm(prev => ({ ...prev, name: e.target.value }))}
-                    className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                  />
+        <div className="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm overflow-y-auto h-full w-full z-50">
+          <div className="relative top-10 mx-auto p-0 border-0 w-[600px] shadow-2xl rounded-2xl bg-white overflow-hidden">
+            {/* Header */}
+            <div className="bg-gradient-to-r from-blue-500 to-blue-600 px-6 py-4">
+              <div className="flex items-center justify-between">
+                <h3 className="text-xl font-semibold text-white">
+                  {editingWorker ? 'Edit Worker' : 'Add New Worker'}
+                </h3>
+                <button
+                  onClick={() => {
+                    setShowWorkerForm(false)
+                    setEditingWorker(null)
+                    setWorkerForm({
+                      name: '',
+                      phone: '',
+                      address: '',
+                      joiningDate: format(new Date(), 'yyyy-MM-dd'),
+                      salary: '',
+                      notes: ''
+                    })
+                  }}
+                  className="text-white hover:text-blue-100 transition-colors"
+                >
+                  <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+            </div>
+
+            {/* Form Content */}
+            <div className="p-6">
+              <form onSubmit={handleWorkerSubmit} className="space-y-6">
+                {/* Basic Information Section */}
+                <div className="space-y-4">
+                  <h4 className="text-lg font-medium text-gray-900 border-b border-gray-200 pb-2">👤 Basic Information</h4>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">Full Name *</label>
+                      <input
+                        type="text"
+                        required
+                        placeholder="Enter worker's full name"
+                        value={workerForm.name}
+                        onChange={(e) => setWorkerForm(prev => ({ ...prev, name: e.target.value }))}
+                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 hover:border-gray-400"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">Phone Number *</label>
+                      <input
+                        type="tel"
+                        required
+                        placeholder="Enter phone number"
+                        value={workerForm.phone}
+                        onChange={(e) => setWorkerForm(prev => ({ ...prev, phone: e.target.value }))}
+                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 hover:border-gray-400"
+                      />
+                    </div>
+                  </div>
                 </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">Phone</label>
-                  <input
-                    type="text"
-                    required
-                    value={workerForm.phone}
-                    onChange={(e) => setWorkerForm(prev => ({ ...prev, phone: e.target.value }))}
-                    className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                  />
+
+                {/* Address Section */}
+                <div className="space-y-4">
+                  <h4 className="text-lg font-medium text-gray-900 border-b border-gray-200 pb-2">🏠 Address Details</h4>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Complete Address *</label>
+                    <textarea
+                      required
+                      placeholder="Enter complete address"
+                      value={workerForm.address}
+                      onChange={(e) => setWorkerForm(prev => ({ ...prev, address: e.target.value }))}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 hover:border-gray-400 resize-none"
+                      rows={3}
+                    />
+                  </div>
                 </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">Address</label>
-                  <textarea
-                    required
-                    value={workerForm.address}
-                    onChange={(e) => setWorkerForm(prev => ({ ...prev, address: e.target.value }))}
-                    className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                    rows={3}
-                  />
+
+                {/* Employment Details Section */}
+                <div className="space-y-4">
+                  <h4 className="text-lg font-medium text-gray-900 border-b border-gray-200 pb-2">💼 Employment Details</h4>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">Joining Date *</label>
+                      <input
+                        type="date"
+                        required
+                        value={workerForm.joiningDate}
+                        onChange={(e) => setWorkerForm(prev => ({ ...prev, joiningDate: e.target.value }))}
+                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 hover:border-gray-400"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">Monthly Salary *</label>
+                      <div className="relative">
+                        <span className="absolute left-3 top-3 text-gray-500">₹</span>
+                        <input
+                          type="number"
+                          required
+                          min="0"
+                          placeholder="0"
+                          value={workerForm.salary}
+                          onChange={(e) => setWorkerForm(prev => ({ ...prev, salary: e.target.value }))}
+                          className="w-full pl-8 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 hover:border-gray-400"
+                        />
+                      </div>
+                    </div>
+                  </div>
                 </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">Joining Date</label>
-                  <input
-                    type="date"
-                    required
-                    value={workerForm.joiningDate}
-                    onChange={(e) => setWorkerForm(prev => ({ ...prev, joiningDate: e.target.value }))}
-                    className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                  />
+
+                {/* Additional Information Section */}
+                <div className="space-y-4">
+                  <h4 className="text-lg font-medium text-gray-900 border-b border-gray-200 pb-2">📝 Additional Information</h4>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Notes</label>
+                    <textarea
+                      placeholder="Add any additional notes or comments..."
+                      value={workerForm.notes}
+                      onChange={(e) => setWorkerForm(prev => ({ ...prev, notes: e.target.value }))}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 hover:border-gray-400 resize-none"
+                      rows={3}
+                    />
+                  </div>
                 </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">Salary</label>
-                  <input
-                    type="number"
-                    required
-                    value={workerForm.salary}
-                    onChange={(e) => setWorkerForm(prev => ({ ...prev, salary: e.target.value }))}
-                    className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">Notes</label>
-                  <textarea
-                    value={workerForm.notes}
-                    onChange={(e) => setWorkerForm(prev => ({ ...prev, notes: e.target.value }))}
-                    className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                    rows={2}
-                  />
-                </div>
-                <div className="flex space-x-3">
+
+                {/* Action Buttons */}
+                <div className="flex space-x-4 pt-4 border-t border-gray-200">
                   <button
                     type="submit"
-                    className="flex-1 bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700"
+                    className="flex-1 bg-gradient-to-r from-blue-500 to-blue-600 text-white px-6 py-3 rounded-lg font-medium hover:from-blue-600 hover:to-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-200 transform hover:scale-105 shadow-lg"
                   >
-                    {editingWorker ? 'Update' : 'Add'} Worker
+                    {editingWorker ? '🔄 Update Worker' : '👷 Add Worker'}
                   </button>
                   <button
                     type="button"
@@ -650,7 +710,7 @@ const Workers = () => {
                         notes: ''
                       })
                     }}
-                    className="flex-1 bg-gray-300 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-400"
+                    className="flex-1 bg-gray-100 text-gray-700 px-6 py-3 rounded-lg font-medium hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-all duration-200"
                   >
                     Cancel
                   </button>
@@ -782,74 +842,117 @@ const Workers = () => {
 
       {/* Payment Form Modal */}
       {showPaymentForm && (
-        <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
-          <div className="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
-            <div className="mt-3">
-              <h3 className="text-lg font-medium text-gray-900 mb-4">
-                {editingPayment ? 'Edit Payment' : 'Add New Payment'}
-              </h3>
-              <form onSubmit={handlePaymentSubmit} className="space-y-4">
+        <div className="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm overflow-y-auto h-full w-full z-50">
+          <div className="relative top-10 mx-auto p-0 border-0 w-[500px] shadow-2xl rounded-2xl bg-white overflow-hidden">
+            {/* Header */}
+            <div className="bg-gradient-to-r from-green-500 to-green-600 px-6 py-4">
+              <div className="flex items-center justify-between">
+                <h3 className="text-xl font-semibold text-white">
+                  {editingPayment ? 'Edit Payment' : 'Add New Payment'}
+                </h3>
+                <button
+                  onClick={() => {
+                    setShowPaymentForm(false)
+                    setEditingPayment(null)
+                    setPaymentForm({
+                      workerId: '',
+                      amount: '',
+                      date: format(new Date(), 'yyyy-MM-dd'),
+                      paymentMode: 'cash',
+                      description: ''
+                    })
+                  }}
+                  className="text-white hover:text-green-100 transition-colors"
+                >
+                  <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+            </div>
+
+            {/* Form Content */}
+            <div className="p-6">
+              <form onSubmit={handlePaymentSubmit} className="space-y-6">
+                {/* Worker Selection */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-700">Worker</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">👷 Select Worker *</label>
                   <select
                     required
                     value={paymentForm.workerId}
                     onChange={(e) => setPaymentForm(prev => ({ ...prev, workerId: e.target.value }))}
-                    className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200 hover:border-gray-400"
                   >
-                    <option value="">Select Worker</option>
+                    <option value="">Choose a worker</option>
                     {workers.map(worker => (
-                      <option key={worker._id} value={worker._id}>{worker.name}</option>
+                      <option key={worker._id} value={worker._id}>{worker.name} - {worker.phone}</option>
                     ))}
                   </select>
                 </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">Amount</label>
-                  <input
-                    type="number"
-                    required
-                    value={paymentForm.amount}
-                    onChange={(e) => setPaymentForm(prev => ({ ...prev, amount: e.target.value }))}
-                    className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                  />
+
+                {/* Payment Details */}
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">💰 Amount *</label>
+                    <div className="relative">
+                      <span className="absolute left-3 top-3 text-gray-500">₹</span>
+                      <input
+                        type="number"
+                        required
+                        min="0"
+                        step="0.01"
+                        placeholder="0.00"
+                        value={paymentForm.amount}
+                        onChange={(e) => setPaymentForm(prev => ({ ...prev, amount: e.target.value }))}
+                        className="w-full pl-8 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200 hover:border-gray-400"
+                      />
+                    </div>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">📅 Payment Date *</label>
+                    <input
+                      type="date"
+                      required
+                      value={paymentForm.date}
+                      onChange={(e) => setPaymentForm(prev => ({ ...prev, date: e.target.value }))}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200 hover:border-gray-400"
+                    />
+                  </div>
                 </div>
+
+                {/* Payment Mode */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-700">Date</label>
-                  <input
-                    type="date"
-                    required
-                    value={paymentForm.date}
-                    onChange={(e) => setPaymentForm(prev => ({ ...prev, date: e.target.value }))}
-                    className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">Payment Mode</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">💳 Payment Mode *</label>
                   <select
                     required
                     value={paymentForm.paymentMode}
                     onChange={(e) => setPaymentForm(prev => ({ ...prev, paymentMode: e.target.value as 'cash' | 'UPI' }))}
-                    className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200 hover:border-gray-400"
                   >
-                    <option value="cash">Cash</option>
-                    <option value="UPI">UPI</option>
+                    <option value="cash">💵 Cash</option>
+                    <option value="UPI">📱 UPI</option>
                   </select>
                 </div>
+
+                {/* Description */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-700">Description</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">📝 Description</label>
                   <textarea
+                    placeholder="Add payment description or notes..."
                     value={paymentForm.description}
                     onChange={(e) => setPaymentForm(prev => ({ ...prev, description: e.target.value }))}
-                    className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                    rows={2}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200 hover:border-gray-400 resize-none"
+                    rows={3}
                   />
                 </div>
-                <div className="flex space-x-3">
+
+                {/* Action Buttons */}
+                <div className="flex space-x-4 pt-4 border-t border-gray-200">
                   <button
                     type="submit"
-                    className="flex-1 bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700"
+                    className="flex-1 bg-gradient-to-r from-green-500 to-green-600 text-white px-6 py-3 rounded-lg font-medium hover:from-green-600 hover:to-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition-all duration-200 transform hover:scale-105 shadow-lg"
                   >
-                    {editingPayment ? 'Update' : 'Add'} Payment
+                    {editingPayment ? '🔄 Update Payment' : '💸 Add Payment'}
                   </button>
                   <button
                     type="button"
@@ -864,7 +967,7 @@ const Workers = () => {
                         description: ''
                       })
                     }}
-                    className="flex-1 bg-gray-300 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-400"
+                    className="flex-1 bg-gray-100 text-gray-700 px-6 py-3 rounded-lg font-medium hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-all duration-200"
                   >
                     Cancel
                   </button>
@@ -1100,7 +1203,7 @@ const Workers = () => {
                       {workerAttendanceData.map((record) => (
                         <tr key={record._id}>
                           <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                            {format(new Date(record.date), 'MMM dd, yyyy')}
+                            {format(new Date(record.date), 'dd/MM/yyyy')}
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap">
                             <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${

@@ -338,7 +338,7 @@ const Attendance = () => {
                 {attendance.map((record) => (
                   <tr key={record._id}>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      {format(new Date(record.date), 'MMM dd, yyyy')}
+                                                {format(new Date(record.date), 'dd/MM/yyyy')}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="text-sm font-medium text-gray-900">{record.workerId.name}</div>

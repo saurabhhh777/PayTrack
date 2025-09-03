@@ -250,7 +250,7 @@ const Dashboard = () => {
               />
               <YAxis />
               <Tooltip 
-                labelFormatter={(value) => format(new Date(value), 'MMM dd, yyyy')}
+                labelFormatter={(value) => format(new Date(value), 'dd/MM/yyyy')}
                 formatter={(value: number) => [`₹${value.toLocaleString()}`, '']}
               />
               <Legend />
@@ -304,11 +304,11 @@ const Dashboard = () => {
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis 
                 dataKey="date" 
-                tickFormatter={(value) => format(new Date(value), 'MMM dd')}
+                tickFormatter={(value) => format(new Date(value), 'dd/MM')}
               />
               <YAxis />
               <Tooltip 
-                labelFormatter={(value) => format(new Date(value), 'MMM dd, yyyy')}
+                labelFormatter={(value) => format(new Date(value), 'dd/MM/yyyy')}
                 formatter={(value: number) => [`${value} workers`, '']}
               />
               <Legend />
