@@ -108,9 +108,10 @@ const Agriculture = () => {
     if (searchTerm.trim() === '') {
       setFilteredCultivations(cultivations)
     } else {
-      const filtered = cultivations.filter(cultivation =>
-        cultivation.name.toLowerCase().includes(searchTerm.toLowerCase())
-      )
+      const filtered = cultivations.filter(cultivation => {
+        const personName = cultivation.personId?.name || cultivation.name || '';
+        return personName.toLowerCase().includes(searchTerm.toLowerCase())
+      })
       setFilteredCultivations(filtered)
     }
   }, [searchTerm, cultivations])
@@ -191,7 +192,7 @@ const Agriculture = () => {
   const editCultivation = (cultivation: Cultivation) => {
     setEditingCultivation(cultivation)
     setForm({
-      name: cultivation.name,
+      personId: cultivation.personId?._id || '',
       cropName: cultivation.cropName,
       area: cultivation.area.toString(),
       ratePerBigha: cultivation.ratePerBigha.toString(),
@@ -622,17 +623,18 @@ const Agriculture = () => {
                 <div className="space-y-4">
                   <h4 className="text-lg font-medium text-gray-900 border-b border-gray-200 pb-2">Basic Information</h4>
                   
-                  {/* Name Field */}
+                  {/* Person Selection Field */}
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Name *</label>
-                    <input
-                      type="text"
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Person *</label>
+                    <select
                       required
-                      placeholder="Enter the name of the person whose cultivation this is"
-                      value={form.name}
-                      onChange={(e) => setForm(prev => ({ ...prev, name: e.target.value }))}
+                      value={form.personId}
+                      onChange={(e) => setForm(prev => ({ ...prev, personId: e.target.value }))}
                       className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200 hover:border-gray-400"
-                    />
+                    >
+                      <option value="">Select a person</option>
+                      {/* TODO: Add person options here */}
+                    </select>
                   </div>
                   
                   <div className="grid grid-cols-2 gap-4">
