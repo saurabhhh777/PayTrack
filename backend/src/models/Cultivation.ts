@@ -1,7 +1,7 @@
-import mongoose, { Document, Schema } from 'mongoose';
+import mongoose, { Document, Schema, Types } from 'mongoose';
 
 export interface ICultivation extends Document {
-  name: string;
+  personId: mongoose.Types.ObjectId;
   cropName: string;
   area: number; // in Bigha
   ratePerBigha: number;
@@ -18,10 +18,10 @@ export interface ICultivation extends Document {
 }
 
 const cultivationSchema = new Schema<ICultivation>({
-  name: {
-    type: String,
-    required: true,
-    trim: true
+  personId: {
+    type: Schema.Types.ObjectId,
+    ref: 'Person',
+    required: true
   },
   cropName: {
     type: String,
@@ -86,6 +86,7 @@ cultivationSchema.virtual('profit').get(function() {
 });
 
 // Index for better query performance
+cultivationSchema.index({ personId: 1 });
 cultivationSchema.index({ cropName: 1 });
 cultivationSchema.index({ cultivationDate: -1 });
 cultivationSchema.index({ paymentMode: 1 });

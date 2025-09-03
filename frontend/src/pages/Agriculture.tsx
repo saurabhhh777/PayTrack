@@ -19,7 +19,10 @@ import {
 
 interface Cultivation {
   _id: string
-  name: string
+  personId: {
+    _id: string
+    name: string
+  }
   cropName: string
   area: number
   ratePerBigha: number
@@ -45,7 +48,7 @@ const Agriculture = () => {
   const [cropAnalytics, setCropAnalytics] = useState<any>(null)
 
   const initialFormState = {
-    name: '',
+    personId: '',
     cropName: '',
     area: '',
     ratePerBigha: '',
@@ -485,10 +488,10 @@ const Agriculture = () => {
                   <tr key={cultivation._id} className="hover:bg-gray-50 transition-colors duration-150">
                     <td className="px-6 py-4 whitespace-nowrap">
                       <Link
-                        to={`/cultivations/${cultivation._id}`}
+                        to={`/person/${cultivation.personId._id || cultivation.personId}`}
                         className="text-sm font-medium text-blue-600 hover:text-blue-800 hover:underline cursor-pointer transition-colors duration-150"
                       >
-                        {cultivation.name}
+                        {cultivation.personId?.name || cultivation.personId}
                       </Link>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
@@ -588,7 +591,7 @@ const Agriculture = () => {
                     setShowForm(false)
                     setEditingCultivation(null)
                           setForm({
-        name: '',
+        personId: '',
         cropName: '',
         area: '',
         ratePerBigha: '',

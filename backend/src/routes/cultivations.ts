@@ -24,7 +24,9 @@ router.get('/', auth, async (req, res) => {
     }
     if (paymentMode) filter.paymentMode = paymentMode;
     
-    const cultivations = await Cultivation.find(filter).sort({ cultivationDate: -1 });
+    const cultivations = await Cultivation.find(filter)
+      .populate('personId', 'name')
+      .sort({ cultivationDate: -1 });
     res.json(cultivations);
   } catch (error) {
     console.error('Get cultivations error:', error);
@@ -72,7 +74,7 @@ router.get('/:id', auth, async (req, res) => {
 // @access  Private
 router.post('/', [
   auth,
-  body('name').notEmpty().withMessage('Name is required'),
+  body('personId').notEmpty().withMessage('Person ID is required'),
   body('cropName').notEmpty().withMessage('Crop name is required'),
   body('area').isNumeric().withMessage('Area must be a number'),
   body('ratePerBigha').isNumeric().withMessage('Rate per Bigha must be a number'),
@@ -86,7 +88,7 @@ router.post('/', [
     }
 
     const {
-      name,
+      personId,
       cropName,
       area,
       ratePerBigha,
@@ -101,7 +103,7 @@ router.post('/', [
     } = req.body;
 
     const cultivation = new Cultivation({
-      name,
+      personId,
       cropName,
       area,
       ratePerBigha,
@@ -128,7 +130,7 @@ router.post('/', [
 // @access  Private
 router.put('/:id', [
   auth,
-  body('name').notEmpty().withMessage('Name is required'),
+  body('personId').notEmpty().withMessage('Person ID is required'),
   body('cropName').notEmpty().withMessage('Crop name is required'),
   body('area').isNumeric().withMessage('Area must be a number'),
   body('ratePerBigha').isNumeric().withMessage('Rate per Bigha must be a number'),
@@ -142,7 +144,7 @@ router.put('/:id', [
     }
 
     const {
-      name,
+      personId,
       cropName,
       area,
       ratePerBigha,
@@ -159,7 +161,7 @@ router.put('/:id', [
     const cultivation = await Cultivation.findByIdAndUpdate(
       req.params.id,
       {
-        name,
+        personId,
         cropName,
         area,
         ratePerBigha,

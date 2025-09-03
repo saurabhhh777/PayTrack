@@ -6,6 +6,7 @@ import Dashboard from './pages/Dashboard'
 import Workers from './pages/Workers'
 import Attendance from './pages/Attendance'
 import Agriculture from './pages/Agriculture'
+import PersonDetail from './pages/PersonDetail'
 import CultivationDetail from './pages/CultivationDetail'
 import RealEstate from './pages/RealEstate'
 import Meel from './pages/Meel'
@@ -27,6 +28,7 @@ function App() {
         <Route path="workers" element={<Workers />} />
         <Route path="attendance" element={<Attendance />} />
         <Route path="agriculture" element={<Agriculture />} />
+        <Route path="person/:id" element={<PersonDetail />} />
         <Route path="cultivations/:id" element={<CultivationDetail />} />
         <Route path="real-estate" element={<RealEstate />} />
         <Route path="meel" element={<Meel />} />
