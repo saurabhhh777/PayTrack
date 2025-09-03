@@ -192,91 +192,81 @@ const Agriculture = () => {
 
       {/* Summary Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
-        <div className="bg-white overflow-hidden shadow rounded-lg">
-          <div className="p-5">
+        <div className="bg-white overflow-hidden shadow-lg rounded-xl border border-gray-100 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
+          <div className="p-6">
             <div className="flex items-center">
-              <div className="flex-shrink-0">
+              <div className="flex-shrink-0 p-3 bg-green-100 rounded-xl">
                 <TrendingUp className="h-6 w-6 text-green-600" />
               </div>
-              <div className="ml-5 w-0 flex-1">
-                <dl>
-                  <dt className="text-sm font-medium text-gray-500 truncate">Total Area</dt>
-                  <dd className="text-lg font-medium text-gray-900">
-                    {getTotalCultivatedArea()} Bigha
-                  </dd>
-                </dl>
+              <div className="ml-4 flex-1">
+                <dt className="text-sm font-medium text-gray-500 truncate">Total Area</dt>
+                <dd className="text-2xl font-bold text-gray-900">
+                  {getTotalCultivatedArea()} Bigha
+                </dd>
               </div>
             </div>
           </div>
         </div>
 
-        <div className="bg-white overflow-hidden shadow rounded-lg">
-          <div className="p-5">
+        <div className="bg-white overflow-hidden shadow-lg rounded-xl border border-gray-100 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
+          <div className="p-6">
             <div className="flex items-center">
-              <div className="flex-shrink-0">
+              <div className="flex-shrink-0 p-3 bg-red-100 rounded-xl">
                 <TrendingDown className="h-6 w-6 text-red-600" />
               </div>
-              <div className="ml-5 w-0 flex-1">
-                <dl>
-                  <dt className="text-sm font-medium text-gray-500 truncate">Total Investment</dt>
-                  <dd className="text-lg font-medium text-gray-900">
-                    ₹{getTotalInvestment().toLocaleString()}
-                  </dd>
-                </dl>
+              <div className="ml-4 flex-1">
+                <dt className="text-sm font-medium text-gray-500 truncate">Total Investment</dt>
+                <dd className="text-2xl font-bold text-gray-900">
+                  ₹{getTotalInvestment().toLocaleString()}
+                </dd>
               </div>
             </div>
           </div>
         </div>
 
-        <div className="bg-white overflow-hidden shadow rounded-lg">
-          <div className="p-5">
+        <div className="bg-white overflow-hidden shadow-lg rounded-xl border border-gray-100 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
+          <div className="p-6">
             <div className="flex items-center">
-              <div className="flex-shrink-0">
+              <div className="flex-shrink-0 p-3 bg-blue-100 rounded-xl">
                 <TrendingUp className="h-6 w-6 text-blue-600" />
               </div>
-              <div className="ml-5 w-0 flex-1">
-                <dl>
-                  <dt className="text-sm font-medium text-gray-500 truncate">Total Revenue</dt>
-                  <dd className="text-lg font-medium text-gray-900">
-                    ₹{getTotalRevenue().toLocaleString()}
-                  </dd>
-                </dl>
+              <div className="ml-4 flex-1">
+                <dt className="text-sm font-medium text-gray-500 truncate">Total Revenue</dt>
+                <dd className="text-2xl font-bold text-gray-900">
+                  ₹{getTotalRevenue().toLocaleString()}
+                </dd>
               </div>
             </div>
           </div>
         </div>
 
-        <div className="bg-white overflow-hidden shadow rounded-lg">
-          <div className="p-5">
+        <div className="bg-white overflow-hidden shadow-lg rounded-xl border border-gray-100 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
+          <div className="p-6">
             <div className="flex items-center">
-              <div className="flex-shrink-0">
+              <div className="flex-shrink-0 p-3 bg-yellow-100 rounded-xl">
                 <TrendingUp className="h-6 w-6 text-yellow-600" />
               </div>
-              <div className="ml-5 w-0 flex-1">
-                <dl>
-                  <dt className="text-sm font-medium text-gray-500 truncate">Total Profit</dt>
-                  <dd className={`text-lg font-medium ${getTotalProfit() >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                    ₹{getTotalProfit().toLocaleString()}
-                  </dd>
-                </dl>
+              <div className="ml-4 flex-1">
+                <dt className="text-sm font-medium text-gray-500 truncate">Total Profit</dt>
+                <dd className={`text-2xl font-bold ${getTotalProfit() >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                  ₹{getTotalProfit().toLocaleString()}
+                </dd>
               </div>
             </div>
           </div>
         </div>
 
-        <div className="bg-white overflow-hidden shadow rounded-lg">
-          <div className="p-5">
+        <div className="bg-white overflow-hidden shadow-lg rounded-xl border border-gray-100 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
+          <div className="p-6">
             <div className="flex items-center">
-              <div className="flex-shrink-0">
+              <div className="flex-shrink-0 p-3 bg-orange-100 rounded-xl">
                 <TrendingDown className="h-6 w-6 text-orange-600" />
               </div>
-              <div className="ml-5 w-0 flex-1">
-                <dl>
-                  <dt className="text-sm font-medium text-gray-500 truncate">Pending Amount</dt>
-                  <dd className="text-lg font-medium text-gray-900">
-                    ₹{getTotalPending().toLocaleString()}
-                  </dd>
-                </dl>
+              <div className="ml-4 flex-1">
+                <dt className="text-sm font-medium text-gray-500 truncate">Pending Amount</dt>
+                <dd className="text-2xl font-bold text-gray-900">
+                  ₹{getTotalPending().toLocaleString()}
+                </dd>
               </div>
             </div>
           </div>
@@ -287,8 +277,24 @@ const Agriculture = () => {
       {cropAnalytics && (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Crop Profit Chart */}
-          <div className="bg-white p-6 rounded-lg shadow">
-            <h3 className="text-lg font-medium text-gray-900 mb-4">Crop-wise Profit Analysis</h3>
+          <div className="bg-white p-6 rounded-xl shadow-lg border border-gray-100 hover:shadow-xl transition-all duration-300">
+            <div className="flex items-center justify-between mb-6">
+              <h3 className="text-xl font-semibold text-gray-900">📊 Crop-wise Profit Analysis</h3>
+              <div className="flex space-x-2">
+                <div className="flex items-center space-x-2">
+                  <div className="w-3 h-3 bg-green-500 rounded-full"></div>
+                  <span className="text-sm text-gray-600">Profit</span>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <div className="w-3 h-3 bg-red-500 rounded-full"></div>
+                  <span className="text-sm text-gray-600">Cost</span>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <div className="w-3 h-3 bg-blue-500 rounded-full"></div>
+                  <span className="text-sm text-gray-600">Revenue</span>
+                </div>
+              </div>
+            </div>
             <ResponsiveContainer width="100%" height={300}>
               <BarChart data={Object.entries(cropAnalytics).map(([crop, data]: [string, any]) => ({
                 crop,
@@ -296,21 +302,32 @@ const Agriculture = () => {
                 cost: data.totalCost,
                 revenue: data.totalReceived
               }))}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="crop" />
-                <YAxis />
-                <Tooltip formatter={(value: number) => [`₹${value.toLocaleString()}`, '']} />
+                <CartesianGrid strokeDasharray="3 3" stroke="#f3f4f6" />
+                <XAxis dataKey="crop" stroke="#6b7280" fontSize={12} />
+                <YAxis stroke="#6b7280" fontSize={12} />
+                <Tooltip 
+                  formatter={(value: number) => [`₹${value.toLocaleString()}`, '']}
+                  contentStyle={{
+                    backgroundColor: 'white',
+                    border: '1px solid #e5e7eb',
+                    borderRadius: '8px',
+                    boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)'
+                  }}
+                />
                 <Legend />
-                <Bar dataKey="profit" fill="#10B981" name="Profit" />
-                <Bar dataKey="cost" fill="#EF4444" name="Cost" />
-                <Bar dataKey="revenue" fill="#3B82F6" name="Revenue" />
+                <Bar dataKey="profit" fill="#10B981" name="Profit" radius={[4, 4, 0, 0]} />
+                <Bar dataKey="cost" fill="#EF4444" name="Cost" radius={[4, 4, 0, 0]} />
+                <Bar dataKey="revenue" fill="#3B82F6" name="Revenue" radius={[4, 4, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
           </div>
 
           {/* Crop Area Distribution */}
-          <div className="bg-white p-6 rounded-lg shadow">
-            <h3 className="text-lg font-medium text-gray-900 mb-4">Crop Area Distribution</h3>
+          <div className="bg-white p-6 rounded-xl shadow-lg border border-gray-100 hover:shadow-xl transition-all duration-300">
+            <div className="flex items-center justify-between mb-6">
+              <h3 className="text-xl font-semibold text-gray-900">🥧 Crop Area Distribution</h3>
+              <div className="text-sm text-gray-500">Total: {Object.values(cropAnalytics).reduce((sum: any, data: any) => sum + data.totalArea, 0)} Bigha</div>
+            </div>
             <ResponsiveContainer width="100%" height={300}>
               <PieChart>
                 <Pie
@@ -322,7 +339,7 @@ const Agriculture = () => {
                   cy="50%"
                   labelLine={false}
                   label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
-                  outerRadius={80}
+                  outerRadius={100}
                   fill="#8884d8"
                   dataKey="value"
                 >
@@ -330,7 +347,15 @@ const Agriculture = () => {
                     <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                   ))}
                 </Pie>
-                <Tooltip formatter={(value: number) => [`${value} Bigha`, '']} />
+                <Tooltip 
+                  formatter={(value: number) => [`${value} Bigha`, '']}
+                  contentStyle={{
+                    backgroundColor: 'white',
+                    border: '1px solid #e5e7eb',
+                    borderRadius: '8px',
+                    boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)'
+                  }}
+                />
               </PieChart>
             </ResponsiveContainer>
           </div>
@@ -338,199 +363,332 @@ const Agriculture = () => {
       )}
 
       {/* Cultivations List */}
-      <div className="bg-white shadow rounded-lg">
-        <div className="px-4 py-5 sm:p-6">
-          <h3 className="text-lg font-medium text-gray-900 mb-4">Cultivations</h3>
+      <div className="bg-white shadow-lg rounded-xl border border-gray-100">
+        <div className="px-6 py-6">
+          <div className="flex items-center justify-between mb-6">
+            <h3 className="text-xl font-semibold text-gray-900">🌾 Cultivations</h3>
+            <div className="text-sm text-gray-500">
+              Total: {cultivations.length} cultivation{cultivations.length !== 1 ? 's' : ''}
+            </div>
+          </div>
           <div className="overflow-x-auto">
             <table className="min-w-full divide-y divide-gray-200">
               <thead className="bg-gray-50">
                 <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Crop</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Area</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Investment</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Revenue</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Profit</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Pending</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Crop</th>
+                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Area</th>
+                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Investment</th>
+                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Revenue</th>
+                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Profit</th>
+                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Pending</th>
+                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Actions</th>
                 </tr>
               </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
+              <tbody className="bg-white divide-y divide-gray-100">
                 {cultivations.map((cultivation) => (
-                  <tr key={cultivation._id}>
+                  <tr key={cultivation._id} className="hover:bg-gray-50 transition-colors duration-150">
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm font-medium text-gray-900">{cultivation.cropName}</div>
-                      <div className="text-sm text-gray-500">
-                        {cultivation.buyerName && `Buyer: ${cultivation.buyerName}`}
+                      <div className="flex items-center">
+                        <div className="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center mr-3">
+                          <span className="text-green-600 font-semibold text-sm">
+                            {cultivation.cropName.charAt(0).toUpperCase()}
+                          </span>
+                        </div>
+                        <div>
+                          <div className="text-sm font-semibold text-gray-900">{cultivation.cropName}</div>
+                          {cultivation.buyerName && (
+                            <div className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded-full inline-block">
+                              👤 {cultivation.buyerName}
+                            </div>
+                          )}
+                        </div>
                       </div>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      {cultivation.area} Bigha
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      ₹{cultivation.totalCost.toLocaleString()}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      ₹{cultivation.amountReceived.toLocaleString()}
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="text-sm font-medium text-gray-900">{cultivation.area} Bigha</div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                      <div className="text-sm font-medium text-gray-900">₹{cultivation.totalCost.toLocaleString()}</div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="text-sm font-medium text-blue-600">₹{cultivation.amountReceived.toLocaleString()}</div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <span className={`inline-flex px-3 py-1 text-xs font-semibold rounded-full ${
                         calculateProfit(cultivation) >= 0 
-                          ? 'bg-green-100 text-green-800' 
-                          : 'bg-red-100 text-red-800'
+                          ? 'bg-green-100 text-green-800 border border-green-200' 
+                          : 'bg-red-100 text-red-800 border border-red-200'
                       }`}>
-                        ₹{calculateProfit(cultivation).toLocaleString()}
+                        {calculateProfit(cultivation) >= 0 ? '📈' : '📉'} ₹{calculateProfit(cultivation).toLocaleString()}
                       </span>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      ₹{cultivation.amountPending.toLocaleString()}
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="text-sm font-medium text-orange-600">₹{cultivation.amountPending.toLocaleString()}</div>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
-                      <button
-                        onClick={() => editCultivation(cultivation)}
-                        className="text-blue-600 hover:text-blue-900"
-                      >
-                        <Edit className="h-4 w-4" />
-                      </button>
-                      <button
-                        onClick={() => deleteCultivation(cultivation._id)}
-                        className="text-red-600 hover:text-red-900"
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </button>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                      <div className="flex items-center space-x-3">
+                        <button
+                          onClick={() => editCultivation(cultivation)}
+                          className="text-blue-600 hover:text-blue-800 p-2 rounded-lg hover:bg-blue-50 transition-colors duration-150"
+                          title="Edit Cultivation"
+                        >
+                          <Edit className="h-4 w-4" />
+                        </button>
+                        <button
+                          onClick={() => deleteCultivation(cultivation._id)}
+                          className="text-red-600 hover:text-red-800 p-2 rounded-lg hover:bg-red-50 transition-colors duration-150"
+                          title="Delete Cultivation"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 ))}
               </tbody>
             </table>
+            {cultivations.length === 0 && (
+              <div className="text-center py-12">
+                <div className="text-gray-400 mb-4">
+                  <svg className="mx-auto h-12 w-12" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                  </svg>
+                </div>
+                <h3 className="text-lg font-medium text-gray-900 mb-2">No cultivations yet</h3>
+                <p className="text-gray-500 mb-4">Get started by adding your first crop cultivation.</p>
+                <button
+                  onClick={() => setShowForm(true)}
+                  className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-lg shadow-sm text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2"
+                >
+                  <Plus className="h-4 w-4 mr-2" />
+                  Add First Cultivation
+                </button>
+              </div>
+            )}
           </div>
         </div>
       </div>
 
       {/* Cultivation Form Modal */}
       {showForm && (
-        <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
-          <div className="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
-            <div className="mt-3">
-              <h3 className="text-lg font-medium text-gray-900 mb-4">
-                {editingCultivation ? 'Edit Cultivation' : 'Add New Cultivation'}
-              </h3>
-              <form onSubmit={handleSubmit} className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">Crop Name</label>
-                  <input
-                    type="text"
-                    required
-                    value={form.cropName}
-                    onChange={(e) => setForm(prev => ({ ...prev, cropName: e.target.value }))}
-                    className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-green-500 focus:border-green-500"
-                  />
+        <div className="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm overflow-y-auto h-full w-full z-50">
+          <div className="relative top-10 mx-auto p-0 border-0 w-[600px] shadow-2xl rounded-2xl bg-white overflow-hidden">
+            {/* Header */}
+            <div className="bg-gradient-to-r from-green-500 to-green-600 px-6 py-4">
+              <div className="flex items-center justify-between">
+                <h3 className="text-xl font-semibold text-white">
+                  {editingCultivation ? 'Edit Cultivation' : 'Add New Cultivation'}
+                </h3>
+                <button
+                  onClick={() => {
+                    setShowForm(false)
+                    setEditingCultivation(null)
+                    setForm({
+                      cropName: '',
+                      area: '',
+                      ratePerBigha: '',
+                      totalCost: '',
+                      buyerName: '',
+                      amountReceived: '',
+                      amountPending: '',
+                      paymentMode: 'cash',
+                      cultivationDate: format(new Date(), 'yyyy-MM-dd'),
+                      harvestDate: '',
+                      notes: ''
+                    })
+                  }}
+                  className="text-white hover:text-green-100 transition-colors"
+                >
+                  <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+            </div>
+
+            {/* Form Content */}
+            <div className="p-6">
+              <form onSubmit={handleSubmit} className="space-y-6">
+                {/* Basic Information Section */}
+                <div className="space-y-4">
+                  <h4 className="text-lg font-medium text-gray-900 border-b border-gray-200 pb-2">Basic Information</h4>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">Crop Name *</label>
+                      <input
+                        type="text"
+                        required
+                        placeholder="e.g., Wheat, Rice, Cotton"
+                        value={form.cropName}
+                        onChange={(e) => setForm(prev => ({ ...prev, cropName: e.target.value }))}
+                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200 hover:border-gray-400"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">Area (Bigha) *</label>
+                      <input
+                        type="number"
+                        step="0.01"
+                        min="0"
+                        required
+                        placeholder="0.00"
+                        value={form.area}
+                        onChange={(e) => setForm(prev => ({ ...prev, area: e.target.value }))}
+                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200 hover:border-gray-400"
+                      />
+                    </div>
+                  </div>
                 </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">Area (Bigha)</label>
-                  <input
-                    type="number"
-                    step="0.01"
-                    required
-                    value={form.area}
-                    onChange={(e) => setForm(prev => ({ ...prev, area: e.target.value }))}
-                    className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-green-500 focus:border-green-500"
-                  />
+
+                {/* Financial Information Section */}
+                <div className="space-y-4">
+                  <h4 className="text-lg font-medium text-gray-900 border-b border-gray-200 pb-2">Financial Details</h4>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">Rate per Bigha *</label>
+                      <div className="relative">
+                        <span className="absolute left-3 top-3 text-gray-500">₹</span>
+                        <input
+                          type="number"
+                          required
+                          min="0"
+                          placeholder="0"
+                          value={form.ratePerBigha}
+                          onChange={(e) => setForm(prev => ({ ...prev, ratePerBigha: e.target.value }))}
+                          className="w-full pl-8 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200 hover:border-gray-400"
+                        />
+                      </div>
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">Total Cost *</label>
+                      <div className="relative">
+                        <span className="absolute left-3 top-3 text-gray-500">₹</span>
+                        <input
+                          type="number"
+                          required
+                          min="0"
+                          placeholder="0"
+                          value={form.totalCost}
+                          onChange={(e) => setForm(prev => ({ ...prev, totalCost: e.target.value }))}
+                          className="w-full pl-8 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200 hover:border-gray-400"
+                        />
+                      </div>
+                    </div>
+                  </div>
                 </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">Rate per Bigha</label>
-                  <input
-                    type="number"
-                    required
-                    value={form.ratePerBigha}
-                    onChange={(e) => setForm(prev => ({ ...prev, ratePerBigha: e.target.value }))}
-                    className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-green-500 focus:border-green-500"
-                  />
+
+                {/* Buyer Information Section */}
+                <div className="space-y-4">
+                  <h4 className="text-lg font-medium text-gray-900 border-b border-gray-200 pb-2">Buyer Information</h4>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Buyer Name</label>
+                    <input
+                      type="text"
+                      placeholder="Enter buyer name (optional)"
+                      value={form.buyerName}
+                      onChange={(e) => setForm(prev => ({ ...prev, buyerName: e.target.value }))}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200 hover:border-gray-400"
+                    />
+                  </div>
                 </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">Total Cost</label>
-                  <input
-                    type="number"
-                    required
-                    value={form.totalCost}
-                    onChange={(e) => setForm(prev => ({ ...prev, totalCost: e.target.value }))}
-                    className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-green-500 focus:border-green-500"
-                  />
+
+                {/* Payment Information Section */}
+                <div className="space-y-4">
+                  <h4 className="text-lg font-medium text-gray-900 border-b border-gray-200 pb-2">Payment Details</h4>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">Amount Received *</label>
+                      <div className="relative">
+                        <span className="absolute left-3 top-3 text-gray-500">₹</span>
+                        <input
+                          type="number"
+                          required
+                          min="0"
+                          placeholder="0"
+                          value={form.amountReceived}
+                          onChange={(e) => setForm(prev => ({ ...prev, amountReceived: e.target.value }))}
+                          className="w-full pl-8 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200 hover:border-gray-400"
+                        />
+                      </div>
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">Amount Pending *</label>
+                      <div className="relative">
+                        <span className="absolute left-3 top-3 text-gray-500">₹</span>
+                        <input
+                          type="number"
+                          required
+                          min="0"
+                          placeholder="0"
+                          value={form.amountPending}
+                          onChange={(e) => setForm(prev => ({ ...prev, amountPending: e.target.value }))}
+                          className="w-full pl-8 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200 hover:border-gray-400"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Payment Mode *</label>
+                    <select
+                      required
+                      value={form.paymentMode}
+                      onChange={(e) => setForm(prev => ({ ...prev, paymentMode: e.target.value as 'cash' | 'UPI' }))}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200 hover:border-gray-400"
+                    >
+                      <option value="cash">💵 Cash</option>
+                      <option value="UPI">📱 UPI</option>
+                    </select>
+                  </div>
                 </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">Buyer Name</label>
-                  <input
-                    type="text"
-                    value={form.buyerName}
-                    onChange={(e) => setForm(prev => ({ ...prev, buyerName: e.target.value }))}
-                    className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-green-500 focus:border-green-500"
-                  />
+
+                {/* Dates Section */}
+                <div className="space-y-4">
+                  <h4 className="text-lg font-medium text-gray-900 border-b border-gray-200 pb-2">Important Dates</h4>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">Cultivation Date *</label>
+                      <input
+                        type="date"
+                        required
+                        value={form.cultivationDate}
+                        onChange={(e) => setForm(prev => ({ ...prev, cultivationDate: e.target.value }))}
+                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200 hover:border-gray-400"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">Harvest Date</label>
+                      <input
+                        type="date"
+                        value={form.harvestDate}
+                        onChange={(e) => setForm(prev => ({ ...prev, harvestDate: e.target.value }))}
+                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200 hover:border-gray-400"
+                      />
+                    </div>
+                  </div>
                 </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">Amount Received</label>
-                  <input
-                    type="number"
-                    required
-                    value={form.amountReceived}
-                    onChange={(e) => setForm(prev => ({ ...prev, amountReceived: e.target.value }))}
-                    className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-green-500 focus:border-green-500"
-                  />
+
+                {/* Notes Section */}
+                <div className="space-y-4">
+                  <h4 className="text-lg font-medium text-gray-900 border-b border-gray-200 pb-2">Additional Notes</h4>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Notes</label>
+                    <textarea
+                      placeholder="Add any additional notes or comments..."
+                      value={form.notes}
+                      onChange={(e) => setForm(prev => ({ ...prev, notes: e.target.value }))}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200 hover:border-gray-400 resize-none"
+                      rows={3}
+                    />
+                  </div>
                 </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">Amount Pending</label>
-                  <input
-                    type="number"
-                    required
-                    value={form.amountPending}
-                    onChange={(e) => setForm(prev => ({ ...prev, amountPending: e.target.value }))}
-                    className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-green-500 focus:border-green-500"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">Payment Mode</label>
-                  <select
-                    required
-                    value={form.paymentMode}
-                    onChange={(e) => setForm(prev => ({ ...prev, paymentMode: e.target.value as 'cash' | 'UPI' }))}
-                    className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-green-500 focus:border-green-500"
-                  >
-                    <option value="cash">Cash</option>
-                    <option value="UPI">UPI</option>
-                  </select>
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">Cultivation Date</label>
-                  <input
-                    type="date"
-                    required
-                    value={form.cultivationDate}
-                    onChange={(e) => setForm(prev => ({ ...prev, cultivationDate: e.target.value }))}
-                    className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-green-500 focus:border-green-500"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">Harvest Date</label>
-                  <input
-                    type="date"
-                    value={form.harvestDate}
-                    onChange={(e) => setForm(prev => ({ ...prev, harvestDate: e.target.value }))}
-                    className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-green-500 focus:border-green-500"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">Notes</label>
-                  <textarea
-                    value={form.notes}
-                    onChange={(e) => setForm(prev => ({ ...prev, notes: e.target.value }))}
-                    className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-green-500 focus:border-green-500"
-                    rows={2}
-                  />
-                </div>
-                <div className="flex space-x-3">
+
+                {/* Action Buttons */}
+                <div className="flex space-x-4 pt-4 border-t border-gray-200">
                   <button
                     type="submit"
-                    className="flex-1 bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700"
+                    className="flex-1 bg-gradient-to-r from-green-500 to-green-600 text-white px-6 py-3 rounded-lg font-medium hover:from-green-600 hover:to-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition-all duration-200 transform hover:scale-105 shadow-lg"
                   >
-                    {editingCultivation ? 'Update' : 'Add'} Cultivation
+                    {editingCultivation ? '🔄 Update Cultivation' : '🌱 Add Cultivation'}
                   </button>
                   <button
                     type="button"
@@ -551,7 +709,7 @@ const Agriculture = () => {
                         notes: ''
                       })
                     }}
-                    className="flex-1 bg-gray-300 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-400"
+                    className="flex-1 bg-gray-100 text-gray-700 px-6 py-3 rounded-lg font-medium hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-all duration-200"
                   >
                     Cancel
                   </button>
