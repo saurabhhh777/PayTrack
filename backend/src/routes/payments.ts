@@ -1,33 +1,80 @@
 import express, { Request, Response } from 'express';
 import { body, validationResult } from 'express-validator';
 import Payment from '../models/Payment';
-import Worker from '../models/Worker';
+import Cultivation from '../models/Cultivation';
 import { auth } from '../middleware/auth';
 
 const router = express.Router();
 
-// @route   GET /api/payments
-// @desc    Get all payments
+// @route   POST /api/payments
+// @desc    Create a new payment for a cultivation
 // @access  Private
-router.get('/', auth, async (req, res) => {
+router.post('/', [
+  auth,
+  body('cultivationId').notEmpty().withMessage('Cultivation ID is required'),
+  body('amount').isNumeric().withMessage('Amount must be a number'),
+  body('paidTo').notEmpty().withMessage('Paid To is required'),
+  body('paymentMode').isIn(['cash', 'UPI', 'bank']).withMessage('Payment mode must be cash, UPI, or bank'),
+  body('date').optional().isISO8601().withMessage('Date must be a valid date')
+], async (req: Request, res: Response) => {
   try {
-    const { workerId, startDate, endDate, paymentMode } = req.query;
-    
-    let filter: any = {};
-    
-    if (workerId) filter.workerId = workerId;
-    if (startDate && endDate) {
-      filter.date = {
-        $gte: new Date(startDate as string),
-        $lte: new Date(endDate as string)
-      };
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
     }
-    if (paymentMode) filter.paymentMode = paymentMode;
-    
-    const payments = await Payment.find(filter)
-      .populate('workerId', 'name phone')
+
+    const {
+      cultivationId,
+      amount,
+      paidTo,
+      paymentMode,
+      date
+    } = req.body;
+
+    // Verify cultivation exists
+    const cultivation = await Cultivation.findById(cultivationId);
+    if (!cultivation) {
+      return res.status(404).json({ message: 'Cultivation not found' });
+    }
+
+    const payment = new Payment({
+      cultivationId,
+      amount,
+      paidTo,
+      paymentMode,
+      date: date || new Date()
+    });
+
+    await payment.save();
+
+    // Update cultivation's amountReceived and amountPending
+    const totalReceived = await Payment.aggregate([
+      { $match: { cultivationId: cultivationId } },
+      { $group: { _id: null, total: { $sum: '$amount' } } }
+    ]);
+
+    const newAmountReceived = totalReceived.length > 0 ? totalReceived[0].total : 0;
+    const newAmountPending = Math.max(0, cultivation.totalCost - newAmountReceived);
+
+    await Cultivation.findByIdAndUpdate(cultivationId, {
+      amountReceived: newAmountReceived,
+      amountPending: newAmountPending
+    });
+
+    res.status(201).json(payment);
+  } catch (error) {
+    console.error('Create payment error:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+// @route   GET /api/payments/cultivation/:cultivationId
+// @desc    Get all payments for a specific cultivation
+// @access  Private
+router.get('/cultivation/:cultivationId', auth, async (req: Request, res: Response) => {
+  try {
+    const payments = await Payment.find({ cultivationId: req.params.cultivationId })
       .sort({ date: -1 });
-    
     res.json(payments);
   } catch (error) {
     console.error('Get payments error:', error);
@@ -38,9 +85,9 @@ router.get('/', auth, async (req, res) => {
 // @route   GET /api/payments/:id
 // @desc    Get payment by ID
 // @access  Private
-router.get('/:id', auth, async (req, res) => {
+router.get('/:id', auth, async (req: Request, res: Response) => {
   try {
-    const payment = await Payment.findById(req.params.id).populate('workerId', 'name phone');
+    const payment = await Payment.findById(req.params.id);
     if (!payment) {
       return res.status(404).json({ message: 'Payment not found' });
     }
@@ -51,58 +98,15 @@ router.get('/:id', auth, async (req, res) => {
   }
 });
 
-// @route   POST /api/payments
-// @desc    Create a new payment
-// @access  Private
-router.post('/', [
-  auth,
-  body('workerId').notEmpty().withMessage('Worker ID is required'),
-  body('amount').isNumeric().withMessage('Amount must be a number'),
-  body('date').isISO8601().withMessage('Date must be a valid date'),
-  body('paymentMode').isIn(['cash', 'UPI']).withMessage('Payment mode must be cash or UPI')
-], async (req: Request, res: Response) => {
-  try {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array() });
-    }
-
-    const { workerId, amount, date, paymentMode, description } = req.body;
-
-    // Check if worker exists
-    const worker = await Worker.findById(workerId);
-    if (!worker) {
-      return res.status(404).json({ message: 'Worker not found' });
-    }
-
-    const payment = new Payment({
-      workerId,
-      amount,
-      date: date || new Date(),
-      paymentMode,
-      description
-    });
-
-    await payment.save();
-    
-    // Populate worker details before sending response
-    await payment.populate('workerId', 'name phone');
-    
-    res.status(201).json(payment);
-  } catch (error) {
-    console.error('Create payment error:', error);
-    res.status(500).json({ message: 'Server error' });
-  }
-});
-
 // @route   PUT /api/payments/:id
 // @desc    Update payment
 // @access  Private
 router.put('/:id', [
   auth,
   body('amount').isNumeric().withMessage('Amount must be a number'),
-  body('date').isISO8601().withMessage('Date must be a valid date'),
-  body('paymentMode').isIn(['cash', 'UPI']).withMessage('Payment mode must be cash or UPI')
+  body('paidTo').notEmpty().withMessage('Paid To is required'),
+  body('paymentMode').isIn(['cash', 'UPI', 'bank']).withMessage('Payment mode must be cash, UPI, or bank'),
+  body('date').optional().isISO8601().withMessage('Date must be a valid date')
 ], async (req: Request, res: Response) => {
   try {
     const errors = validationResult(req);
@@ -110,21 +114,43 @@ router.put('/:id', [
       return res.status(400).json({ errors: errors.array() });
     }
 
-    const { amount, date, paymentMode, description } = req.body;
+    const {
+      amount,
+      paidTo,
+      paymentMode,
+      date
+    } = req.body;
 
     const payment = await Payment.findByIdAndUpdate(
       req.params.id,
       {
         amount,
-        date,
+        paidTo,
         paymentMode,
-        description
+        date: date || new Date()
       },
       { new: true, runValidators: true }
-    ).populate('workerId', 'name phone');
+    );
 
     if (!payment) {
       return res.status(404).json({ message: 'Payment not found' });
+    }
+
+    // Update cultivation's amounts
+    const cultivation = await Cultivation.findById(payment.cultivationId);
+    if (cultivation) {
+      const totalReceived = await Payment.aggregate([
+        { $match: { cultivationId: payment.cultivationId } },
+        { $group: { _id: null, total: { $sum: '$amount' } } }
+      ]);
+
+      const newAmountReceived = totalReceived.length > 0 ? totalReceived[0].total : 0;
+      const newAmountPending = Math.max(0, cultivation.totalCost - newAmountReceived);
+
+      await Cultivation.findByIdAndUpdate(payment.cultivationId, {
+        amountReceived: newAmountReceived,
+        amountPending: newAmountPending
+      });
     }
 
     res.json(payment);
@@ -143,43 +169,27 @@ router.delete('/:id', auth, async (req: Request, res: Response) => {
     if (!payment) {
       return res.status(404).json({ message: 'Payment not found' });
     }
+
+    // Update cultivation's amounts
+    const cultivation = await Cultivation.findById(payment.cultivationId);
+    if (cultivation) {
+      const totalReceived = await Payment.aggregate([
+        { $match: { cultivationId: payment.cultivationId } },
+        { $group: { _id: null, total: { $sum: '$amount' } } }
+      ]);
+
+      const newAmountReceived = totalReceived.length > 0 ? totalReceived[0].total : 0;
+      const newAmountPending = Math.max(0, cultivation.totalCost - newAmountReceived);
+
+      await Cultivation.findByIdAndUpdate(payment.cultivationId, {
+        amountReceived: newAmountReceived,
+        amountPending: newAmountPending
+      });
+    }
+
     res.json({ message: 'Payment deleted successfully' });
   } catch (error) {
     console.error('Delete payment error:', error);
-    res.status(500).json({ message: 'Server error' });
-  }
-});
-
-// @route   GET /api/payments/summary/worker/:workerId
-// @desc    Get payment summary for a specific worker
-// @access  Private
-router.get('/summary/worker/:workerId', auth, async (req: Request, res: Response) => {
-  try {
-    const { workerId } = req.params;
-    const { startDate, endDate } = req.query;
-    
-    let dateFilter: any = {};
-    if (startDate && endDate) {
-      dateFilter.date = {
-        $gte: new Date(startDate as string),
-        $lte: new Date(endDate as string)
-      };
-    }
-    
-    const payments = await Payment.find({ workerId, ...dateFilter });
-    
-    const summary = {
-      totalPayments: payments.length,
-      totalAmount: payments.reduce((sum, payment) => sum + payment.amount, 0),
-      cashPayments: payments.filter(p => p.paymentMode === 'cash').length,
-      upiPayments: payments.filter(p => p.paymentMode === 'UPI').length,
-      cashAmount: payments.filter(p => p.paymentMode === 'cash').reduce((sum, p) => sum + p.amount, 0),
-      upiAmount: payments.filter(p => p.paymentMode === 'UPI').reduce((sum, p) => sum + p.amount, 0)
-    };
-    
-    res.json(summary);
-  } catch (error) {
-    console.error('Get payment summary error:', error);
     res.status(500).json({ message: 'Server error' });
   }
 });

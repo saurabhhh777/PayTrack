@@ -159,37 +159,12 @@ router.get('/workers', auth, async (req, res) => {
       };
     }
     
-    const payments = await Payment.find(dateFilter).populate('workerId', 'name');
-    
-    // Group by worker
-    const workerAnalytics = payments.reduce((acc: any, payment) => {
-      // Check if workerId is populated or just an ObjectId
-      const workerName = (payment.workerId as any).name || payment.workerId.toString();
-      
-      if (!acc[workerName]) {
-        acc[workerName] = {
-          totalPayments: 0,
-          totalAmount: 0,
-          cashPayments: 0,
-          upiPayments: 0,
-          cashAmount: 0,
-          upiAmount: 0
-        };
-      }
-      
-      acc[workerName].totalPayments++;
-      acc[workerName].totalAmount += payment.amount;
-      
-      if (payment.paymentMode === 'cash') {
-        acc[workerName].cashPayments++;
-        acc[workerName].cashAmount += payment.amount;
-      } else {
-        acc[workerName].upiPayments++;
-        acc[workerName].upiAmount += payment.amount;
-      }
-      
-      return acc;
-    }, {});
+    // Since we've changed the Payment model to track cultivation payments,
+    // we'll return a placeholder for now. This can be updated later to track
+    // worker-specific payments if needed.
+    const workerAnalytics = {
+      message: 'Worker payment analytics have been moved to cultivation payments. Use /api/analytics/agriculture for cultivation payment analytics.'
+    };
     
     res.json(workerAnalytics);
   } catch (error) {

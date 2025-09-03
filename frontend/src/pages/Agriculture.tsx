@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { Link } from 'react-router-dom'
 import { Plus, Edit, Trash2, TrendingUp, TrendingDown } from 'lucide-react'
 import { api } from '../lib/api'
 import { format } from 'date-fns'
@@ -483,7 +484,12 @@ const Agriculture = () => {
                 {filteredCultivations.map((cultivation) => (
                   <tr key={cultivation._id} className="hover:bg-gray-50 transition-colors duration-150">
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm font-medium text-gray-900">{cultivation.name}</div>
+                      <Link
+                        to={`/cultivations/${cultivation._id}`}
+                        className="text-sm font-medium text-blue-600 hover:text-blue-800 hover:underline cursor-pointer transition-colors duration-150"
+                      >
+                        {cultivation.name}
+                      </Link>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="flex items-center">

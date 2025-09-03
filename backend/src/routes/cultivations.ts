@@ -40,7 +40,19 @@ router.get('/:id', auth, async (req, res) => {
     if (!cultivation) {
       return res.status(404).json({ message: 'Cultivation not found' });
     }
-    res.json(cultivation);
+
+    // Fetch payments for this cultivation
+    const Payment = require('../models/Payment');
+    const payments = await Payment.find({ cultivationId: cultivation._id })
+      .sort({ date: -1 });
+
+    // Add payments to cultivation object
+    const cultivationWithPayments = {
+      ...cultivation.toObject(),
+      payments
+    };
+
+    res.json(cultivationWithPayments);
   } catch (error) {
     console.error('Get cultivation error:', error);
     res.status(500).json({ message: 'Server error' });
