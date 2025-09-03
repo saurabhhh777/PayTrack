@@ -19,10 +19,11 @@ import {
 
 interface Cultivation {
   _id: string
-  personId: {
+  personId?: {
     _id: string
     name: string
   }
+  name?: string // Legacy field for backward compatibility
   cropName: string
   area: number
   ratePerBigha: number
@@ -488,10 +489,10 @@ const Agriculture = () => {
                   <tr key={cultivation._id} className="hover:bg-gray-50 transition-colors duration-150">
                     <td className="px-6 py-4 whitespace-nowrap">
                       <Link
-                        to={`/person/${cultivation.personId._id || cultivation.personId}`}
+                        to={`/person/${cultivation.personId?._id || cultivation._id}`}
                         className="text-sm font-medium text-blue-600 hover:text-blue-800 hover:underline cursor-pointer transition-colors duration-150"
                       >
-                        {cultivation.personId?.name || cultivation.personId}
+                        {cultivation.personId?.name || cultivation.name || 'Unknown Person'}
                       </Link>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
