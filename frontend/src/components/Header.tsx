@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useAuthStore } from '../stores/authStore'
 import { User, LogOut, ChevronDown } from 'lucide-react'
+import { useNavigate } from 'react-router-dom'
 
 interface HeaderProps {
   user: any
@@ -9,9 +10,15 @@ interface HeaderProps {
 const Header = ({ user }: HeaderProps) => {
   const [userMenuOpen, setUserMenuOpen] = useState(false)
   const { logout } = useAuthStore()
+  const navigate = useNavigate()
 
   const handleLogout = () => {
     logout()
+    setUserMenuOpen(false)
+  }
+
+  const handleProfile = () => {
+    navigate('/profile')
     setUserMenuOpen(false)
   }
 
@@ -35,10 +42,13 @@ const Header = ({ user }: HeaderProps) => {
 
             {userMenuOpen && (
               <div className="absolute right-0 z-10 mt-2 w-48 origin-top-right rounded-md bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
-                <div className="px-4 py-2 text-sm text-gray-700 border-b border-gray-100">
-                  <div className="font-medium">{user?.username}</div>
-                  <div className="text-gray-500">{user?.email}</div>
-                </div>
+                <button
+                  onClick={handleProfile}
+                  className="flex w-full items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                >
+                  <User className="mr-2 h-4 w-4" />
+                  Profile
+                </button>
                 <button
                   onClick={handleLogout}
                   className="flex w-full items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"

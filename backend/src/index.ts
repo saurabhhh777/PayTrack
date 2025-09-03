@@ -4,10 +4,13 @@ import helmet from 'helmet';
 import morgan from 'morgan';
 import dotenv from 'dotenv';
 import { connectDB } from './config/database';
+import VeeraBookBot from './bot/telegramBot';
 import authRoutes from './routes/auth';
+import telegramRoutes from './routes/telegram';
 import workerRoutes from './routes/workers';
 import paymentRoutes from './routes/payments';
 import attendanceRoutes from './routes/attendance';
+import meelRoutes from './routes/meel';
 import cultivationRoutes from './routes/cultivations';
 import propertyRoutes from './routes/properties';
 import analyticsRoutes from './routes/analytics';
@@ -26,9 +29,11 @@ app.use(express.urlencoded({ extended: true }));
 
 // Routes
 app.use('/api/auth', authRoutes);
+app.use('/api/telegram', telegramRoutes);
 app.use('/api/workers', workerRoutes);
 app.use('/api/payments', paymentRoutes);
 app.use('/api/attendance', attendanceRoutes);
+app.use('/api/meel', meelRoutes);
 app.use('/api/cultivations', cultivationRoutes);
 app.use('/api/properties', propertyRoutes);
 app.use('/api/analytics', analyticsRoutes);
@@ -53,9 +58,21 @@ app.use('*', (req, res) => {
 const startServer = async () => {
   try {
     await connectDB();
+    
+    // Start Express server
     app.listen(PORT, () => {
       console.log(`🚀 VeeraBook Backend running on port ${PORT}`);
     });
+
+    // Start Telegram Bot
+    const botToken = process.env.TELEGRAM_BOT_TOKEN;
+    if (botToken) {
+      const bot = new VeeraBookBot(botToken);
+      await bot.start();
+      console.log('🤖 Telegram Bot started successfully!');
+    } else {
+      console.log('⚠️  TELEGRAM_BOT_TOKEN not found. Bot will not start.');
+    }
   } catch (error) {
     console.error('Failed to start server:', error);
     process.exit(1);

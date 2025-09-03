@@ -1,6 +1,7 @@
 import mongoose, { Document, Schema } from 'mongoose';
 
 export interface ICultivation extends Document {
+  name: string;
   cropName: string;
   area: number; // in Bigha
   ratePerBigha: number;
@@ -17,6 +18,11 @@ export interface ICultivation extends Document {
 }
 
 const cultivationSchema = new Schema<ICultivation>({
+  name: {
+    type: String,
+    required: true,
+    trim: true
+  },
   cropName: {
     type: String,
     required: true,

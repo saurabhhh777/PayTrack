@@ -8,7 +8,9 @@ import {
   BarChart3, 
   Menu, 
   X,
-  Calendar
+  Calendar,
+  User,
+  Factory
 } from 'lucide-react'
 
 const navigation = [
@@ -17,6 +19,8 @@ const navigation = [
   { name: 'Attendance', href: '/attendance', icon: Calendar },
   { name: 'Agriculture', href: '/agriculture', icon: Sprout },
   { name: 'Real Estate', href: '/real-estate', icon: Building2 },
+  { name: 'Meel', href: '/meel', icon: Factory },
+  { name: 'Profile', href: '/profile', icon: User },
 ]
 
 const Sidebar = () => {

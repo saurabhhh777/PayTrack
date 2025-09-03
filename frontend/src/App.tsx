@@ -7,6 +7,8 @@ import Workers from './pages/Workers'
 import Attendance from './pages/Attendance'
 import Agriculture from './pages/Agriculture'
 import RealEstate from './pages/RealEstate'
+import Meel from './pages/Meel'
+import Profile from './pages/Profile'
 import ProtectedRoute from './components/ProtectedRoute'
 
 function App() {
@@ -25,6 +27,8 @@ function App() {
         <Route path="attendance" element={<Attendance />} />
         <Route path="agriculture" element={<Agriculture />} />
         <Route path="real-estate" element={<RealEstate />} />
+        <Route path="meel" element={<Meel />} />
+        <Route path="profile" element={<Profile />} />
       </Route>
     </Routes>
   )

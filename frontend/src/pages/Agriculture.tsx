@@ -18,6 +18,7 @@ import {
 
 interface Cultivation {
   _id: string
+  name: string
   cropName: string
   area: number
   ratePerBigha: number
@@ -40,7 +41,8 @@ const Agriculture = () => {
   const [editingCultivation, setEditingCultivation] = useState<Cultivation | null>(null)
   const [cropAnalytics, setCropAnalytics] = useState<any>(null)
 
-  const [form, setForm] = useState({
+  const initialFormState = {
+    name: '',
     cropName: '',
     area: '',
     ratePerBigha: '',
@@ -52,12 +54,29 @@ const Agriculture = () => {
     cultivationDate: format(new Date(), 'yyyy-MM-dd'),
     harvestDate: '',
     notes: ''
-  })
+  }
+
+  const [form, setForm] = useState(initialFormState)
+
+  const resetForm = () => {
+    setForm(initialFormState)
+  }
 
   useEffect(() => {
     fetchCultivations()
     fetchCropAnalytics()
   }, [])
+
+  // Auto-calculate total cost when area or rate changes
+  useEffect(() => {
+    if (form.area && form.ratePerBigha) {
+      const area = parseFloat(form.area)
+      const rate = parseFloat(form.ratePerBigha)
+      if (!isNaN(area) && !isNaN(rate)) {
+        setForm(prev => ({ ...prev, totalCost: (area * rate).toString() }))
+      }
+    }
+  }, [form.area, form.ratePerBigha])
 
   const fetchCultivations = async () => {
     try {
@@ -124,6 +143,7 @@ const Agriculture = () => {
   const editCultivation = (cultivation: Cultivation) => {
     setEditingCultivation(cultivation)
     setForm({
+      name: cultivation.name,
       cropName: cultivation.cropName,
       area: cultivation.area.toString(),
       ratePerBigha: cultivation.ratePerBigha.toString(),
@@ -375,6 +395,7 @@ const Agriculture = () => {
             <table className="min-w-full divide-y divide-gray-200">
               <thead className="bg-gray-50">
                 <tr>
+                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Name</th>
                   <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Crop</th>
                   <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Area</th>
                   <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Investment</th>
@@ -387,6 +408,9 @@ const Agriculture = () => {
               <tbody className="bg-white divide-y divide-gray-100">
                 {cultivations.map((cultivation) => (
                   <tr key={cultivation._id} className="hover:bg-gray-50 transition-colors duration-150">
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="text-sm font-medium text-gray-900">{cultivation.name}</div>
+                    </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="flex items-center">
                         <div className="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center mr-3">
@@ -512,6 +536,20 @@ const Agriculture = () => {
                 {/* Basic Information Section */}
                 <div className="space-y-4">
                   <h4 className="text-lg font-medium text-gray-900 border-b border-gray-200 pb-2">Basic Information</h4>
+                  
+                  {/* Name Field */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Name *</label>
+                    <input
+                      type="text"
+                      required
+                      placeholder="Enter the name of the person whose cultivation this is"
+                      value={form.name}
+                      onChange={(e) => setForm(prev => ({ ...prev, name: e.target.value }))}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200 hover:border-gray-400"
+                    />
+                  </div>
+                  
                   <div className="grid grid-cols-2 gap-4">
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">Crop Name *</label>
@@ -560,7 +598,10 @@ const Agriculture = () => {
                       </div>
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">Total Cost *</label>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Total Cost * 
+                        <span className="text-xs text-gray-500 ml-2">(Auto-calculated)</span>
+                      </label>
                       <div className="relative">
                         <span className="absolute left-3 top-3 text-gray-500">₹</span>
                         <input
@@ -570,9 +611,13 @@ const Agriculture = () => {
                           placeholder="0"
                           value={form.totalCost}
                           onChange={(e) => setForm(prev => ({ ...prev, totalCost: e.target.value }))}
-                          className="w-full pl-8 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200 hover:border-gray-400"
+                          className="w-full pl-8 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200 hover:border-gray-400 bg-gray-50"
+                          title="This field is automatically calculated from Area × Rate. You can edit it manually if needed."
                         />
                       </div>
+                      <p className="text-xs text-gray-500 mt-1">
+                        Calculated as: {form.area && form.ratePerBigha ? `${form.area} × ₹${form.ratePerBigha} = ₹${form.totalCost || '0'}` : 'Enter Area and Rate to calculate'}
+                      </p>
                     </div>
                   </div>
                 </div>

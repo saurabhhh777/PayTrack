@@ -60,9 +60,9 @@ router.get('/dashboard', auth, async (req, res) => {
         totalAmount: totalExpenses,
         pendingAmount: 0, // Workers don't have pending amounts
         totalWorkers: attendance.length > 0 ? new Set(attendance.map(a => a.workerId.toString())).size : 0,
-        totalWorkingDays: attendance.filter(a => a.status === 'present').length,
-        totalAbsentDays: attendance.filter(a => a.status === 'absent').length,
-        totalLeaveDays: attendance.filter(a => a.status === 'leave').length
+        totalWorkingDays: attendance.filter(a => a.status === 'Present').length,
+        totalAbsentDays: attendance.filter(a => a.status === 'Absent').length,
+        totalLeaveDays: attendance.filter(a => a.status === 'HalfDay').length
       },
       agriculture: {
         totalCultivations: cultivations.length,
@@ -111,8 +111,8 @@ router.get('/dashboard', auth, async (req, res) => {
           expenses: dayPayments.reduce((sum, p) => sum + p.amount, 0),
           income: dayCultivations.reduce((sum, c) => sum + c.amountReceived, 0) + 
                  dayProperties.filter(p => p.propertyType === 'sell').reduce((sum, p) => sum + p.amountPaid, 0),
-          presentWorkers: dayAttendance.filter(a => a.status === 'present').length,
-          absentWorkers: dayAttendance.filter(a => a.status === 'absent').length
+          presentWorkers: dayAttendance.filter(a => a.status === 'Present').length,
+          absentWorkers: dayAttendance.filter(a => a.status === 'Absent').length
         });
       }
     }

@@ -6,6 +6,7 @@ export interface IUser extends Document {
   email: string;
   password: string;
   role: 'admin' | 'user';
+  telegramUsername?: string;
   createdAt: Date;
   updatedAt: Date;
   comparePassword(candidatePassword: string): Promise<boolean>;
@@ -36,6 +37,12 @@ const userSchema = new Schema<IUser>({
     type: String,
     enum: ['admin', 'user'],
     default: 'user'
+  },
+  telegramUsername: {
+    type: String,
+    trim: true,
+    unique: true,
+    sparse: true
   }
 }, {
   timestamps: true
