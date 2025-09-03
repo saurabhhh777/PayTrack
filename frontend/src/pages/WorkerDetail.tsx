@@ -92,7 +92,7 @@ const WorkerDetail = () => {
         amount: parseFloat(paymentForm.amount)
       }
       
-      await api.post('/payments', paymentData)
+      await api.post('/worker-payments', paymentData)
       
       // Reset form and refresh worker data
       setPaymentForm({

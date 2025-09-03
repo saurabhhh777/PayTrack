@@ -30,14 +30,14 @@ router.get('/:id', auth, async (req: Request, res: Response) => {
 
     // Import models for attendance and payments
     const Attendance = require('../models/Attendance');
-    const Payment = require('../models/Payment');
+    const WorkerPayment = require('../models/WorkerPayment');
 
     // Fetch attendance records for this worker
     const attendance = await Attendance.find({ workerId: worker._id })
       .sort({ date: -1 });
 
     // Fetch payment records for this worker
-    const payments = await Payment.find({ workerId: worker._id })
+    const payments = await WorkerPayment.find({ workerId: worker._id })
       .sort({ date: -1 });
 
     // Calculate attendance summary
