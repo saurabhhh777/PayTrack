@@ -395,143 +395,250 @@ const RealEstate = () => {
 
       {/* Property Form Modal */}
       {showForm && (
-        <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
-          <div className="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
-            <div className="mt-3">
-              <h3 className="text-lg font-medium text-gray-900 mb-4">
-                {editingProperty ? 'Edit Property' : 'Add New Property'}
-              </h3>
-              <form onSubmit={handleSubmit} className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">Property Type</label>
-                  <select
-                    required
-                    value={form.propertyType}
-                    onChange={(e) => setForm(prev => ({ ...prev, propertyType: e.target.value as 'buy' | 'sell' }))}
-                    className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-purple-500 focus:border-purple-500"
-                  >
-                    <option value="buy">Buy</option>
-                    <option value="sell">Sell</option>
-                  </select>
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">Area</label>
-                  <div className="flex space-x-2">
-                    <input
-                      type="number"
-                      step="0.01"
-                      required
-                      value={form.area}
-                      onChange={(e) => setForm(prev => ({ ...prev, area: e.target.value }))}
-                      className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-purple-500 focus:border-purple-500"
-                    />
+        <div className="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm overflow-y-auto h-full w-full z-50">
+          <div className="relative top-10 mx-auto p-0 border-0 w-[700px] shadow-2xl rounded-2xl bg-white overflow-hidden">
+            {/* Header */}
+            <div className="bg-gradient-to-r from-purple-500 to-purple-600 px-6 py-4">
+              <div className="flex items-center justify-between">
+                <h3 className="text-xl font-semibold text-white">
+                  {editingProperty ? 'Edit Property' : 'Add New Property'}
+                </h3>
+                <button
+                  onClick={() => {
+                    setShowForm(false)
+                    setEditingProperty(null)
+                    setForm({
+                      propertyType: 'buy',
+                      area: '',
+                      areaUnit: 'Bigha',
+                      partnerName: '',
+                      sellerName: '',
+                      buyerName: '',
+                      ratePerUnit: '',
+                      totalCost: '',
+                      amountPaid: '',
+                      amountPending: '',
+                      transactionDate: format(new Date(), 'yyyy-MM-dd'),
+                      notes: ''
+                    })
+                  }}
+                  className="text-white hover:text-purple-100 transition-colors"
+                >
+                  <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+            </div>
+
+            {/* Form Content */}
+            <div className="p-6">
+              <form onSubmit={handleSubmit} className="space-y-6">
+                {/* Property Type Section */}
+                <div className="space-y-4">
+                  <h4 className="text-lg font-medium text-gray-900 border-b border-gray-200 pb-2">🏢 Property Type</h4>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Transaction Type *</label>
                     <select
-                      value={form.areaUnit}
-                      onChange={(e) => setForm(prev => ({ ...prev, areaUnit: e.target.value as 'Bigha' | 'Gaj' }))}
-                      className="mt-1 block w-32 border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-purple-500 focus:border-purple-500"
+                      required
+                      value={form.propertyType}
+                      onChange={(e) => setForm(prev => ({ ...prev, propertyType: e.target.value as 'buy' | 'sell' }))}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200 hover:border-gray-400"
                     >
-                      <option value="Bigha">Bigha</option>
-                      <option value="Gaj">Gaj</option>
+                      <option value="buy">🟢 Buy Property</option>
+                      <option value="sell">🔴 Sell Property</option>
                     </select>
                   </div>
                 </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">Partner Name</label>
-                  <input
-                    type="text"
-                    required
-                    value={form.partnerName}
-                    onChange={(e) => setForm(prev => ({ ...prev, partnerName: e.target.value }))}
-                    className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-purple-500 focus:border-purple-500"
-                  />
+
+                {/* Property Details Section */}
+                <div className="space-y-4">
+                  <h4 className="text-lg font-medium text-gray-900 border-b border-gray-200 pb-2">📐 Property Details</h4>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">Area *</label>
+                      <input
+                        type="number"
+                        step="0.01"
+                        min="0"
+                        required
+                        placeholder="0.00"
+                        value={form.area}
+                        onChange={(e) => setForm(prev => ({ ...prev, area: e.target.value }))}
+                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200 hover:border-gray-400"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">Area Unit *</label>
+                      <select
+                        value={form.areaUnit}
+                        onChange={(e) => setForm(prev => ({ ...prev, areaUnit: e.target.value as 'Bigha' | 'Gaj' }))}
+                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200 hover:border-gray-400"
+                      >
+                        <option value="Bigha">🏞️ Bigha</option>
+                        <option value="Gaj">📏 Gaj</option>
+                      </select>
+                    </div>
+                  </div>
                 </div>
-                {form.propertyType === 'buy' && (
+
+                {/* Partner Information Section */}
+                <div className="space-y-4">
+                  <h4 className="text-lg font-medium text-gray-900 border-b border-gray-200 pb-2">🤝 Partner Information</h4>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700">Seller Name</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Partner Name *</label>
                     <input
                       type="text"
-                      value={form.sellerName}
-                      onChange={(e) => setForm(prev => ({ ...prev, sellerName: e.target.value }))}
-                      className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-purple-500 focus:border-purple-500"
+                      required
+                      placeholder="Enter partner name"
+                      value={form.partnerName}
+                      onChange={(e) => setForm(prev => ({ ...prev, partnerName: e.target.value }))}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200 hover:border-gray-400"
                     />
                   </div>
-                )}
-                {form.propertyType === 'sell' && (
+                </div>
+
+                {/* Transaction Party Section */}
+                <div className="space-y-4">
+                  <h4 className="text-lg font-medium text-gray-900 border-b border-gray-200 pb-2">
+                    {form.propertyType === 'buy' ? '👤 Seller Information' : '👤 Buyer Information'}
+                  </h4>
+                  {form.propertyType === 'buy' && (
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">Seller Name</label>
+                      <input
+                        type="text"
+                        placeholder="Enter seller name"
+                        value={form.sellerName}
+                        onChange={(e) => setForm(prev => ({ ...prev, sellerName: e.target.value }))}
+                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200 hover:border-gray-400"
+                      />
+                    </div>
+                  )}
+                  {form.propertyType === 'sell' && (
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">Buyer Name</label>
+                      <input
+                        type="text"
+                        placeholder="Enter buyer name"
+                        value={form.buyerName}
+                        onChange={(e) => setForm(prev => ({ ...prev, buyerName: e.target.value }))}
+                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200 hover:border-gray-400"
+                      />
+                    </div>
+                  )}
+                </div>
+
+                {/* Financial Details Section */}
+                <div className="space-y-4">
+                  <h4 className="text-lg font-medium text-gray-900 border-b border-gray-200 pb-2">💰 Financial Details</h4>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">Rate per {form.areaUnit} *</label>
+                      <div className="relative">
+                        <span className="absolute left-3 top-3 text-gray-500">₹</span>
+                        <input
+                          type="number"
+                          required
+                          min="0"
+                          step="0.01"
+                          placeholder="0.00"
+                          value={form.ratePerUnit}
+                          onChange={(e) => setForm(prev => ({ ...prev, ratePerUnit: e.target.value }))}
+                          className="w-full pl-8 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200 hover:border-gray-400"
+                        />
+                      </div>
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">Total Cost *</label>
+                      <div className="relative">
+                        <span className="absolute left-3 top-3 text-gray-500">₹</span>
+                        <input
+                          type="number"
+                          required
+                          min="0"
+                          step="0.01"
+                          placeholder="0.00"
+                          value={form.totalCost}
+                          onChange={(e) => setForm(prev => ({ ...prev, totalCost: e.target.value }))}
+                          className="w-full pl-8 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200 hover:border-gray-400"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">Amount Paid *</label>
+                      <div className="relative">
+                        <span className="absolute left-3 top-3 text-gray-500">₹</span>
+                        <input
+                          type="number"
+                          required
+                          min="0"
+                          step="0.01"
+                          placeholder="0.00"
+                          value={form.amountPaid}
+                          onChange={(e) => setForm(prev => ({ ...prev, amountPaid: e.target.value }))}
+                          className="w-full pl-8 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200 hover:border-gray-400"
+                        />
+                      </div>
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">Amount Pending *</label>
+                      <div className="relative">
+                        <span className="absolute left-3 top-3 text-gray-500">₹</span>
+                        <input
+                          type="number"
+                          required
+                          min="0"
+                          step="0.01"
+                          placeholder="0.00"
+                          value={form.amountPending}
+                          onChange={(e) => setForm(prev => ({ ...prev, amountPending: e.target.value }))}
+                          className="w-full pl-8 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200 hover:border-gray-400"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Transaction Date Section */}
+                <div className="space-y-4">
+                  <h4 className="text-lg font-medium text-gray-900 border-b border-gray-200 pb-2">📅 Transaction Details</h4>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700">Buyer Name</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Transaction Date *</label>
                     <input
-                      type="text"
-                      value={form.buyerName}
-                      onChange={(e) => setForm(prev => ({ ...prev, buyerName: e.target.value }))}
-                      className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-purple-500 focus:border-purple-500"
+                      type="date"
+                      required
+                      value={form.transactionDate}
+                      onChange={(e) => setForm(prev => ({ ...prev, transactionDate: e.target.value }))}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200 hover:border-gray-400"
                     />
                   </div>
-                )}
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">Rate per Unit</label>
-                  <input
-                    type="number"
-                    required
-                    value={form.ratePerUnit}
-                    onChange={(e) => setForm(prev => ({ ...prev, ratePerUnit: e.target.value }))}
-                    className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-purple-500 focus:border-purple-500"
-                  />
                 </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">Total Cost</label>
-                  <input
-                    type="number"
-                    required
-                    value={form.totalCost}
-                    onChange={(e) => setForm(prev => ({ ...prev, totalCost: e.target.value }))}
-                    className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-purple-500 focus:border-purple-500"
-                  />
+
+                {/* Notes Section */}
+                <div className="space-y-4">
+                  <h4 className="text-lg font-medium text-gray-900 border-b border-gray-200 pb-2">📝 Additional Notes</h4>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Notes</label>
+                    <textarea
+                      placeholder="Add any additional notes or comments..."
+                      value={form.notes}
+                      onChange={(e) => setForm(prev => ({ ...prev, notes: e.target.value }))}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200 hover:border-gray-400 resize-none"
+                      rows={3}
+                    />
+                  </div>
                 </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">Amount Paid</label>
-                  <input
-                    type="number"
-                    required
-                    value={form.amountPaid}
-                    onChange={(e) => setForm(prev => ({ ...prev, amountPaid: e.target.value }))}
-                    className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-purple-500 focus:border-purple-500"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">Amount Pending</label>
-                  <input
-                    type="number"
-                    required
-                    value={form.amountPending}
-                    onChange={(e) => setForm(prev => ({ ...prev, amountPending: e.target.value }))}
-                    className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-purple-500 focus:border-purple-500"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">Transaction Date</label>
-                  <input
-                    type="date"
-                    required
-                    value={form.transactionDate}
-                    onChange={(e) => setForm(prev => ({ ...prev, transactionDate: e.target.value }))}
-                    className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-purple-500 focus:border-purple-500"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">Notes</label>
-                  <textarea
-                    value={form.notes}
-                    onChange={(e) => setForm(prev => ({ ...prev, notes: e.target.value }))}
-                    className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-purple-500 focus:border-purple-500"
-                    rows={2}
-                  />
-                </div>
-                <div className="flex space-x-3">
+
+                {/* Action Buttons */}
+                <div className="flex space-x-4 pt-4 border-t border-gray-200">
                   <button
                     type="submit"
-                    className="flex-1 bg-purple-600 text-white px-4 py-2 rounded-md hover:bg-purple-700"
+                    className="flex-1 bg-gradient-to-r from-purple-500 to-purple-600 text-white px-6 py-3 rounded-lg font-medium hover:from-purple-600 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 transition-all duration-200 transform hover:scale-105 shadow-lg"
                   >
-                    {editingProperty ? 'Update' : 'Add'} Property
+                    {editingProperty ? '🔄 Update Property' : '🏢 Add Property'}
                   </button>
                   <button
                     type="button"
@@ -553,7 +660,7 @@ const RealEstate = () => {
                         notes: ''
                       })
                     }}
-                    className="flex-1 bg-gray-300 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-400"
+                    className="flex-1 bg-gray-100 text-gray-700 px-6 py-3 rounded-lg font-medium hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-all duration-200"
                   >
                     Cancel
                   </button>

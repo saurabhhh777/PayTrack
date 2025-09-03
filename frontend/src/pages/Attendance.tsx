@@ -407,96 +407,140 @@ const Attendance = () => {
 
       {/* Attendance Form Modal */}
       {showAttendanceForm && (
-        <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
-          <div className="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
-            <div className="mt-3">
-              <h3 className="text-lg font-medium text-gray-900 mb-4">
-                {editingAttendance ? 'Edit Attendance' : 'Add New Attendance'}
-              </h3>
-              <form onSubmit={handleAttendanceSubmit} className="space-y-4">
+        <div className="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm overflow-y-auto h-full w-full z-50">
+          <div className="relative top-10 mx-auto p-0 border-0 w-[500px] shadow-2xl rounded-2xl bg-white overflow-hidden">
+            {/* Header */}
+            <div className="bg-gradient-to-r from-purple-500 to-purple-600 px-6 py-4">
+              <div className="flex items-center justify-between">
+                <h3 className="text-xl font-semibold text-white">
+                  {editingAttendance ? 'Edit Attendance' : 'Add New Attendance'}
+                </h3>
+                <button
+                  onClick={() => {
+                    setShowAttendanceForm(false)
+                    setEditingAttendance(null)
+                    setAttendanceForm({
+                      workerId: '',
+                      date: format(new Date(), 'yyyy-MM-dd'),
+                      status: 'present',
+                      checkInTime: '',
+                      checkOutTime: '',
+                      workingHours: '',
+                      notes: ''
+                    })
+                  }}
+                  className="text-white hover:text-purple-100 transition-colors"
+                >
+                  <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+            </div>
+
+            {/* Form Content */}
+            <div className="p-6">
+              <form onSubmit={handleAttendanceSubmit} className="space-y-6">
+                {/* Worker Selection */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-700">Worker</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">👷 Select Worker *</label>
                   <select
                     required
                     value={attendanceForm.workerId}
                     onChange={(e) => setAttendanceForm(prev => ({ ...prev, workerId: e.target.value }))}
-                    className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200 hover:border-gray-400"
                   >
-                    <option value="">Select Worker</option>
+                    <option value="">Choose a worker</option>
                     {workers.map(worker => (
-                      <option key={worker._id} value={worker._id}>{worker.name}</option>
+                      <option key={worker._id} value={worker._id}>{worker.name} - {worker.phone}</option>
                     ))}
                   </select>
                 </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">Date</label>
-                  <input
-                    type="date"
-                    required
-                    value={attendanceForm.date}
-                    onChange={(e) => setAttendanceForm(prev => ({ ...prev, date: e.target.value }))}
-                    className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                  />
+
+                {/* Date and Status */}
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">📅 Date *</label>
+                    <input
+                      type="date"
+                      required
+                      value={attendanceForm.date}
+                      onChange={(e) => setAttendanceForm(prev => ({ ...prev, date: e.target.value }))}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200 hover:border-gray-400"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">📊 Status *</label>
+                    <select
+                      required
+                      value={attendanceForm.status}
+                      onChange={(e) => setAttendanceForm(prev => ({ ...prev, status: e.target.value as 'present' | 'absent' | 'half-day' | 'leave' }))}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200 hover:border-gray-400"
+                    >
+                      <option value="present">✅ Present</option>
+                      <option value="absent">❌ Absent</option>
+                      <option value="half-day">⚠️ Half Day</option>
+                      <option value="leave">🏖️ Leave</option>
+                    </select>
+                  </div>
                 </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">Status</label>
-                  <select
-                    required
-                    value={attendanceForm.status}
-                    onChange={(e) => setAttendanceForm(prev => ({ ...prev, status: e.target.value as 'present' | 'absent' | 'half-day' | 'leave' }))}
-                    className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                  >
-                    <option value="present">Present</option>
-                    <option value="absent">Absent</option>
-                    <option value="half-day">Half Day</option>
-                    <option value="leave">Leave</option>
-                  </select>
+
+                {/* Time Details */}
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">🕐 Check In Time</label>
+                    <input
+                      type="time"
+                      value={attendanceForm.checkInTime}
+                      onChange={(e) => setAttendanceForm(prev => ({ ...prev, checkInTime: e.target.value }))}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200 hover:border-gray-400"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">🕕 Check Out Time</label>
+                    <input
+                      type="time"
+                      value={attendanceForm.checkOutTime}
+                      onChange={(e) => setAttendanceForm(prev => ({ ...prev, checkOutTime: e.target.value }))}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200 hover:border-gray-400"
+                    />
+                  </div>
                 </div>
+
+                {/* Working Hours */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-700">Check In Time</label>
-                  <input
-                    type="time"
-                    value={attendanceForm.checkInTime}
-                    onChange={(e) => setAttendanceForm(prev => ({ ...prev, checkInTime: e.target.value }))}
-                    className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">Check Out Time</label>
-                  <input
-                    type="time"
-                    value={attendanceForm.checkOutTime}
-                    onChange={(e) => setAttendanceForm(prev => ({ ...prev, checkOutTime: e.target.value }))}
-                    className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">Working Hours</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">⏰ Working Hours</label>
                   <input
                     type="number"
                     step="0.5"
                     min="0"
                     max="24"
+                    placeholder="0.0"
                     value={attendanceForm.workingHours}
                     onChange={(e) => setAttendanceForm(prev => ({ ...prev, workingHours: e.target.value }))}
-                    className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200 hover:border-gray-400"
                   />
                 </div>
+
+                {/* Notes */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-700">Notes</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">📝 Notes</label>
                   <textarea
+                    placeholder="Add any additional notes or comments..."
                     value={attendanceForm.notes}
                     onChange={(e) => setAttendanceForm(prev => ({ ...prev, notes: e.target.value }))}
-                    className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                    rows={2}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200 hover:border-gray-400 resize-none"
+                    rows={3}
                   />
                 </div>
-                <div className="flex space-x-3">
+
+                {/* Action Buttons */}
+                <div className="flex space-x-4 pt-4 border-t border-gray-200">
                   <button
                     type="submit"
-                    className="flex-1 bg-purple-600 text-white px-4 py-2 rounded-md hover:bg-purple-700"
+                    className="flex-1 bg-gradient-to-r from-purple-500 to-purple-600 text-white px-6 py-3 rounded-lg font-medium hover:from-purple-600 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 transition-all duration-200 transform hover:scale-105 shadow-lg"
                   >
-                    {editingAttendance ? 'Update' : 'Add'} Attendance
+                    {editingAttendance ? '🔄 Update Attendance' : '📝 Add Attendance'}
                   </button>
                   <button
                     type="button"
@@ -513,7 +557,7 @@ const Attendance = () => {
                         notes: ''
                       })
                     }}
-                    className="flex-1 bg-gray-300 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-400"
+                    className="flex-1 bg-gray-100 text-gray-700 px-6 py-3 rounded-lg font-medium hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-all duration-200"
                   >
                     Cancel
                   </button>
@@ -526,34 +570,59 @@ const Attendance = () => {
 
       {/* Bulk Attendance Form Modal */}
       {showBulkAttendanceForm && (
-        <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
-          <div className="relative top-20 mx-auto p-5 border w-[600px] shadow-lg rounded-md bg-white">
-            <div className="mt-3">
-              <h3 className="text-lg font-medium text-gray-900 mb-4">Bulk Attendance Entry</h3>
-              <form onSubmit={handleBulkAttendanceSubmit} className="space-y-4">
+        <div className="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm overflow-y-auto h-full w-full z-50">
+          <div className="relative top-10 mx-auto p-0 border-0 w-[700px] shadow-2xl rounded-2xl bg-white overflow-hidden">
+            {/* Header */}
+            <div className="bg-gradient-to-r from-indigo-500 to-indigo-600 px-6 py-4">
+              <div className="flex items-center justify-between">
+                <h3 className="text-xl font-semibold text-white">
+                  📊 Bulk Attendance Entry
+                </h3>
+                <button
+                  onClick={() => {
+                    setShowBulkAttendanceForm(false)
+                    setBulkAttendanceForm({
+                      date: format(new Date(), 'yyyy-MM-dd'),
+                      attendanceData: []
+                    })
+                  }}
+                  className="text-white hover:text-indigo-100 transition-colors"
+                >
+                  <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+            </div>
+
+            {/* Form Content */}
+            <div className="p-6">
+              <form onSubmit={handleBulkAttendanceSubmit} className="space-y-6">
+                {/* Date Selection */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-700">Date</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">📅 Select Date *</label>
                   <input
                     type="date"
                     required
                     value={bulkAttendanceForm.date}
                     onChange={(e) => setBulkAttendanceForm(prev => ({ ...prev, date: e.target.value }))}
-                    className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-200 hover:border-gray-400"
                   />
                 </div>
                 
+                {/* Worker Attendance List */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Worker Attendance</label>
-                  <div className="max-h-96 overflow-y-auto border border-gray-300 rounded-md p-4">
+                  <label className="block text-sm font-medium text-gray-700 mb-3">👥 Worker Attendance Status</label>
+                  <div className="max-h-96 overflow-y-auto border border-gray-300 rounded-lg p-4 bg-gray-50">
                     {workers.map((worker) => {
                       const existingRecord = bulkAttendanceForm.attendanceData.find(
                         record => record.workerId === worker._id
                       )
                       return (
-                        <div key={worker._id} className="flex items-center space-x-4 py-2 border-b border-gray-200 last:border-b-0">
+                        <div key={worker._id} className="flex items-center justify-between py-3 px-4 border-b border-gray-200 last:border-b-0 bg-white rounded-lg mb-2 hover:bg-gray-50 transition-colors duration-150">
                           <div className="flex-1">
-                            <div className="font-medium text-sm">{worker.name}</div>
-                            <div className="text-xs text-gray-500">{worker.phone}</div>
+                            <div className="font-medium text-gray-900">{worker.name}</div>
+                            <div className="text-sm text-gray-500">{worker.phone}</div>
                           </div>
                           <select
                             value={existingRecord?.status || 'present'}
@@ -572,25 +641,29 @@ const Attendance = () => {
                               
                               setBulkAttendanceForm(prev => ({ ...prev, attendanceData: newData }))
                             }}
-                            className="border border-gray-300 rounded-md px-2 py-1 text-sm"
+                            className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-200"
                           >
-                            <option value="present">Present</option>
-                            <option value="absent">Absent</option>
-                            <option value="half-day">Half Day</option>
-                            <option value="leave">Leave</option>
+                            <option value="present">✅ Present</option>
+                            <option value="absent">❌ Absent</option>
+                            <option value="half-day">⚠️ Half Day</option>
+                            <option value="leave">🏖️ Leave</option>
                           </select>
                         </div>
                       )
                     })}
                   </div>
+                  <p className="text-sm text-gray-500 mt-2">
+                    Total Workers: {workers.length} | Marked: {bulkAttendanceForm.attendanceData.length}
+                  </p>
                 </div>
 
-                <div className="flex space-x-3">
+                {/* Action Buttons */}
+                <div className="flex space-x-4 pt-4 border-t border-gray-200">
                   <button
                     type="submit"
-                    className="flex-1 bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-700"
+                    className="flex-1 bg-gradient-to-r from-indigo-500 to-indigo-600 text-white px-6 py-3 rounded-lg font-medium hover:from-indigo-600 hover:to-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition-all duration-200 transform hover:scale-105 shadow-lg"
                   >
-                    Save All Attendance
+                    💾 Save All Attendance
                   </button>
                   <button
                     type="button"
@@ -601,7 +674,7 @@ const Attendance = () => {
                         attendanceData: []
                       })
                     }}
-                    className="flex-1 bg-gray-300 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-400"
+                    className="flex-1 bg-gray-100 text-gray-700 px-6 py-3 rounded-lg font-medium hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-all duration-200"
                   >
                     Cancel
                   </button>
