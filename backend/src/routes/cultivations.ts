@@ -52,6 +52,7 @@ router.get('/:id', auth, async (req, res) => {
 // @access  Private
 router.post('/', [
   auth,
+  body('name').notEmpty().withMessage('Name is required'),
   body('cropName').notEmpty().withMessage('Crop name is required'),
   body('area').isNumeric().withMessage('Area must be a number'),
   body('ratePerBigha').isNumeric().withMessage('Rate per Bigha must be a number'),
@@ -65,11 +66,12 @@ router.post('/', [
     }
 
     const {
+      name,
       cropName,
       area,
       ratePerBigha,
       totalCost,
-      buyerName,
+      paidTo,
       amountReceived,
       amountPending,
       paymentMode,
@@ -79,11 +81,12 @@ router.post('/', [
     } = req.body;
 
     const cultivation = new Cultivation({
+      name,
       cropName,
       area,
       ratePerBigha,
       totalCost,
-      buyerName,
+      paidTo,
       amountReceived: amountReceived || 0,
       amountPending: amountPending || totalCost,
       paymentMode,
@@ -105,6 +108,7 @@ router.post('/', [
 // @access  Private
 router.put('/:id', [
   auth,
+  body('name').notEmpty().withMessage('Name is required'),
   body('cropName').notEmpty().withMessage('Crop name is required'),
   body('area').isNumeric().withMessage('Area must be a number'),
   body('ratePerBigha').isNumeric().withMessage('Rate per Bigha must be a number'),
@@ -118,11 +122,12 @@ router.put('/:id', [
     }
 
     const {
+      name,
       cropName,
       area,
       ratePerBigha,
       totalCost,
-      buyerName,
+      paidTo,
       amountReceived,
       amountPending,
       paymentMode,
@@ -134,11 +139,12 @@ router.put('/:id', [
     const cultivation = await Cultivation.findByIdAndUpdate(
       req.params.id,
       {
+        name,
         cropName,
         area,
         ratePerBigha,
         totalCost,
-        buyerName,
+        paidTo,
         amountReceived,
         amountPending,
         paymentMode,

@@ -143,11 +143,23 @@ const Agriculture = () => {
       return
     }
     
+    // Prepare form data with proper types
+    const formData = {
+      ...form,
+      area: parseFloat(form.area) || 0,
+      ratePerBigha: parseFloat(form.ratePerBigha) || 0,
+      totalCost: parseFloat(form.totalCost) || 0,
+      amountReceived: parseFloat(form.amountReceived) || 0,
+      amountPending: parseFloat(form.amountPending) || 0
+    }
+    
+    console.log('Submitting form data:', formData)
+    
     try {
       if (editingCultivation) {
-        await api.put(`/cultivations/${editingCultivation._id}`, form)
+        await api.put(`/cultivations/${editingCultivation._id}`, formData)
       } else {
-        await api.post('/cultivations', form)
+        await api.post('/cultivations', formData)
       }
       setShowForm(false)
       setEditingCultivation(null)
