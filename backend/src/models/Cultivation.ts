@@ -6,7 +6,7 @@ export interface ICultivation extends Document {
   area: number; // in Bigha
   ratePerBigha: number;
   totalCost: number;
-  buyerName?: string;
+  paidTo?: string;
   amountReceived: number;
   amountPending: number;
   paymentMode: 'cash' | 'UPI';
@@ -43,7 +43,7 @@ const cultivationSchema = new Schema<ICultivation>({
     required: true,
     min: 0
   },
-  buyerName: {
+  paidTo: {
     type: String,
     trim: true
   },

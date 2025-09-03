@@ -23,7 +23,7 @@ interface Cultivation {
   area: number
   ratePerBigha: number
   totalCost: number
-  buyerName?: string
+  paidTo?: string
   amountReceived: number
   amountPending: number
   paymentMode: 'cash' | 'UPI'
@@ -36,6 +36,8 @@ const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884D8']
 
 const Agriculture = () => {
   const [cultivations, setCultivations] = useState<Cultivation[]>([])
+  const [filteredCultivations, setFilteredCultivations] = useState<Cultivation[]>([])
+  const [searchTerm, setSearchTerm] = useState('')
   const [loading, setLoading] = useState(true)
   const [showForm, setShowForm] = useState(false)
   const [editingCultivation, setEditingCultivation] = useState<Cultivation | null>(null)
@@ -47,7 +49,7 @@ const Agriculture = () => {
     area: '',
     ratePerBigha: '',
     totalCost: '',
-    buyerName: '',
+    paidTo: '',
     amountReceived: '',
     amountPending: '',
     paymentMode: 'cash' as 'cash' | 'UPI',
@@ -78,10 +80,23 @@ const Agriculture = () => {
     }
   }, [form.area, form.ratePerBigha])
 
+  // Filter cultivations based on search term
+  useEffect(() => {
+    if (searchTerm.trim() === '') {
+      setFilteredCultivations(cultivations)
+    } else {
+      const filtered = cultivations.filter(cultivation =>
+        cultivation.name.toLowerCase().includes(searchTerm.toLowerCase())
+      )
+      setFilteredCultivations(filtered)
+    }
+  }, [searchTerm, cultivations])
+
   const fetchCultivations = async () => {
     try {
       const response = await api.get('/cultivations')
       setCultivations(response.data)
+      setFilteredCultivations(response.data)
     } catch (error) {
       console.error('Error fetching cultivations:', error)
     } finally {
@@ -109,11 +124,12 @@ const Agriculture = () => {
       setShowForm(false)
       setEditingCultivation(null)
       setForm({
+        name: '',
         cropName: '',
         area: '',
         ratePerBigha: '',
         totalCost: '',
-        buyerName: '',
+        paidTo: '',
         amountReceived: '',
         amountPending: '',
         paymentMode: 'cash',
@@ -148,7 +164,7 @@ const Agriculture = () => {
       area: cultivation.area.toString(),
       ratePerBigha: cultivation.ratePerBigha.toString(),
       totalCost: cultivation.totalCost.toString(),
-      buyerName: cultivation.buyerName || '',
+      paidTo: cultivation.paidTo || '',
       amountReceived: cultivation.amountReceived.toString(),
       amountPending: cultivation.amountPending.toString(),
       paymentMode: cultivation.paymentMode,
@@ -346,7 +362,7 @@ const Agriculture = () => {
           <div className="bg-white p-6 rounded-xl shadow-lg border border-gray-100 hover:shadow-xl transition-all duration-300">
             <div className="flex items-center justify-between mb-6">
               <h3 className="text-xl font-semibold text-gray-900">🥧 Crop Area Distribution</h3>
-              <div className="text-sm text-gray-500">Total: {Object.values(cropAnalytics).reduce((sum: any, data: any) => sum + data.totalArea, 0)} Bigha</div>
+              <div className="text-sm text-gray-500">Total: {Object.values(cropAnalytics).reduce((sum: any, data: any) => sum + (data as any).totalArea, 0) as number} Bigha</div>
             </div>
             <ResponsiveContainer width="100%" height={300}>
               <PieChart>
@@ -363,7 +379,7 @@ const Agriculture = () => {
                   fill="#8884d8"
                   dataKey="value"
                 >
-                  {Object.entries(cropAnalytics).map((entry, index) => (
+                  {Object.entries(cropAnalytics).map((_, index) => (
                     <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                   ))}
                 </Pie>
@@ -382,13 +398,44 @@ const Agriculture = () => {
         </div>
       )}
 
+      {/* Search and Filter */}
+      <div className="bg-white shadow-lg rounded-xl border border-gray-100">
+        <div className="px-6 py-6">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+            <div className="flex-1">
+              <label htmlFor="search" className="block text-sm font-medium text-gray-700 mb-2">
+                🔍 Search by Name
+              </label>
+              <div className="relative">
+                <input
+                  type="text"
+                  id="search"
+                  placeholder="Search cultivations by person's name (e.g., Raj, Rajkumar)..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200 hover:border-gray-400"
+                />
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <svg className="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                  </svg>
+                </div>
+              </div>
+              <p className="text-xs text-gray-500 mt-1">
+                Showing {filteredCultivations.length} of {cultivations.length} cultivations
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
       {/* Cultivations List */}
       <div className="bg-white shadow-lg rounded-xl border border-gray-100">
         <div className="px-6 py-6">
           <div className="flex items-center justify-between mb-6">
             <h3 className="text-xl font-semibold text-gray-900">🌾 Cultivations</h3>
             <div className="text-sm text-gray-500">
-              Total: {cultivations.length} cultivation{cultivations.length !== 1 ? 's' : ''}
+              Total: {filteredCultivations.length} cultivation{filteredCultivations.length !== 1 ? 's' : ''}
             </div>
           </div>
           <div className="overflow-x-auto">
@@ -406,7 +453,7 @@ const Agriculture = () => {
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-100">
-                {cultivations.map((cultivation) => (
+                {filteredCultivations.map((cultivation) => (
                   <tr key={cultivation._id} className="hover:bg-gray-50 transition-colors duration-150">
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="text-sm font-medium text-gray-900">{cultivation.name}</div>
@@ -420,9 +467,9 @@ const Agriculture = () => {
                         </div>
                         <div>
                           <div className="text-sm font-semibold text-gray-900">{cultivation.cropName}</div>
-                          {cultivation.buyerName && (
+                          {cultivation.paidTo && (
                             <div className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded-full inline-block">
-                              👤 {cultivation.buyerName}
+                              💰 Paid to: {cultivation.paidTo}
                             </div>
                           )}
                         </div>
@@ -507,19 +554,20 @@ const Agriculture = () => {
                   onClick={() => {
                     setShowForm(false)
                     setEditingCultivation(null)
-                    setForm({
-                      cropName: '',
-                      area: '',
-                      ratePerBigha: '',
-                      totalCost: '',
-                      buyerName: '',
-                      amountReceived: '',
-                      amountPending: '',
-                      paymentMode: 'cash',
-                      cultivationDate: format(new Date(), 'yyyy-MM-dd'),
-                      harvestDate: '',
-                      notes: ''
-                    })
+                          setForm({
+        name: '',
+        cropName: '',
+        area: '',
+        ratePerBigha: '',
+        totalCost: '',
+        paidTo: '',
+        amountReceived: '',
+        amountPending: '',
+        paymentMode: 'cash',
+        cultivationDate: format(new Date(), 'yyyy-MM-dd'),
+        harvestDate: '',
+        notes: ''
+      })
                   }}
                   className="text-white hover:text-green-100 transition-colors"
                 >
@@ -630,8 +678,8 @@ const Agriculture = () => {
                     <input
                       type="text"
                       placeholder="Enter buyer name (optional)"
-                      value={form.buyerName}
-                      onChange={(e) => setForm(prev => ({ ...prev, buyerName: e.target.value }))}
+                      value={form.paidTo}
+                      onChange={(e) => setForm(prev => ({ ...prev, paidTo: e.target.value }))}
                       className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200 hover:border-gray-400"
                     />
                   </div>
@@ -741,11 +789,12 @@ const Agriculture = () => {
                       setShowForm(false)
                       setEditingCultivation(null)
                       setForm({
+                        name: '',
                         cropName: '',
                         area: '',
                         ratePerBigha: '',
                         totalCost: '',
-                        buyerName: '',
+                        paidTo: '',
                         amountReceived: '',
                         amountPending: '',
                         paymentMode: 'cash',
