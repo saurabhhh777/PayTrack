@@ -50,7 +50,7 @@ const Agriculture = () => {
     ratePerBigha: '',
     totalCost: '',
     paidTo: '',
-    amountReceived: '',
+    amountReceived: '0',
     amountPending: '',
     paymentMode: 'cash' as 'cash' | 'UPI',
     cultivationDate: format(new Date(), 'yyyy-MM-dd'),
@@ -75,10 +75,28 @@ const Agriculture = () => {
       const area = parseFloat(form.area)
       const rate = parseFloat(form.ratePerBigha)
       if (!isNaN(area) && !isNaN(rate)) {
-        setForm(prev => ({ ...prev, totalCost: (area * rate).toString() }))
+        const totalCost = area * rate
+        setForm(prev => ({ 
+          ...prev, 
+          totalCost: totalCost.toString(),
+          amountPending: totalCost.toString() // Set initial pending amount
+        }))
       }
     }
   }, [form.area, form.ratePerBigha])
+
+  // Auto-calculate amount pending when amount received or total cost changes
+  useEffect(() => {
+    if (form.totalCost) {
+      const totalCost = parseFloat(form.totalCost)
+      const amountReceived = parseFloat(form.amountReceived) || 0
+      
+      if (!isNaN(totalCost)) {
+        const amountPending = Math.max(0, totalCost - amountReceived)
+        setForm(prev => ({ ...prev, amountPending: amountPending.toString() }))
+      }
+    }
+  }, [form.amountReceived, form.totalCost])
 
   // Filter cultivations based on search term
   useEffect(() => {
@@ -115,6 +133,16 @@ const Agriculture = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    
+    // Validate Amount Received
+    const totalCost = parseFloat(form.totalCost) || 0
+    const amountReceived = parseFloat(form.amountReceived) || 0
+    
+    if (amountReceived > totalCost) {
+      alert('Amount Received cannot be greater than Total Cost')
+      return
+    }
+    
     try {
       if (editingCultivation) {
         await api.put(`/cultivations/${editingCultivation._id}`, form)
@@ -123,20 +151,7 @@ const Agriculture = () => {
       }
       setShowForm(false)
       setEditingCultivation(null)
-      setForm({
-        name: '',
-        cropName: '',
-        area: '',
-        ratePerBigha: '',
-        totalCost: '',
-        paidTo: '',
-        amountReceived: '',
-        amountPending: '',
-        paymentMode: 'cash',
-        cultivationDate: format(new Date(), 'yyyy-MM-dd'),
-        harvestDate: '',
-        notes: ''
-      })
+      resetForm()
       fetchCultivations()
       fetchCropAnalytics()
     } catch (error) {
@@ -700,12 +715,20 @@ const Agriculture = () => {
                           placeholder="0"
                           value={form.amountReceived}
                           onChange={(e) => setForm(prev => ({ ...prev, amountReceived: e.target.value }))}
-                          className="w-full pl-8 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200 hover:border-gray-400"
+                          className={`w-full pl-8 pr-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200 hover:border-gray-400 ${
+                            parseFloat(form.amountReceived) > parseFloat(form.totalCost) ? 'border-red-300 bg-red-50' : 'border-gray-300'
+                          }`}
                         />
                       </div>
+                      {parseFloat(form.amountReceived) > parseFloat(form.totalCost) && (
+                        <p className="text-xs text-red-500 mt-1">Amount Received cannot be greater than Total Cost</p>
+                      )}
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">Amount Pending *</label>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Amount Pending * 
+                        <span className="text-xs text-gray-500 ml-2">(Auto-calculated)</span>
+                      </label>
                       <div className="relative">
                         <span className="absolute left-3 top-3 text-gray-500">₹</span>
                         <input
@@ -714,12 +737,37 @@ const Agriculture = () => {
                           min="0"
                           placeholder="0"
                           value={form.amountPending}
-                          onChange={(e) => setForm(prev => ({ ...prev, amountPending: e.target.value }))}
-                          className="w-full pl-8 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200 hover:border-gray-400"
+                          readOnly
+                          className="w-full pl-8 pr-4 py-3 border border-gray-300 rounded-lg bg-gray-50 cursor-not-allowed"
+                          title="This field is automatically calculated as Total Cost - Amount Received"
                         />
                       </div>
+                      <p className="text-xs text-gray-500 mt-1">
+                        Calculated as: ₹{form.totalCost || '0'} - ₹{form.amountReceived || '0'} = ₹{form.amountPending || '0'}
+                      </p>
                     </div>
                   </div>
+                  
+                  {/* Paid To Field - Required only when Amount Received > 0 */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Paid To {parseFloat(form.amountReceived) > 0 && <span className="text-red-500">*</span>}
+                    </label>
+                    <input
+                      type="text"
+                      required={parseFloat(form.amountReceived) > 0}
+                      placeholder={parseFloat(form.amountReceived) > 0 ? "Enter who received the payment" : "Enter who received the payment (required if Amount Received > 0)"}
+                      value={form.paidTo}
+                      onChange={(e) => setForm(prev => ({ ...prev, paidTo: e.target.value }))}
+                      className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200 hover:border-gray-400 ${
+                        parseFloat(form.amountReceived) > 0 && !form.paidTo ? 'border-red-300 bg-red-50' : 'border-gray-300'
+                      }`}
+                    />
+                    {parseFloat(form.amountReceived) > 0 && !form.paidTo && (
+                      <p className="text-xs text-red-500 mt-1">Paid To is required when Amount Received is greater than 0</p>
+                      )}
+                  </div>
+                  
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">Payment Mode *</label>
                     <select
