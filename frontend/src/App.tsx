@@ -4,6 +4,7 @@ import Layout from './components/Layout'
 import Login from './pages/Login'
 import Dashboard from './pages/Dashboard'
 import Workers from './pages/Workers'
+import Attendance from './pages/Attendance'
 import Agriculture from './pages/Agriculture'
 import RealEstate from './pages/RealEstate'
 import ProtectedRoute from './components/ProtectedRoute'
@@ -21,6 +22,7 @@ function App() {
         <Route index element={<Navigate to="/dashboard" replace />} />
         <Route path="dashboard" element={<Dashboard />} />
         <Route path="workers" element={<Workers />} />
+        <Route path="attendance" element={<Attendance />} />
         <Route path="agriculture" element={<Agriculture />} />
         <Route path="real-estate" element={<RealEstate />} />
       </Route>

@@ -7,12 +7,14 @@ import {
   Building2, 
   BarChart3, 
   Menu, 
-  X 
+  X,
+  Calendar
 } from 'lucide-react'
 
 const navigation = [
   { name: 'Dashboard', href: '/dashboard', icon: Home },
   { name: 'Workers', href: '/workers', icon: Users },
+  { name: 'Attendance', href: '/attendance', icon: Calendar },
   { name: 'Agriculture', href: '/agriculture', icon: Sprout },
   { name: 'Real Estate', href: '/real-estate', icon: Building2 },
 ]

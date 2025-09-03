@@ -51,10 +51,13 @@ const Workers = () => {
   const [showPaymentForm, setShowPaymentForm] = useState(false)
   const [showAttendanceForm, setShowAttendanceForm] = useState(false)
   const [showBulkAttendanceForm, setShowBulkAttendanceForm] = useState(false)
+  const [showWorkerAttendanceView, setShowWorkerAttendanceView] = useState(false)
   const [selectedWorker, setSelectedWorker] = useState<Worker | null>(null)
   const [editingWorker, setEditingWorker] = useState<Worker | null>(null)
   const [editingPayment, setEditingPayment] = useState<Payment | null>(null)
   const [editingAttendance, setEditingAttendance] = useState<Attendance | null>(null)
+  const [workerAttendanceData, setWorkerAttendanceData] = useState<Attendance[]>([])
+  const [workerAttendanceSummary, setWorkerAttendanceSummary] = useState<any>(null)
 
   const [workerForm, setWorkerForm] = useState({
     name: '',
@@ -242,6 +245,24 @@ const Workers = () => {
     }
   }
 
+  const viewWorkerAttendance = async (worker: Worker) => {
+    try {
+      setSelectedWorker(worker)
+      
+      // Fetch attendance data for this specific worker
+      const attendanceResponse = await api.get(`/attendance?workerId=${worker._id}`)
+      setWorkerAttendanceData(attendanceResponse.data)
+      
+      // Fetch attendance summary for this worker
+      const summaryResponse = await api.get(`/attendance/summary/worker/${worker._id}`)
+      setWorkerAttendanceSummary(summaryResponse.data)
+      
+      setShowWorkerAttendanceView(true)
+    } catch (error) {
+      console.error('Error fetching worker attendance:', error)
+    }
+  }
+
   const deletePayment = async (id: string) => {
     if (window.confirm('Are you sure you want to delete this payment?')) {
       try {
@@ -379,14 +400,23 @@ const Workers = () => {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
                       <button
+                        onClick={() => viewWorkerAttendance(worker)}
+                        className="text-purple-600 hover:text-purple-900"
+                        title="View Attendance"
+                      >
+                        <Calendar className="h-4 w-4" />
+                      </button>
+                      <button
                         onClick={() => editWorker(worker)}
                         className="text-blue-600 hover:text-blue-900"
+                        title="Edit Worker"
                       >
                         <Edit className="h-4 w-4" />
                       </button>
                       <button
                         onClick={() => deleteWorker(worker._id)}
                         className="text-red-600 hover:text-red-900"
+                        title="Delete Worker"
                       >
                         <Trash2 className="h-4 w-4" />
                       </button>
@@ -928,6 +958,215 @@ const Workers = () => {
                   </button>
                 </div>
               </form>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Worker Attendance View Modal */}
+      {showWorkerAttendanceView && selectedWorker && (
+        <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
+          <div className="relative top-10 mx-auto p-5 border w-[800px] shadow-lg rounded-md bg-white">
+            <div className="mt-3">
+              <div className="flex items-center justify-between mb-6">
+                <h3 className="text-xl font-medium text-gray-900">
+                  Attendance Record for {selectedWorker.name}
+                </h3>
+                <button
+                  onClick={() => {
+                    setShowWorkerAttendanceView(false)
+                    setSelectedWorker(null)
+                    setWorkerAttendanceData([])
+                    setWorkerAttendanceSummary(null)
+                  }}
+                  className="text-gray-400 hover:text-gray-600"
+                >
+                  <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+
+              {/* Attendance Summary Cards */}
+              {workerAttendanceSummary && (
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                  <div className="bg-green-50 p-4 rounded-lg border border-green-200">
+                    <div className="text-2xl font-bold text-green-600">{workerAttendanceSummary.presentDays}</div>
+                    <div className="text-sm text-green-600">Present Days</div>
+                  </div>
+                  <div className="bg-red-50 p-4 rounded-lg border border-red-200">
+                    <div className="text-2xl font-bold text-red-600">{workerAttendanceSummary.absentDays}</div>
+                    <div className="text-sm text-red-600">Absent Days</div>
+                  </div>
+                  <div className="bg-yellow-50 p-4 rounded-lg border border-yellow-200">
+                    <div className="text-2xl font-bold text-yellow-600">{workerAttendanceSummary.halfDays}</div>
+                    <div className="text-sm text-yellow-600">Half Days</div>
+                  </div>
+                  <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
+                    <div className="text-2xl font-bold text-blue-600">{workerAttendanceSummary.leaveDays}</div>
+                    <div className="text-sm text-blue-600">Leave Days</div>
+                  </div>
+                </div>
+              )}
+
+              {/* Quick Add Attendance */}
+              <div className="bg-gray-50 p-4 rounded-lg mb-6">
+                <h4 className="text-lg font-medium text-gray-900 mb-3">Quick Add Today's Attendance</h4>
+                <div className="flex items-center space-x-4">
+                  <select
+                    value={attendanceForm.status}
+                    onChange={(e) => setAttendanceForm(prev => ({ ...prev, status: e.target.value as 'present' | 'absent' | 'half-day' | 'leave' }))}
+                    className="border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                  >
+                    <option value="present">Present</option>
+                    <option value="absent">Absent</option>
+                    <option value="half-day">Half Day</option>
+                    <option value="leave">Leave</option>
+                  </select>
+                  <input
+                    type="time"
+                    value={attendanceForm.checkInTime}
+                    onChange={(e) => setAttendanceForm(prev => ({ ...prev, checkInTime: e.target.value }))}
+                    placeholder="Check In"
+                    className="border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                  />
+                  <input
+                    type="time"
+                    value={attendanceForm.checkOutTime}
+                    onChange={(e) => setAttendanceForm(prev => ({ ...prev, checkOutTime: e.target.value }))}
+                    placeholder="Check Out"
+                    className="border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                  />
+                  <input
+                    type="number"
+                    step="0.5"
+                    min="0"
+                    max="24"
+                    value={attendanceForm.workingHours}
+                    onChange={(e) => setAttendanceForm(prev => ({ ...prev, workingHours: e.target.value }))}
+                    placeholder="Hours"
+                    className="border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-blue-500 focus:border-blue-500 w-20"
+                  />
+                  <button
+                    onClick={async () => {
+                      try {
+                        await api.post('/attendance', {
+                          ...attendanceForm,
+                          workerId: selectedWorker._id,
+                          date: format(new Date(), 'yyyy-MM-dd')
+                        })
+                        // Refresh attendance data
+                        viewWorkerAttendance(selectedWorker)
+                        // Reset form
+                        setAttendanceForm({
+                          workerId: '',
+                          date: format(new Date(), 'yyyy-MM-dd'),
+                          status: 'present',
+                          checkInTime: '',
+                          checkOutTime: '',
+                          workingHours: '',
+                          notes: ''
+                        })
+                      } catch (error) {
+                        console.error('Error adding attendance:', error)
+                      }
+                    }}
+                    className="bg-purple-600 text-white px-4 py-2 rounded-md hover:bg-purple-700"
+                  >
+                    Add Today
+                  </button>
+                </div>
+              </div>
+
+              {/* Attendance Records Table */}
+              <div className="bg-white border rounded-lg overflow-hidden">
+                <div className="px-4 py-3 border-b bg-gray-50">
+                  <h4 className="text-lg font-medium text-gray-900">Attendance History</h4>
+                </div>
+                <div className="overflow-x-auto">
+                  <table className="min-w-full divide-y divide-gray-200">
+                    <thead className="bg-gray-50">
+                      <tr>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Check In</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Check Out</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Hours</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Notes</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody className="bg-white divide-y divide-gray-200">
+                      {workerAttendanceData.map((record) => (
+                        <tr key={record._id}>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                            {format(new Date(record.date), 'MMM dd, yyyy')}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                              record.status === 'present' 
+                                ? 'bg-green-100 text-green-800'
+                                : record.status === 'absent'
+                                ? 'bg-red-100 text-red-800'
+                                : record.status === 'half-day'
+                                ? 'bg-yellow-100 text-yellow-800'
+                                : 'bg-blue-100 text-blue-800'
+                            }`}>
+                              {record.status.charAt(0).toUpperCase() + record.status.slice(1)}
+                            </span>
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                            {record.checkInTime ? format(new Date(`2000-01-01T${record.checkInTime}`), 'HH:mm') : '-'}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                            {record.checkOutTime ? format(new Date(`2000-01-01T${record.checkOutTime}`), 'HH:mm') : '-'}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                            {record.workingHours ? `${record.workingHours}h` : '-'}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 max-w-xs truncate">
+                            {record.notes || '-'}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
+                            <button
+                              onClick={() => {
+                                setEditingAttendance(record)
+                                setAttendanceForm({
+                                  workerId: record.workerId._id,
+                                  date: format(new Date(record.date), 'yyyy-MM-dd'),
+                                  status: record.status,
+                                  checkInTime: record.checkInTime ? format(new Date(`2000-01-01T${record.checkInTime}`), 'HH:mm') : '',
+                                  checkOutTime: record.checkOutTime ? format(new Date(`2000-01-01T${record.checkOutTime}`), 'HH:mm') : '',
+                                  workingHours: record.workingHours?.toString() || '',
+                                  notes: record.notes || ''
+                                })
+                                setShowAttendanceForm(true)
+                                setShowWorkerAttendanceView(false)
+                              }}
+                              className="text-blue-600 hover:text-blue-900"
+                              title="Edit"
+                            >
+                              <Edit className="h-4 w-4" />
+                            </button>
+                            <button
+                              onClick={() => deleteAttendance(record._id)}
+                              className="text-red-600 hover:text-red-900"
+                              title="Delete"
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+                {workerAttendanceData.length === 0 && (
+                  <div className="text-center py-8 text-gray-500">
+                    No attendance records found for this worker.
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         </div>
