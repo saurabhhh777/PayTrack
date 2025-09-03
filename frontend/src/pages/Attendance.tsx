@@ -221,16 +221,16 @@ const Attendance = () => {
       </div>
 
       {/* Filters */}
-      <div className="bg-white p-4 rounded-lg shadow border">
+      <div className="bg-white p-6 rounded-xl shadow-lg border border-gray-100">
         <div className="flex items-center space-x-4">
-          <Filter className="h-5 w-5 text-gray-400" />
+          <Filter className="h-5 w-5 text-purple-500" />
           <div className="flex flex-wrap gap-4">
             <select
               value={filters.workerId}
               onChange={(e) => setFilters(prev => ({ ...prev, workerId: e.target.value }))}
-              className="border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+              className="border border-gray-300 rounded-lg px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200 hover:border-gray-400"
             >
-              <option value="">All Workers</option>
+              <option value="">👥 All Workers</option>
               {workers.map(worker => (
                 <option key={worker._id} value={worker._id}>{worker.name}</option>
               ))}
@@ -238,25 +238,25 @@ const Attendance = () => {
             <select
               value={filters.status}
               onChange={(e) => setFilters(prev => ({ ...prev, status: e.target.value }))}
-              className="border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+              className="border border-gray-300 rounded-lg px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200 hover:border-gray-400"
             >
-              <option value="">All Status</option>
-              <option value="present">Present</option>
-              <option value="absent">Absent</option>
-              <option value="half-day">Half Day</option>
-              <option value="leave">Leave</option>
+              <option value="">📊 All Status</option>
+              <option value="present">✅ Present</option>
+              <option value="absent">❌ Absent</option>
+              <option value="half-day">⚠️ Half Day</option>
+              <option value="leave">🏖️ Leave</option>
             </select>
             <input
               type="date"
               value={filters.startDate}
               onChange={(e) => setFilters(prev => ({ ...prev, startDate: e.target.value }))}
-              className="border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+              className="border border-gray-300 rounded-lg px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200 hover:border-gray-400"
             />
             <input
               type="date"
               value={filters.endDate}
               onChange={(e) => setFilters(prev => ({ ...prev, endDate: e.target.value }))}
-              className="border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+              className="border border-gray-300 rounded-lg px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200 hover:border-gray-400"
             />
           </div>
         </div>
@@ -264,141 +264,191 @@ const Attendance = () => {
 
       {/* Attendance Summary */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-        <div className="bg-white p-6 rounded-lg shadow border">
-          <div className="flex items-center">
-            <div className="p-2 bg-green-100 rounded-lg">
-              <Calendar className="h-6 w-6 text-green-600" />
-            </div>
-            <div className="ml-4">
-              <p className="text-sm font-medium text-gray-500">Total Records</p>
-              <p className="text-2xl font-semibold text-gray-900">{attendance.length}</p>
-            </div>
-          </div>
-        </div>
-        <div className="bg-white p-6 rounded-lg shadow border">
-          <div className="flex items-center">
-            <div className="p-2 bg-green-100 rounded-lg">
-              <span className="text-2xl">✅</span>
-            </div>
-            <div className="ml-4">
-              <p className="text-sm font-medium text-gray-500">Present</p>
-              <p className="text-2xl font-semibold text-gray-900">
-                {attendance.filter(a => a.status === 'present').length}
-              </p>
+        <div className="bg-white overflow-hidden shadow-lg rounded-xl border border-gray-100 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
+          <div className="p-6">
+            <div className="flex items-center">
+              <div className="flex-shrink-0 p-3 bg-green-100 rounded-xl">
+                <Calendar className="h-6 w-6 text-green-600" />
+              </div>
+              <div className="ml-4 flex-1">
+                <dt className="text-sm font-medium text-gray-500 truncate">Total Records</dt>
+                <dd className="text-2xl font-bold text-gray-900">{attendance.length}</dd>
+              </div>
             </div>
           </div>
         </div>
-        <div className="bg-white p-6 rounded-lg shadow border">
-          <div className="flex items-center">
-            <div className="p-2 bg-red-100 rounded-lg">
-              <span className="text-2xl">❌</span>
-            </div>
-            <div className="ml-4">
-              <p className="text-sm font-medium text-gray-500">Absent</p>
-              <p className="text-2xl font-semibold text-gray-900">
-                {attendance.filter(a => a.status === 'absent').length}
-              </p>
+
+        <div className="bg-white overflow-hidden shadow-lg rounded-xl border border-gray-100 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
+          <div className="p-6">
+            <div className="flex items-center">
+              <div className="flex-shrink-0 p-3 bg-green-100 rounded-xl">
+                <span className="text-2xl">✅</span>
+              </div>
+              <div className="ml-4 flex-1">
+                <dt className="text-sm font-medium text-gray-500 truncate">Present</dt>
+                <dd className="text-2xl font-bold text-gray-900">
+                  {attendance.filter(a => a.status === 'present').length}
+                </dd>
+              </div>
             </div>
           </div>
         </div>
-        <div className="bg-white p-6 rounded-lg shadow border">
-          <div className="flex items-center">
-            <div className="p-2 bg-blue-100 rounded-lg">
-              <span className="text-2xl">🏖️</span>
+
+        <div className="bg-white overflow-hidden shadow-lg rounded-xl border border-gray-100 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
+          <div className="p-6">
+            <div className="flex items-center">
+              <div className="flex-shrink-0 p-3 bg-red-100 rounded-xl">
+                <span className="text-2xl">❌</span>
+              </div>
+              <div className="ml-4 flex-1">
+                <dt className="text-sm font-medium text-gray-500 truncate">Absent</dt>
+                <dd className="text-2xl font-bold text-gray-900">
+                  {attendance.filter(a => a.status === 'absent').length}
+                </dd>
+              </div>
             </div>
-            <div className="ml-4">
-              <p className="text-sm font-medium text-gray-500">Leave</p>
-              <p className="text-2xl font-semibold text-gray-900">
-                {attendance.filter(a => a.status === 'leave').length}
-              </p>
+          </div>
+        </div>
+
+        <div className="bg-white overflow-hidden shadow-lg rounded-xl border border-gray-100 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
+          <div className="p-6">
+            <div className="flex items-center">
+              <div className="flex-shrink-0 p-3 bg-blue-100 rounded-xl">
+                <span className="text-2xl">🏖️</span>
+              </div>
+              <div className="ml-4 flex-1">
+                <dt className="text-sm font-medium text-gray-500 truncate">Leave</dt>
+                <dd className="text-2xl font-bold text-gray-900">
+                  {attendance.filter(a => a.status === 'leave').length}
+                </dd>
+              </div>
             </div>
           </div>
         </div>
       </div>
 
       {/* Attendance List */}
-      <div className="bg-white shadow rounded-lg">
-        <div className="px-4 py-5 sm:p-6">
-          <h3 className="text-lg font-medium text-gray-900 mb-4">Attendance Records</h3>
+      <div className="bg-white shadow-lg rounded-xl border border-gray-100">
+        <div className="px-6 py-6">
+          <div className="flex items-center justify-between mb-6">
+            <h3 className="text-xl font-semibold text-gray-900">📊 Attendance Records</h3>
+            <div className="text-sm text-gray-500">
+              Total: {attendance.length} record{attendance.length !== 1 ? 's' : ''}
+            </div>
+          </div>
           <div className="overflow-x-auto">
             <table className="min-w-full divide-y divide-gray-200">
               <thead className="bg-gray-50">
                 <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Worker</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Check In</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Check Out</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Hours</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Notes</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Date</th>
+                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Worker</th>
+                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Status</th>
+                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Check In</th>
+                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Check Out</th>
+                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Hours</th>
+                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Notes</th>
+                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Actions</th>
                 </tr>
               </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
+              <tbody className="bg-white divide-y divide-gray-100">
                 {attendance.map((record) => (
-                  <tr key={record._id}>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                                {format(new Date(record.date), 'dd/MM/yyyy')}
+                  <tr key={record._id} className="hover:bg-gray-50 transition-colors duration-150">
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="text-sm font-medium text-gray-900">
+                        {format(new Date(record.date), 'dd/MMM/yyyy')}
+                      </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm font-medium text-gray-900">{record.workerId.name}</div>
-                      <div className="text-sm text-gray-500">{record.workerId.phone}</div>
+                      <div className="flex items-center">
+                        <div className="w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center mr-3">
+                          <span className="text-purple-600 font-semibold text-sm">
+                            {record.workerId.name.charAt(0).toUpperCase()}
+                          </span>
+                        </div>
+                        <div>
+                          <div className="text-sm font-semibold text-gray-900">{record.workerId.name}</div>
+                          <div className="text-xs text-gray-500">{record.workerId.phone}</div>
+                        </div>
+                      </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="flex items-center space-x-2">
                         <span className="text-lg">{getStatusIcon(record.status)}</span>
-                        <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(record.status)}`}>
+                        <span className={`inline-flex px-3 py-1 text-xs font-semibold rounded-full border ${getStatusColor(record.status)}`}>
                           {record.status.charAt(0).toUpperCase() + record.status.slice(1)}
                         </span>
                       </div>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      {record.checkInTime ? format(new Date(`2000-01-01T${record.checkInTime}`), 'HH:mm') : '-'}
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="text-sm font-medium text-gray-900">
+                        {record.checkInTime ? format(new Date(`2000-01-01T${record.checkInTime}`), 'HH:mm') : '-'}
+                      </div>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      {record.checkOutTime ? format(new Date(`2000-01-01T${record.checkOutTime}`), 'HH:mm') : '-'}
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="text-sm font-medium text-gray-900">
+                        {record.checkOutTime ? format(new Date(`2000-01-01T${record.checkOutTime}`), 'HH:mm') : '-'}
+                      </div>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      {record.workingHours ? `${record.workingHours}h` : '-'}
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="text-sm font-medium text-blue-600">
+                        {record.workingHours ? `${record.workingHours}h` : '-'}
+                      </div>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 max-w-xs truncate">
-                      {record.notes || '-'}
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="text-sm text-gray-900 max-w-xs truncate">
+                        {record.notes || '-'}
+                      </div>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
-                      <button
-                        onClick={() => {
-                          setEditingAttendance(record)
-                          setAttendanceForm({
-                            workerId: record.workerId._id,
-                            date: format(new Date(record.date), 'yyyy-MM-dd'),
-                            status: record.status,
-                            checkInTime: record.checkInTime || '',
-                            checkOutTime: record.checkOutTime || '',
-                            workingHours: record.workingHours?.toString() || '',
-                            notes: record.notes || ''
-                          })
-                          setShowAttendanceForm(true)
-                        }}
-                        className="text-blue-600 hover:text-blue-900"
-                        title="Edit"
-                      >
-                        <Edit className="h-4 w-4" />
-                      </button>
-                      <button
-                        onClick={() => deleteAttendance(record._id)}
-                        className="text-red-600 hover:text-red-900"
-                        title="Delete"
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </button>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                      <div className="flex items-center space-x-3">
+                        <button
+                          onClick={() => {
+                            setEditingAttendance(record)
+                            setAttendanceForm({
+                              workerId: record.workerId._id,
+                              date: format(new Date(record.date), 'yyyy-MM-dd'),
+                              status: record.status,
+                              checkInTime: record.checkInTime || '',
+                              checkOutTime: record.checkOutTime || '',
+                              workingHours: record.workingHours?.toString() || '',
+                              notes: record.notes || ''
+                            })
+                            setShowAttendanceForm(true)
+                          }}
+                          className="text-blue-600 hover:text-blue-800 p-2 rounded-lg hover:bg-blue-50 transition-colors duration-150"
+                          title="Edit"
+                        >
+                          <Edit className="h-4 w-4" />
+                        </button>
+                        <button
+                          onClick={() => deleteAttendance(record._id)}
+                          className="text-red-600 hover:text-red-800 p-2 rounded-lg hover:bg-red-50 transition-colors duration-150"
+                          title="Delete"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 ))}
               </tbody>
             </table>
             {attendance.length === 0 && (
-              <div className="text-center py-8 text-gray-500">
-                No attendance records found for the selected filters.
+              <div className="text-center py-12">
+                <div className="text-gray-400 mb-4">
+                  <svg className="mx-auto h-12 w-12" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                  </svg>
+                </div>
+                <h3 className="text-lg font-medium text-gray-900 mb-2">No attendance records found</h3>
+                <p className="text-gray-500 mb-4">No attendance records match the selected filters.</p>
+                <button
+                  onClick={() => setShowAttendanceForm(true)}
+                  className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-lg shadow-sm text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2"
+                >
+                  <Plus className="h-4 w-4 mr-2" />
+                  Add First Record
+                </button>
               </div>
             )}
           </div>
