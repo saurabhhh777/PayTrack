@@ -1,0 +1,131 @@
+import express, { Request, Response } from 'express';
+import { body, validationResult } from 'express-validator';
+import Worker from '../models/Worker';
+import { auth } from '../middleware/auth';
+
+const router = express.Router();
+
+// @route   GET /api/workers
+// @desc    Get all workers
+// @access  Private
+router.get('/', auth, async (req: Request, res: Response) => {
+  try {
+    const workers = await Worker.find().sort({ createdAt: -1 });
+    res.json(workers);
+  } catch (error) {
+    console.error('Get workers error:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+// @route   GET /api/workers/:id
+// @desc    Get worker by ID
+// @access  Private
+router.get('/:id', auth, async (req: Request, res: Response) => {
+  try {
+    const worker = await Worker.findById(req.params.id);
+    if (!worker) {
+      return res.status(404).json({ message: 'Worker not found' });
+    }
+    res.json(worker);
+  } catch (error) {
+    console.error('Get worker error:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+// @route   POST /api/workers
+// @desc    Create a new worker
+// @access  Private
+router.post('/', [
+  auth,
+  body('name').notEmpty().withMessage('Name is required'),
+  body('phone').notEmpty().withMessage('Phone is required'),
+  body('address').notEmpty().withMessage('Address is required'),
+  body('salary').isNumeric().withMessage('Salary must be a number')
+], async (req: Request, res: Response) => {
+  try {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+
+    const { name, phone, address, joiningDate, salary, notes } = req.body;
+
+    const worker = new Worker({
+      name,
+      phone,
+      address,
+      joiningDate: joiningDate || new Date(),
+      salary,
+      notes
+    });
+
+    await worker.save();
+    res.status(201).json(worker);
+  } catch (error) {
+    console.error('Create worker error:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+// @route   PUT /api/workers/:id
+// @desc    Update worker
+// @access  Private
+router.put('/:id', [
+  auth,
+  body('name').notEmpty().withMessage('Name is required'),
+  body('phone').notEmpty().withMessage('Phone is required'),
+  body('address').notEmpty().withMessage('Address is required'),
+  body('salary').isNumeric().withMessage('Salary must be a number')
+], async (req: Request, res: Response) => {
+  try {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+
+    const { name, phone, address, joiningDate, salary, isActive, notes } = req.body;
+
+    const worker = await Worker.findByIdAndUpdate(
+      req.params.id,
+      {
+        name,
+        phone,
+        address,
+        joiningDate,
+        salary,
+        isActive,
+        notes
+      },
+      { new: true, runValidators: true }
+    );
+
+    if (!worker) {
+      return res.status(404).json({ message: 'Worker not found' });
+    }
+
+    res.json(worker);
+  } catch (error) {
+    console.error('Update worker error:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+// @route   DELETE /api/workers/:id
+// @desc    Delete worker
+// @access  Private
+router.delete('/:id', auth, async (req: Request, res: Response) => {
+  try {
+    const worker = await Worker.findByIdAndDelete(req.params.id);
+    if (!worker) {
+      return res.status(404).json({ message: 'Worker not found' });
+    }
+    res.json({ message: 'Worker deleted successfully' });
+  } catch (error) {
+    console.error('Delete worker error:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+export default router; 
