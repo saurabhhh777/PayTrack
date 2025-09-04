@@ -1,6 +1,8 @@
 import express, { Request, Response } from 'express';
 import { body, validationResult } from 'express-validator';
 import Worker from '../models/Worker';
+import Attendance from '../models/Attendance';
+import WorkerPayment from '../models/WorkerPayment';
 import { auth } from '../middleware/auth';
 
 const router = express.Router();
@@ -23,52 +25,71 @@ router.get('/', auth, async (req: Request, res: Response) => {
 // @access  Private
 router.get('/:id', auth, async (req: Request, res: Response) => {
   try {
+    console.log('Fetching worker with ID:', req.params.id);
+    
     const worker = await Worker.findById(req.params.id);
     if (!worker) {
+      console.log('Worker not found');
       return res.status(404).json({ message: 'Worker not found' });
     }
 
-    // Import models for attendance and payments
-    const Attendance = require('../models/Attendance');
-    const WorkerPayment = require('../models/WorkerPayment');
+    console.log('Worker found:', worker.name);
 
-    // Fetch attendance records for this worker
-    const attendance = await Attendance.find({ workerId: worker._id })
-      .sort({ date: -1 });
+    try {
+      // Fetch attendance records for this worker
+      console.log('Fetching attendance records...');
+      const attendance = await Attendance.find({ workerId: worker._id })
+        .sort({ date: -1 });
+      console.log('Attendance records found:', attendance.length);
 
-    // Fetch payment records for this worker
-    const payments = await WorkerPayment.find({ workerId: worker._id })
-      .sort({ date: -1 });
+      // Fetch payment records for this worker
+      console.log('Fetching payment records...');
+      const payments = await WorkerPayment.find({ workerId: worker._id })
+        .sort({ date: -1 });
+      console.log('Payment records found:', payments.length);
 
-    // Calculate attendance summary
-    const attendanceSummary = {
-      totalDays: attendance.length,
-      present: attendance.filter((a: any) => a.status === 'Present').length,
-      absent: attendance.filter((a: any) => a.status === 'Absent').length,
-      halfDay: attendance.filter((a: any) => a.status === 'HalfDay').length
-    };
+      // Calculate attendance summary
+      const attendanceSummary = {
+        totalDays: attendance.length,
+        present: attendance.filter((a: any) => a.status === 'Present').length,
+        absent: attendance.filter((a: any) => a.status === 'Absent').length,
+        halfDay: attendance.filter((a: any) => a.status === 'HalfDay').length
+      };
 
-    // Calculate payment summary
-    const totalPaid = payments.reduce((sum: number, payment: any) => sum + payment.amount, 0);
-    const paymentSummary = {
-      totalSalary: worker.salary * 12, // Annual salary
-      paid: totalPaid,
-      pending: Math.max(0, (worker.salary * 12) - totalPaid)
-    };
+      // Calculate payment summary
+      const totalPaid = payments.reduce((sum: number, payment: any) => sum + payment.amount, 0);
+      const paymentSummary = {
+        totalSalary: worker.salary * 12, // Annual salary
+        paid: totalPaid,
+        pending: Math.max(0, (worker.salary * 12) - totalPaid)
+      };
 
-    // Combine worker data with summaries
-    const workerWithDetails = {
-      ...worker.toObject(),
-      attendance,
-      payments,
-      attendanceSummary,
-      paymentSummary
-    };
+      // Combine worker data with summaries
+      const workerWithDetails = {
+        ...worker.toObject(),
+        attendance,
+        payments,
+        attendanceSummary,
+        paymentSummary
+      };
 
-    res.json(workerWithDetails);
+      console.log('Sending response with worker details');
+      res.json(workerWithDetails);
+    } catch (modelError) {
+      console.error('Error fetching related data:', modelError);
+      // Send worker data without related data if there's an error
+      const workerWithDetails = {
+        ...worker.toObject(),
+        attendance: [],
+        payments: [],
+        attendanceSummary: { totalDays: 0, present: 0, absent: 0, halfDay: 0 },
+        paymentSummary: { totalSalary: worker.salary * 12, paid: 0, pending: worker.salary * 12 }
+      };
+      res.json(workerWithDetails);
+    }
   } catch (error) {
     console.error('Get worker error:', error);
-    res.status(500).json({ message: 'Server error' });
+    res.status(500).json({ message: 'Server error', details: (error as any).message });
   }
 });
 

@@ -4,7 +4,7 @@ import helmet from 'helmet';
 import morgan from 'morgan';
 import dotenv from 'dotenv';
 import { connectDB } from './config/database';
-import VeeraBookBot from './bot/telegramBot';
+import PayTrackBot from './bot/telegramBot';
 import authRoutes from './routes/auth';
 import telegramRoutes from './routes/telegram';
 import workerRoutes from './routes/workers';
@@ -44,7 +44,7 @@ app.use('/api/analytics', analyticsRoutes);
 
 // Health check
 app.get('/health', (req, res) => {
-  res.json({ status: 'OK', message: 'VeeraBook API is running' });
+  res.json({ status: 'OK', message: 'PayTrack API is running' });
 });
 
 // Error handling middleware
@@ -65,13 +65,13 @@ const startServer = async () => {
     
     // Start Express server
     app.listen(PORT, () => {
-      console.log(`🚀 VeeraBook Backend running on port ${PORT}`);
+      console.log(`🚀 PayTrack Backend running on port ${PORT}`);
     });
 
     // Start Telegram Bot
     const botToken = process.env.TELEGRAM_BOT_TOKEN;
     if (botToken) {
-      const bot = new VeeraBookBot(botToken);
+      const bot = new PayTrackBot(botToken);
       await bot.start();
       console.log('🤖 Telegram Bot started successfully!');
     } else {

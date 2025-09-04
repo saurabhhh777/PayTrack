@@ -4,7 +4,7 @@ import { ArrowLeft, Plus, CheckCircle, AlertCircle, Calendar, DollarSign, Users,
 import { api } from '../lib/api'
 import { format } from 'date-fns'
 
-interface Payment {
+interface WorkerPayment {
   _id: string
   amount: number
   date: string
@@ -27,10 +27,11 @@ interface Worker {
   phone: string
   address: string
   joiningDate: string
-  monthlySalary: number
-  status: 'active' | 'inactive'
+  salary: number
+  isActive: boolean
+  notes?: string
   attendance?: Attendance[]
-  payments?: Payment[]
+  payments?: WorkerPayment[]
   attendanceSummary?: {
     totalDays: number
     present: number
@@ -226,7 +227,7 @@ const WorkerDetail = () => {
                 <DollarSign className="h-5 w-5 text-purple-600 mr-2" />
                 <div>
                   <div className="text-sm font-medium text-purple-600">Monthly Salary</div>
-                  <div className="text-lg font-semibold text-purple-900">₹{worker.monthlySalary.toLocaleString()}</div>
+                  <div className="text-lg font-semibold text-purple-900">₹{worker.salary.toLocaleString()}</div>
                 </div>
               </div>
             </div>
@@ -236,7 +237,7 @@ const WorkerDetail = () => {
                 <CheckCircle className="h-5 w-5 text-orange-600 mr-2" />
                 <div>
                   <div className="text-sm font-medium text-orange-600">Status</div>
-                  <div className="text-lg font-semibold text-orange-900 capitalize">{worker.status}</div>
+                  <div className="text-lg font-semibold text-orange-900 capitalize">{worker.isActive ? 'Active' : 'Inactive'}</div>
                 </div>
               </div>
             </div>

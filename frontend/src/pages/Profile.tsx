@@ -164,7 +164,7 @@ const Profile = () => {
           ) : (
             <div className="space-y-4">
               <p className="text-gray-600">
-                Add your Telegram username to access the VeeraBook bot and enhance your account security.
+                Add your Telegram username to access the PayTrack bot and enhance your account security.
               </p>
 
               <div className="flex gap-3">
@@ -242,7 +242,7 @@ const Profile = () => {
                 <div>
                   <p className="text-green-800 font-medium">Bot access granted!</p>
                   <p className="text-green-600 text-sm">
-                    You can now use the VeeraBook Telegram bot with username @{telegramStatus.telegramUsername}
+                    You can now use the PayTrack Telegram bot with username @{telegramStatus.telegramUsername}
                   </p>
                 </div>
               </div>
@@ -274,7 +274,7 @@ const Profile = () => {
               <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
                 <h3 className="font-medium text-blue-800 mb-2">How to use the bot:</h3>
                 <ol className="text-blue-700 text-sm space-y-1 list-decimal list-inside">
-                  <li>Open Telegram and search for your VeeraBook bot</li>
+                  <li>Open Telegram and search for your PayTrack bot</li>
                   <li>Send <code className="bg-blue-100 px-1 rounded">/start</code></li>
                   <li>Use the available commands from the menu</li>
                 </ol>

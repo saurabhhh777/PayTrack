@@ -1,4 +1,4 @@
-# 🚀 VeeraBook - Full-Stack MERN Project
+# 🚀 PayTrack - Full-Stack MERN Project
 
 A comprehensive full-stack application for managing **money, workers, agriculture, and real estate** with modern UI and powerful analytics.
 
@@ -63,7 +63,7 @@ A comprehensive full-stack application for managing **money, workers, agricultur
 1. **Clone the repository**
    ```bash
    git clone <repository-url>
-   cd VeeraBook
+   cd PayTrack
    ```
 
 2. **Start all services**
@@ -112,7 +112,7 @@ A comprehensive full-stack application for managing **money, workers, agricultur
 ## 📁 Project Structure
 
 ```
-VeeraBook/
+PayTrack/
 ├── backend/                 # Express.js backend
 │   ├── src/
 │   │   ├── config/         # Database configuration
@@ -216,7 +216,7 @@ npm run preview     # Preview production build
 ### Database Operations
 ```bash
 # Connect to MongoDB
-mongosh "mongodb://admin:password123@localhost:27017/veerabook?authSource=admin"
+mongosh "mongodb://admin:password123@localhost:27017/paytrack?authSource=admin"
 
 # View collections
 show collections

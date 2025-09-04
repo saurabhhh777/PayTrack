@@ -1,7 +1,7 @@
 {
-  "name": "veerabook-backend",
+  "name": "paytrack-backend",
   "version": "1.0.0",
-  "description": "Backend API for VeeraBook - Money, Workers, Agriculture, and Real Estate Management",
+  "description": "Backend API for PayTrack - Money, Workers, Agriculture, and Real Estate Management",
   "main": "dist/index.js",
   "scripts": {
     "dev": "nodemon src/index.ts",

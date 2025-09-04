@@ -1,5 +1,5 @@
 {
-  "name": "veerabook",
+  "name": "paytrack",
   "version": "1.0.0",
   "description": "Full-stack MERN project for managing money, workers, agriculture, and real estate",
   "main": "index.js",

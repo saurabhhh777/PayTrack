@@ -35,7 +35,7 @@ const Sidebar = () => {
           <div className="fixed inset-0 bg-gray-600 bg-opacity-75" onClick={() => setSidebarOpen(false)} />
           <div className="fixed inset-y-0 left-0 flex w-full max-w-xs flex-col bg-white">
             <div className="flex h-16 items-center justify-between px-4">
-              <h1 className="text-xl font-bold text-gray-900">VeeraBook</h1>
+              <h1 className="text-xl font-bold text-gray-900">PayTrack</h1>
               <button
                 onClick={() => setSidebarOpen(false)}
                 className="text-gray-400 hover:text-gray-600"
@@ -71,7 +71,7 @@ const Sidebar = () => {
       <div className="hidden lg:fixed lg:inset-y-0 lg:z-50 lg:flex lg:w-72 lg:flex-col">
         <div className="flex grow flex-col gap-y-5 overflow-y-auto bg-white px-6 pb-4 border-r border-gray-200">
           <div className="flex h-16 shrink-0 items-center">
-            <h1 className="text-2xl font-bold text-gray-900">VeeraBook</h1>
+            <h1 className="text-2xl font-bold text-gray-900">PayTrack</h1>
           </div>
           <nav className="flex flex-1 flex-col">
             <ul role="list" className="flex flex-1 flex-col gap-y-7">
@@ -112,7 +112,7 @@ const Sidebar = () => {
           <Menu className="h-6 w-6" />
         </button>
         <div className="flex-1 text-sm font-semibold leading-6 text-gray-900">
-          VeeraBook
+          PayTrack
         </div>
       </div>
     </>

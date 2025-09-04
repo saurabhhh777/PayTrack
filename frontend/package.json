@@ -1,7 +1,7 @@
 {
-  "name": "veerabook-frontend",
+  "name": "paytrack-frontend",
   "version": "1.0.0",
-  "description": "Frontend for VeeraBook - Money, Workers, Agriculture, and Real Estate Management",
+  "description": "Frontend for PayTrack - Money, Workers, Agriculture, and Real Estate Management",
   "private": true,
   "scripts": {
     "dev": "vite",

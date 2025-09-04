@@ -3,50 +3,50 @@ version: '3.8'
 services:
   mongodb:
     image: mongo:6.0
-    container_name: veerabook-mongodb
+    container_name: paytrack-mongodb
     restart: unless-stopped
     environment:
       MONGO_INITDB_ROOT_USERNAME: admin
       MONGO_INITDB_ROOT_PASSWORD: password123
-      MONGO_INITDB_DATABASE: veerabook
+      MONGO_INITDB_DATABASE: paytrack
     ports:
       - "27017:27017"
     volumes:
       - mongodb_data:/data/db
       - ./backend/init-mongo.js:/docker-entrypoint-initdb.d/init-mongo.js:ro
     networks:
-      - veerabook-network
+      - paytrack-network
 
   backend:
     build: ./backend
-    container_name: veerabook-backend
+    container_name: paytrack-backend
     restart: unless-stopped
     environment:
       - NODE_ENV=production
       - PORT=5000
-      - MONGODB_URI=mongodb://admin:password123@mongodb:27017/veerabook?authSource=admin
+      - MONGODB_URI=mongodb://admin:password123@mongodb:27017/paytrack?authSource=admin
       - JWT_SECRET=your-super-secret-jwt-key-here-change-in-production
     ports:
       - "5000:5000"
     depends_on:
       - mongodb
     networks:
-      - veerabook-network
+      - paytrack-network
 
   frontend:
     build: ./frontend
-    container_name: veerabook-frontend
+    container_name: paytrack-frontend
     restart: unless-stopped
     ports:
       - "80:80"
     depends_on:
       - backend
     networks:
-      - veerabook-network
+      - paytrack-network
 
 volumes:
   mongodb_data:
 
 networks:
-  veerabook-network:
+  paytrack-network:
     driver: bridge 

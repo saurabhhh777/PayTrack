@@ -1,6 +1,6 @@
-# 🤖 VeeraBook Telegram Bot Setup Guide
+# 🤖 PayTrack Telegram Bot Setup Guide
 
-This guide will help you set up the Telegram bot integration for your VeeraBook MERN application using **Telegram username authentication**.
+This guide will help you set up the Telegram bot integration for your PayTrack MERN application using **Telegram username authentication**.
 
 ## 📋 Prerequisites
 
@@ -14,8 +14,8 @@ This guide will help you set up the Telegram bot integration for your VeeraBook 
 1. **Open Telegram** and search for `@BotFather`
 2. **Start a chat** with BotFather
 3. **Send the command**: `/newbot`
-4. **Choose a name** for your bot (e.g., "VeeraBook Manager")
-5. **Choose a username** (must end with 'bot', e.g., "veerabook_manager_bot")
+4. **Choose a name** for your bot (e.g., "PayTrack Manager")
+5. **Choose a username** (must end with 'bot', e.g., "paytrack_manager_bot")
 6. **Save the bot token** that BotFather provides
 
 ## 🔧 Step 2: Configure Environment Variables
@@ -33,7 +33,7 @@ This guide will help you set up the Telegram bot integration for your VeeraBook 
 3. **Edit `.env`** and add your Telegram bot token:
    ```env
    PORT=5000
-   MONGODB_URI=mongodb://localhost:27017/veerabook
+   MONGODB_URI=mongodb://localhost:27017/paytrack
    JWT_SECRET=your-super-secret-jwt-key-here
    NODE_ENV=development
    TELEGRAM_BOT_TOKEN=your-actual-bot-token-here
@@ -81,7 +81,7 @@ sudo systemctl start mongod
 
 3. **Verify bot is running** - you should see:
    ```
-   🚀 VeeraBook Backend running on port 5000
+   🚀 PayTrack Backend running on port 5000
    🤖 Telegram Bot started successfully!
    ```
 

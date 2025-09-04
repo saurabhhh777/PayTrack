@@ -1,5 +1,5 @@
 // MongoDB initialization script
-db = db.getSiblingDB('veerabook');
+db = db.getSiblingDB('paytrack');
 
 // Create collections
 db.createCollection('users');
@@ -32,4 +32,4 @@ db.properties.createIndex({ "propertyType": 1 });
 db.properties.createIndex({ "transactionDate": -1 });
 db.properties.createIndex({ "partnerName": 1 });
 
-print('VeeraBook database initialized successfully!'); 
+print('PayTrack database initialized successfully!'); 

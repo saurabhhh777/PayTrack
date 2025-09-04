@@ -15,7 +15,7 @@ interface BotUser {
   tempData: any;
 }
 
-class VeeraBookBot {
+class PayTrackBot {
   private bot: TelegramBot;
   private users: Map<number, BotUser> = new Map();
   private isConnected: boolean = false;
@@ -118,7 +118,7 @@ You are not registered. Please add your Telegram username in your website profil
 Your Telegram username: @${telegramUsername}
 
 Steps to register:
-1. Go to your VeeraBook profile page
+1. Go to your PayTrack profile page
 2. Add your Telegram username: ${telegramUsername}
 3. Try /start again
         `;
@@ -891,7 +891,7 @@ Let's start with the **crop name** (required):
       const totalPayments = await Payment.countDocuments();
 
       const summaryMessage = `
-📊 **VeeraBook Summary**
+📊 **PayTrack Summary**
 
 👥 **Workers:** ${totalWorkers}
 🌾 **Crops:** ${totalCrops}
@@ -1006,7 +1006,7 @@ Let's start with the **worker name** (required):
     try {
       await connectDB();
       this.isConnected = true;
-      console.log('🤖 VeeraBook Telegram Bot started successfully!');
+      console.log('🤖 PayTrack Telegram Bot started successfully!');
     } catch (error) {
       console.error('Failed to start Telegram Bot:', error);
       throw error;
@@ -1017,7 +1017,7 @@ Let's start with the **worker name** (required):
     if (this.bot) {
       this.bot.stopPolling();
       this.isConnected = false;
-      console.log('🤖 VeeraBook Telegram Bot stopped.');
+      console.log('🤖 PayTrack Telegram Bot stopped.');
     }
   }
 
@@ -1026,4 +1026,4 @@ Let's start with the **worker name** (required):
   }
 }
 
-export default VeeraBookBot; 
+export default PayTrackBot; 
