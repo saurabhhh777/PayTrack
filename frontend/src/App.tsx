@@ -1,5 +1,6 @@
 import { Routes, Route, Navigate } from 'react-router-dom'
 import { useAuthStore } from './stores/authStore'
+import Home from "./pages/Home"
 import Layout from './components/Layout'
 import Login from './pages/Login'
 import Dashboard from './pages/Dashboard'
@@ -20,10 +21,14 @@ function App() {
   return (
     <Routes>
       <Route path="/login" element={
-        isAuthenticated ? <Navigate to="/dashboard" replace /> : <Login />
+        isAuthenticated ? <Navigate to="/" replace /> : <Login />
       } />
       
-      <Route path="/" element={<ProtectedRoute><Layout /></ProtectedRoute>}>
+      {/* Home page - standalone without sidebar */}
+      <Route path="/" element={<ProtectedRoute><Home /></ProtectedRoute>} />
+      
+      {/* All other pages - with Layout (sidebar) */}
+      <Route path="/app" element={<ProtectedRoute><Layout /></ProtectedRoute>}>
         <Route index element={<Navigate to="/dashboard" replace />} />
         <Route path="dashboard" element={<Dashboard />} />
         <Route path="workers" element={<Workers />} />
@@ -35,6 +40,36 @@ function App() {
         <Route path="real-estate" element={<RealEstate />} />
         <Route path="meel" element={<Meel />} />
         <Route path="profile" element={<Profile />} />
+      </Route>
+      
+      {/* Direct routes for backward compatibility */}
+      <Route path="/dashboard" element={<ProtectedRoute><Layout /></ProtectedRoute>}>
+        <Route index element={<Dashboard />} />
+      </Route>
+      <Route path="/workers" element={<ProtectedRoute><Layout /></ProtectedRoute>}>
+        <Route index element={<Workers />} />
+        <Route path=":id" element={<WorkerDetail />} />
+      </Route>
+      <Route path="/attendance" element={<ProtectedRoute><Layout /></ProtectedRoute>}>
+        <Route index element={<Attendance />} />
+      </Route>
+      <Route path="/agriculture" element={<ProtectedRoute><Layout /></ProtectedRoute>}>
+        <Route index element={<Agriculture />} />
+      </Route>
+      <Route path="/person/:id" element={<ProtectedRoute><Layout /></ProtectedRoute>}>
+        <Route index element={<PersonDetail />} />
+      </Route>
+      <Route path="/cultivations/:id" element={<ProtectedRoute><Layout /></ProtectedRoute>}>
+        <Route index element={<CultivationDetail />} />
+      </Route>
+      <Route path="/real-estate" element={<ProtectedRoute><Layout /></ProtectedRoute>}>
+        <Route index element={<RealEstate />} />
+      </Route>
+      <Route path="/meel" element={<ProtectedRoute><Layout /></ProtectedRoute>}>
+        <Route index element={<Meel />} />
+      </Route>
+      <Route path="/profile" element={<ProtectedRoute><Layout /></ProtectedRoute>}>
+        <Route index element={<Profile />} />
       </Route>
     </Routes>
   )
