@@ -114,7 +114,7 @@ const Profile = () => {
             <div>
               <label className="block text-sm font-medium text-gray-600 mb-1">Member Since</label>
               <p className="text-gray-800 font-medium">
-                {user?.createdAt ? new Date(user.createdAt).toLocaleDateString() : 'N/A'}
+                {'N/A'}
               </p>
             </div>
           </div>

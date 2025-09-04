@@ -11,8 +11,6 @@ import {
   PieChart,
   Pie,
   Cell,
-  BarChart,
-  Bar
 } from 'recharts'
 import { api } from '../lib/api'
 import { format } from 'date-fns'
@@ -290,7 +288,7 @@ const Dashboard = () => {
                 fill="#8884d8"
                 dataKey="value"
               >
-                {paymentModeData.map((entry, index) => (
+                {paymentModeData.map((_, index) => (
                   <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                 ))}
               </Pie>

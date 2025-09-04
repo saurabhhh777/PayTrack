@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
-import { Plus, Edit, Trash2, Eye, DollarSign, Calendar, Clock, Users } from 'lucide-react'
+import { Plus, Edit, Trash2, DollarSign, Calendar, Users } from 'lucide-react'
 import { api } from '../lib/api'
 import { format } from 'date-fns'
 
@@ -393,7 +393,7 @@ const Workers = () => {
                       ₹{getWorkerTotalPayments(worker._id).toLocaleString()}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      {worker.totalWorkingDays || 0} days
+                      {0 || 0} days
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${

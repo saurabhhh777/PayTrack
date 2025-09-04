@@ -5,7 +5,6 @@ import {
   Users, 
   Sprout, 
   Building2, 
-  BarChart3, 
   Menu, 
   X,
   Calendar,

@@ -32,7 +32,6 @@ interface Property {
   notes?: string
 }
 
-const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884D8']
 
 const RealEstate = () => {
   const [properties, setProperties] = useState<Property[]>([])
@@ -143,12 +142,6 @@ const RealEstate = () => {
     setShowForm(true)
   }
 
-  const calculateProfit = (property: Property) => {
-    if (property.propertyType === 'sell') {
-      return property.amountPaid - property.totalCost
-    }
-    return 0
-  }
 
   const getTotalInvestment = () => {
     return properties.filter(p => p.propertyType === 'buy').reduce((sum, p) => sum + p.totalCost, 0)
@@ -158,9 +151,6 @@ const RealEstate = () => {
     return properties.filter(p => p.propertyType === 'sell').reduce((sum, p) => sum + p.amountPaid, 0)
   }
 
-  const getTotalPending = () => {
-    return properties.reduce((sum, p) => sum + p.amountPending, 0)
-  }
 
   const getTotalProfit = () => {
     return getTotalRevenue() - getTotalInvestment()

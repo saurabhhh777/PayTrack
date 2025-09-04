@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
-import { ArrowLeft, Plus, CheckCircle, AlertCircle, TrendingUp, TrendingDown } from 'lucide-react'
+import { ArrowLeft, Plus, CheckCircle,  } from 'lucide-react'
 import { api } from '../lib/api'
 import { format } from 'date-fns'
 
