@@ -24,8 +24,8 @@ function App() {
         isAuthenticated ? <Navigate to="/" replace /> : <Login />
       } />
       
-      {/* Home page - standalone without sidebar */}
-      <Route path="/" element={<ProtectedRoute><Home /></ProtectedRoute>} />
+      {/* Home page - standalone without sidebar and no authentication required */}
+      <Route path="/" element={<Home />} />
       
       {/* All other pages - with Layout (sidebar) */}
       <Route path="/app" element={<ProtectedRoute><Layout /></ProtectedRoute>}>
