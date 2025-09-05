@@ -1,10 +1,24 @@
 import { useState, useEffect } from 'react';
 import { api } from '../lib/api';
 import { useAuthStore } from '../stores/authStore';
-import { MessageCircle, Shield, CheckCircle, XCircle, Trash2 } from 'lucide-react';
+import { MessageCircle, Shield, CheckCircle, XCircle, Trash2, User, Mail, Calendar, Settings, Activity, BarChart3, Edit } from 'lucide-react';
 
 interface TelegramStatus {
   telegramUsername: string | null;
+}
+
+interface ProfileStats {
+  totalWorkers: number;
+  totalCultivations: number;
+  totalProperties: number;
+  totalMealRecords: number;
+  recentActivities: Array<{
+    id: string;
+    action: string;
+    details: string;
+    time: string;
+    type: string;
+  }>;
 }
 
 const Profile = () => {
@@ -16,9 +30,18 @@ const Profile = () => {
   const [loading, setLoading] = useState(false);
   const [removing, setRemoving] = useState(false);
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+  const [profileStats, setProfileStats] = useState<ProfileStats>({
+    totalWorkers: 0,
+    totalCultivations: 0,
+    totalProperties: 0,
+    totalMealRecords: 0,
+    recentActivities: []
+  });
+  const [statsLoading, setStatsLoading] = useState(true);
 
   useEffect(() => {
     fetchTelegramStatus();
+    fetchProfileStats();
   }, []);
 
   const fetchTelegramStatus = async () => {
@@ -30,6 +53,32 @@ const Profile = () => {
       }
     } catch (error) {
       console.error('Error fetching Telegram status:', error);
+    }
+  };
+
+  const fetchProfileStats = async () => {
+    try {
+      setStatsLoading(true);
+      
+      // Fetch data from multiple endpoints
+      const [workersRes, cultivationsRes, propertiesRes, mealRes] = await Promise.all([
+        api.get('/workers').catch(() => ({ data: [] })),
+        api.get('/cultivations').catch(() => ({ data: [] })),
+        api.get('/properties').catch(() => ({ data: [] })),
+        api.get('/meel').catch(() => ({ data: { meelRecords: [] } }))
+      ]);
+
+      setProfileStats({
+        totalWorkers: Array.isArray(workersRes.data) ? workersRes.data.length : 0,
+        totalCultivations: Array.isArray(cultivationsRes.data) ? cultivationsRes.data.length : 0,
+        totalProperties: Array.isArray(propertiesRes.data) ? propertiesRes.data.length : 0,
+        totalMealRecords: mealRes.data.meelRecords ? mealRes.data.meelRecords.length : 0,
+        recentActivities: [] // We'll implement this later when we have activity tracking
+      });
+    } catch (error) {
+      console.error('Error fetching profile stats:', error);
+    } finally {
+      setStatsLoading(false);
     }
   };
 
@@ -84,233 +133,393 @@ const Profile = () => {
     }
   };
 
-  return (
-    <div className="max-w-4xl mx-auto p-6">
-      <div className="bg-white rounded-lg shadow-md p-6">
-        <h1 className="text-3xl font-bold text-gray-800 mb-8">Profile Settings</h1>
+  const stats = [
+    { 
+      label: 'Total Workers', 
+      value: statsLoading ? '...' : profileStats.totalWorkers.toString(), 
+      change: '', 
+      icon: User, 
+      color: 'blue' 
+    },
+    { 
+      label: 'Cultivations', 
+      value: statsLoading ? '...' : profileStats.totalCultivations.toString(), 
+      change: '', 
+      icon: BarChart3, 
+      color: 'green' 
+    },
+    { 
+      label: 'Properties', 
+      value: statsLoading ? '...' : profileStats.totalProperties.toString(), 
+      change: '', 
+      icon: Calendar, 
+      color: 'purple' 
+    },
+    { 
+      label: 'Trading Records', 
+      value: statsLoading ? '...' : profileStats.totalMealRecords.toString(), 
+      change: '', 
+      icon: Activity, 
+      color: 'orange' 
+    }
+  ];
 
-        {/* User Info */}
-        <div className="mb-8 p-6 bg-gray-50 rounded-lg">
-          <h2 className="text-xl font-semibold text-gray-700 mb-4">Account Information</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-600 mb-1">Username</label>
-              <p className="text-gray-800 font-medium">{user?.username}</p>
+  return (
+    <div className="space-y-8">
+      {/* Header Section */}
+      <div className="bg-gradient-to-r from-blue-500 to-blue-600 rounded-3xl p-8 text-white relative overflow-hidden">
+        <div className="absolute inset-0 opacity-10">
+          <div className="absolute top-4 right-4 w-32 h-32 bg-white rounded-full"></div>
+          <div className="absolute bottom-4 left-4 w-24 h-24 bg-white rounded-full"></div>
+        </div>
+        
+        <div className="relative z-10">
+          <div className="flex items-center gap-6">
+            <div className="w-20 h-20 bg-white/20 backdrop-blur-sm rounded-3xl flex items-center justify-center">
+              <User className="h-10 w-10 text-white" />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-600 mb-1">Email</label>
-              <p className="text-gray-800 font-medium">{user?.email}</p>
+              <h1 className="text-4xl font-medium mb-2">Profile Settings</h1>
+              <p className="text-xl text-blue-100">
+                Manage your account information and Telegram integration
+              </p>
             </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-600 mb-1">Role</label>
-              <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+          </div>
+        </div>
+      </div>
+
+      {/* User Info Cards */}
+      <div>
+        <h2 className="text-2xl font-medium text-gray-900 mb-6">Account Information</h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+            <div className="flex items-center justify-between mb-4">
+              <div className="w-12 h-12 bg-blue-100 rounded-2xl flex items-center justify-center">
+                <User className="h-6 w-6 text-blue-600" />
+              </div>
+              <Edit className="h-5 w-5 text-gray-400" />
+            </div>
+            <h3 className="text-sm font-medium text-gray-500 mb-2">Username</h3>
+            <p className="text-base font-medium text-gray-900 break-words overflow-hidden">{user?.username}</p>
+          </div>
+
+          <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+            <div className="flex items-center justify-between mb-4">
+              <div className="w-12 h-12 bg-green-100 rounded-2xl flex items-center justify-center">
+                <Mail className="h-6 w-6 text-green-600" />
+              </div>
+              <Edit className="h-5 w-5 text-gray-400" />
+            </div>
+            <h3 className="text-sm font-medium text-gray-500 mb-2">Email</h3>
+            <p className="text-sm font-medium text-gray-900 break-all overflow-hidden leading-relaxed">{user?.email}</p>
+          </div>
+
+          <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+            <div className="flex items-center justify-between mb-4">
+              <div className="w-12 h-12 bg-purple-100 rounded-2xl flex items-center justify-center">
+                <Shield className="h-6 w-6 text-purple-600" />
+              </div>
+              <span className={`inline-flex px-3 py-1 text-xs font-medium rounded-full ${
                 user?.role === 'admin' 
                   ? 'bg-purple-100 text-purple-800' 
                   : 'bg-blue-100 text-blue-800'
               }`}>
-                {user?.role === 'admin' ? 'Administrator' : 'User'}
+                {user?.role === 'admin' ? 'Admin' : 'User'}
               </span>
             </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-600 mb-1">Member Since</label>
-              <p className="text-gray-800 font-medium">
-                {'N/A'}
-              </p>
+            <h3 className="text-sm font-medium text-gray-500 mb-2">Role</h3>
+            <p className="text-lg font-medium text-gray-900">
+              {user?.role === 'admin' ? 'Administrator' : 'User'}
+            </p>
+          </div>
+
+          <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+            <div className="flex items-center justify-between mb-4">
+              <div className="w-12 h-12 bg-orange-100 rounded-2xl flex items-center justify-center">
+                <Calendar className="h-6 w-6 text-orange-600" />
+              </div>
+              <CheckCircle className="h-5 w-5 text-green-500" />
             </div>
+            <h3 className="text-sm font-medium text-gray-500 mb-2">Member Since</h3>
+            <p className="text-lg font-medium text-gray-900">January 2024</p>
           </div>
         </div>
+      </div>
 
-        {/* Telegram Username */}
-        <div className="mb-8 p-6 bg-blue-50 rounded-lg border border-blue-200">
-          <div className="flex items-center mb-4">
-            <MessageCircle className="w-6 h-6 text-blue-600 mr-2" />
-            <h2 className="text-xl font-semibold text-gray-700">Telegram Username</h2>
+      {/* Stats Overview */}
+      <div>
+        <h2 className="text-2xl font-medium text-gray-900 mb-6">Activity Summary</h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          {stats.map((stat, index) => {
+            const Icon = stat.icon;
+            const colorClasses = {
+              blue: 'bg-blue-100 text-blue-600',
+              green: 'bg-green-100 text-green-600',
+              purple: 'bg-purple-100 text-purple-600',
+              orange: 'bg-orange-100 text-orange-600'
+            };
+            
+            return (
+              <div key={index} className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+                <div className="flex items-center justify-between mb-4">
+                  <div className={`w-12 h-12 rounded-2xl flex items-center justify-center ${colorClasses[stat.color as keyof typeof colorClasses]}`}>
+                    <Icon className="h-6 w-6" />
+                  </div>
+                  {stat.change && (
+                    <span className="text-sm text-green-600">{stat.change}</span>
+                  )}
+                </div>
+                <h3 className="text-sm font-medium text-gray-500 mb-2">{stat.label}</h3>
+                <p className="text-3xl font-medium text-gray-900">{stat.value}</p>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        {/* Telegram Integration */}
+        <div className="bg-white rounded-2xl shadow-sm border border-gray-100">
+          <div className="p-6 border-b border-gray-100">
+            <div className="flex items-center gap-3">
+              <div className="w-12 h-12 bg-blue-100 rounded-2xl flex items-center justify-center">
+                <MessageCircle className="h-6 w-6 text-blue-600" />
+              </div>
+              <div>
+                <h3 className="text-xl font-medium text-gray-900">Telegram Integration</h3>
+                <p className="text-sm text-gray-500">Connect your Telegram account for bot access</p>
+              </div>
+            </div>
           </div>
 
-          {telegramStatus.telegramUsername ? (
-            <div className="space-y-4">
-              <div className="flex items-center p-4 bg-green-100 rounded-lg border border-green-200">
-                <CheckCircle className="w-5 h-5 text-green-600 mr-2" />
-                <div>
-                  <p className="text-green-800 font-medium">Telegram username configured!</p>
-                  <p className="text-green-600 text-sm">@{telegramStatus.telegramUsername}</p>
+          <div className="p-6">
+            {telegramStatus.telegramUsername ? (
+              <div className="space-y-4">
+                <div className="flex items-center p-4 bg-green-50 rounded-2xl border border-green-200">
+                  <CheckCircle className="w-5 h-5 text-green-600 mr-3" />
+                  <div>
+                    <p className="text-green-800 font-medium">Connected!</p>
+                    <p className="text-green-600 text-sm">@{telegramStatus.telegramUsername}</p>
+                  </div>
                 </div>
-              </div>
 
-              <div className="flex gap-3">
+                <div className="bg-gray-50 p-4 rounded-2xl">
+                  <h4 className="font-medium text-gray-800 mb-3">Update Username</h4>
+                  <div className="flex gap-3">
+                    <input
+                      type="text"
+                      placeholder="Enter new username (without @)"
+                      value={telegramUsername}
+                      onChange={(e) => setTelegramUsername(e.target.value.replace(/[^a-zA-Z0-9_]/g, ''))}
+                      className="flex-1 px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    />
+                    <button
+                      onClick={handleUpdateTelegram}
+                      disabled={loading || !telegramUsername.trim() || telegramUsername === telegramStatus.telegramUsername}
+                      className="px-6 py-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center transition-all duration-200"
+                    >
+                      {loading ? (
+                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                      ) : (
+                        <Shield className="w-4 h-4 mr-2" />
+                      )}
+                      Update
+                    </button>
+                  </div>
+                </div>
+
                 <button
                   onClick={handleRemoveTelegram}
                   disabled={removing}
-                  className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center"
+                  className="w-full px-4 py-3 bg-red-50 text-red-600 rounded-xl hover:bg-red-100 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center transition-all duration-200"
                 >
                   {removing ? (
-                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-red-600 mr-2"></div>
                   ) : (
                     <Trash2 className="w-4 h-4 mr-2" />
                   )}
-                  Remove Telegram Username
+                  Remove Connection
                 </button>
               </div>
-
-              <div className="p-4 bg-blue-100 rounded-lg border border-blue-200">
-                <p className="text-blue-800 text-sm">
-                  <strong>Current username:</strong> @{telegramStatus.telegramUsername}
+            ) : (
+              <div className="space-y-4">
+                <p className="text-gray-600">
+                  Add your Telegram username to access the PayTrack bot and enhance your account security.
                 </p>
-                <p className="text-blue-600 text-sm mt-1">
-                  To change, enter a new username below and click Update, or click Remove to delete it completely.
-                </p>
-              </div>
-            </div>
-          ) : (
-            <div className="space-y-4">
-              <p className="text-gray-600">
-                Add your Telegram username to access the PayTrack bot and enhance your account security.
-              </p>
 
-              <div className="flex gap-3">
-                <input
-                  type="text"
-                  placeholder="Enter Telegram username (without @)"
-                  value={telegramUsername}
-                  onChange={(e) => setTelegramUsername(e.target.value.replace(/[^a-zA-Z0-9_]/g, ''))}
-                  className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
-                <button
-                  onClick={handleUpdateTelegram}
-                  disabled={loading || !telegramUsername.trim()}
-                  className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center"
-                >
-                  {loading ? (
-                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                  ) : (
-                    <Shield className="w-4 h-4 mr-2" />
-                  )}
-                  Update
-                </button>
-              </div>
+                <div className="flex gap-3">
+                  <input
+                    type="text"
+                    placeholder="Enter Telegram username (without @)"
+                    value={telegramUsername}
+                    onChange={(e) => setTelegramUsername(e.target.value.replace(/[^a-zA-Z0-9_]/g, ''))}
+                    className="flex-1 px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  />
+                  <button
+                    onClick={handleUpdateTelegram}
+                    disabled={loading || !telegramUsername.trim()}
+                    className="px-6 py-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center transition-all duration-200"
+                  >
+                    {loading ? (
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                    ) : (
+                      <Shield className="w-4 h-4 mr-2" />
+                    )}
+                    Connect
+                  </button>
+                </div>
 
-              <div className="text-sm text-gray-500">
-                <p>• Username must be 3-32 characters long</p>
-                <p>• Only letters, numbers, and underscores allowed</p>
-                <p>• Don't include the @ symbol</p>
+                <div className="text-sm text-gray-500 bg-gray-50 p-4 rounded-xl">
+                  <p className="font-medium mb-1">Requirements:</p>
+                  <p>• Username must be 3-32 characters long</p>
+                  <p>• Only letters, numbers, and underscores allowed</p>
+                  <p>• Don't include the @ symbol</p>
+                </div>
               </div>
-            </div>
-          )}
-
-          {/* Update Username Section - Always visible when username exists */}
-          {telegramStatus.telegramUsername && (
-            <div className="mt-6 p-4 bg-gray-50 rounded-lg border border-gray-200">
-              <h3 className="font-medium text-gray-800 mb-3">Update Username</h3>
-              <div className="flex gap-3">
-                <input
-                  type="text"
-                  placeholder="Enter new Telegram username (without @)"
-                  value={telegramUsername}
-                  onChange={(e) => setTelegramUsername(e.target.value.replace(/[^a-zA-Z0-9_]/g, ''))}
-                  className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
-                <button
-                  onClick={handleUpdateTelegram}
-                  disabled={loading || !telegramUsername.trim() || telegramUsername === telegramStatus.telegramUsername}
-                  className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center"
-                >
-                  {loading ? (
-                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                  ) : (
-                    <Shield className="w-4 h-4 mr-2" />
-                  )}
-                  Update
-                </button>
-              </div>
-            </div>
-          )}
+            )}
+          </div>
         </div>
 
-        {/* Telegram Bot Info */}
-        <div className="p-6 bg-purple-50 rounded-lg border border-purple-200">
-          <h2 className="text-xl font-semibold text-gray-700 mb-4 flex items-center">
-            <span className="w-8 h-8 bg-purple-600 text-white rounded-full flex items-center justify-center mr-3 text-sm font-bold">
-              🤖
-            </span>
-            Telegram Bot Access
-          </h2>
-          
-          {telegramStatus.telegramUsername ? (
-            <div className="space-y-3">
-              <div className="flex items-center p-3 bg-green-100 rounded-lg border border-green-200">
-                <CheckCircle className="w-5 h-5 text-green-600 mr-2" />
-                <div>
-                  <p className="text-green-800 font-medium">Bot access granted!</p>
-                  <p className="text-green-600 text-sm">
-                    You can now use the PayTrack Telegram bot with username @{telegramStatus.telegramUsername}
-                  </p>
-                </div>
+        {/* Quick Actions */}
+        <div className="bg-white rounded-2xl shadow-sm border border-gray-100">
+          <div className="p-6 border-b border-gray-100">
+            <div className="flex items-center gap-3">
+              <div className="w-12 h-12 bg-green-100 rounded-2xl flex items-center justify-center">
+                <Settings className="h-6 w-6 text-green-600" />
               </div>
-              <div className="bg-white p-4 rounded-lg border">
-                <h3 className="font-medium text-gray-800 mb-2">Available Bot Commands:</h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-sm">
-                  <div className="flex items-center">
-                    <span className="text-purple-600 mr-2">📊</span>
-                    <code className="bg-gray-100 px-2 py-1 rounded">/summary</code>
-                    <span className="text-gray-600 ml-2">View analytics</span>
-                  </div>
-                  <div className="flex items-center">
-                    <span className="text-purple-600 mr-2">👥</span>
-                    <code className="bg-red-100 px-2 py-1 rounded">/workers</code>
-                    <span className="text-gray-600 ml-2">List workers</span>
-                  </div>
-                  <div className="flex items-center">
-                    <span className="text-purple-600 mr-2">🌾</span>
-                    <code className="bg-gray-100 px-2 py-1 rounded">/crops</code>
-                    <span className="text-gray-600 ml-2">View agriculture</span>
-                  </div>
-                  <div className="flex items-center">
-                    <span className="text-purple-600 mr-2">🏠</span>
-                    <code className="bg-gray-100 px-2 py-1 rounded">/properties</code>
-                    <span className="text-gray-600 ml-2">View real estate</span>
-                  </div>
-                </div>
-              </div>
-              <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
-                <h3 className="font-medium text-blue-800 mb-2">How to use the bot:</h3>
-                <ol className="text-blue-700 text-sm space-y-1 list-decimal list-inside">
-                  <li>Open Telegram and search for your PayTrack bot</li>
-                  <li>Send <code className="bg-blue-100 px-1 rounded">/start</code></li>
-                  <li>Use the available commands from the menu</li>
-                </ol>
-              </div>
-            </div>
-          ) : (
-            <div className="flex items-center p-4 bg-yellow-100 rounded-lg border border-yellow-200">
-              <XCircle className="w-5 h-5 text-yellow-600 mr-2" />
               <div>
-                <p className="text-yellow-800 font-medium">Bot access pending</p>
-                <p className="text-yellow-600 text-sm">
-                  Add your Telegram username above to access the Telegram bot.
-                </p>
+                <h3 className="text-xl font-medium text-gray-900">Quick Actions</h3>
+                <p className="text-sm text-gray-500">Manage your PayTrack data</p>
               </div>
-            </div>
-          )}
-        </div>
-
-        {/* Messages */}
-        {message && (
-          <div className={`mt-6 p-4 rounded-lg border ${
-            message.type === 'success' 
-              ? 'bg-green-100 border-green-200 text-green-800' 
-              : 'bg-red-100 border-red-200 text-red-800'
-          }`}>
-            <div className="flex items-center">
-              {message.type === 'success' ? (
-                <CheckCircle className="w-5 h-5 mr-2" />
-              ) : (
-                <XCircle className="w-5 h-5 mr-2" />
-              )}
-              {message.text}
             </div>
           </div>
-        )}
+
+          <div className="p-6">
+            <div className="space-y-3">
+              <button 
+                onClick={() => window.location.href = '/workers'}
+                className="w-full flex items-center justify-between p-4 bg-blue-50 rounded-xl hover:bg-blue-100 transition-all duration-200"
+              >
+                <div className="flex items-center">
+                  <User className="h-5 w-5 text-blue-600 mr-3" />
+                  <span className="font-medium text-blue-900">Manage Workers</span>
+                </div>
+                <span className="text-sm text-blue-600">{profileStats.totalWorkers} workers</span>
+              </button>
+
+              <button 
+                onClick={() => window.location.href = '/agriculture'}
+                className="w-full flex items-center justify-between p-4 bg-green-50 rounded-xl hover:bg-green-100 transition-all duration-200"
+              >
+                <div className="flex items-center">
+                  <BarChart3 className="h-5 w-5 text-green-600 mr-3" />
+                  <span className="font-medium text-green-900">View Cultivations</span>
+                </div>
+                <span className="text-sm text-green-600">{profileStats.totalCultivations} records</span>
+              </button>
+
+              <button 
+                onClick={() => window.location.href = '/real-estate'}
+                className="w-full flex items-center justify-between p-4 bg-purple-50 rounded-xl hover:bg-purple-100 transition-all duration-200"
+              >
+                <div className="flex items-center">
+                  <Calendar className="h-5 w-5 text-purple-600 mr-3" />
+                  <span className="font-medium text-purple-900">Properties</span>
+                </div>
+                <span className="text-sm text-purple-600">{profileStats.totalProperties} properties</span>
+              </button>
+
+              <button 
+                onClick={() => window.location.href = '/meel'}
+                className="w-full flex items-center justify-between p-4 bg-orange-50 rounded-xl hover:bg-orange-100 transition-all duration-200"
+              >
+                <div className="flex items-center">
+                  <Activity className="h-5 w-5 text-orange-600 mr-3" />
+                  <span className="font-medium text-orange-900">Trading Records</span>
+                </div>
+                <span className="text-sm text-orange-600">{profileStats.totalMealRecords} trades</span>
+              </button>
+            </div>
+          </div>
+        </div>
       </div>
+
+      {/* Telegram Bot Info */}
+      {telegramStatus.telegramUsername && (
+        <div className="bg-white rounded-2xl shadow-sm border border-gray-100">
+          <div className="p-6 border-b border-gray-100">
+            <div className="flex items-center gap-3">
+              <div className="w-12 h-12 bg-purple-100 rounded-2xl flex items-center justify-center">
+                <span className="text-2xl">🤖</span>
+              </div>
+              <div>
+                <h3 className="text-xl font-medium text-gray-900">Telegram Bot Commands</h3>
+                <p className="text-sm text-gray-500">Available commands for PayTrack bot</p>
+              </div>
+            </div>
+          </div>
+
+          <div className="p-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+              <div className="flex items-center p-4 bg-gray-50 rounded-xl">
+                <span className="text-2xl mr-3">📊</span>
+                <div>
+                  <code className="bg-gray-200 px-2 py-1 rounded font-mono text-sm">/summary</code>
+                  <p className="text-sm text-gray-600 mt-1">View analytics summary</p>
+                </div>
+              </div>
+              <div className="flex items-center p-4 bg-gray-50 rounded-xl">
+                <span className="text-2xl mr-3">👥</span>
+                <div>
+                  <code className="bg-gray-200 px-2 py-1 rounded font-mono text-sm">/workers</code>
+                  <p className="text-sm text-gray-600 mt-1">List all workers</p>
+                </div>
+              </div>
+              <div className="flex items-center p-4 bg-gray-50 rounded-xl">
+                <span className="text-2xl mr-3">🌾</span>
+                <div>
+                  <code className="bg-gray-200 px-2 py-1 rounded font-mono text-sm">/crops</code>
+                  <p className="text-sm text-gray-600 mt-1">View agriculture data</p>
+                </div>
+              </div>
+              <div className="flex items-center p-4 bg-gray-50 rounded-xl">
+                <span className="text-2xl mr-3">🏠</span>
+                <div>
+                  <code className="bg-gray-200 px-2 py-1 rounded font-mono text-sm">/properties</code>
+                  <p className="text-sm text-gray-600 mt-1">View real estate</p>
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-blue-50 p-4 rounded-xl border border-blue-200">
+              <h4 className="font-medium text-blue-800 mb-2">Getting Started:</h4>
+              <ol className="text-blue-700 text-sm space-y-1 list-decimal list-inside">
+                <li>Open Telegram and search for your PayTrack bot</li>
+                <li>Send <code className="bg-blue-200 px-1 rounded">/start</code> to begin</li>
+                <li>Use any of the commands above to get information</li>
+              </ol>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Messages */}
+      {message && (
+        <div className={`p-4 rounded-2xl border ${
+          message.type === 'success' 
+            ? 'bg-green-50 border-green-200 text-green-800' 
+            : 'bg-red-50 border-red-200 text-red-800'
+        }`}>
+          <div className="flex items-center">
+            {message.type === 'success' ? (
+              <CheckCircle className="w-5 h-5 mr-2" />
+            ) : (
+              <XCircle className="w-5 h-5 mr-2" />
+            )}
+            {message.text}
+          </div>
+        </div>
+      )}
     </div>
   );
 };

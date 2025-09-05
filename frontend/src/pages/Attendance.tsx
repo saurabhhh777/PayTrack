@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { Calendar, Plus, Edit, Trash2, Users, Filter, Download } from 'lucide-react'
+import { Calendar, Plus, Edit, Trash2, Users, Filter, Download, Search, TrendingUp, Clock, CheckCircle } from 'lucide-react'
 import { api } from '../lib/api'
 import { format } from 'date-fns'
 
@@ -33,6 +33,7 @@ const Attendance = () => {
   const [showAttendanceForm, setShowAttendanceForm] = useState(false)
   const [showBulkAttendanceForm, setShowBulkAttendanceForm] = useState(false)
   const [editingAttendance, setEditingAttendance] = useState<Attendance | null>(null)
+  const [searchTerm, setSearchTerm] = useState('')
   const [filters, setFilters] = useState({
     workerId: '',
     status: '',
@@ -177,182 +178,210 @@ const Attendance = () => {
     window.URL.revokeObjectURL(url)
   }
 
+  // Filter attendance based on search
+  const filteredAttendance = attendance.filter(record => 
+    record.workerId.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    record.workerId.phone.includes(searchTerm)
+  )
+
+  // Calculate stats
+  const totalRecords = attendance.length
+  const presentCount = attendance.filter(a => a.status === 'present').length
+  const absentCount = attendance.filter(a => a.status === 'absent').length
+  const leaveCount = attendance.filter(a => a.status === 'leave').length
+  const attendanceRate = totalRecords > 0 ? Math.round((presentCount / totalRecords) * 100) : 0
+
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600"></div>
+      <div className="flex items-center justify-center min-h-[60vh]">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-green-500 mx-auto mb-4"></div>
+          <p className="text-gray-600 text-lg">Loading attendance records...</p>
+        </div>
       </div>
     )
   }
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">Attendance Management</h1>
-          <p className="mt-1 text-sm text-gray-500">
-            Track and manage worker attendance records
-          </p>
+    <div className="space-y-8">
+      {/* Header Section */}
+      <div className="bg-gradient-to-r from-purple-500 to-purple-600 rounded-3xl p-8 text-white relative overflow-hidden">
+        <div className="absolute inset-0 opacity-10">
+          <div className="absolute top-4 right-4 w-32 h-32 bg-white rounded-full"></div>
+          <div className="absolute bottom-4 left-4 w-24 h-24 bg-white rounded-full"></div>
         </div>
-        <div className="mt-4 sm:mt-0 flex space-x-3">
-          <button
-            onClick={() => setShowAttendanceForm(true)}
-            className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-purple-600 hover:bg-purple-700"
-          >
-            <Plus className="h-4 w-4 mr-2" />
-            Add Attendance
-          </button>
-          <button
-            onClick={() => setShowBulkAttendanceForm(true)}
-            className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700"
-          >
-            <Users className="h-4 w-4 mr-2" />
-            Bulk Attendance
-          </button>
-          <button
-            onClick={exportAttendanceData}
-            className="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md shadow-sm text-gray-700 bg-white hover:bg-gray-50"
-          >
-            <Download className="h-4 w-4 mr-2" />
-            Export CSV
-          </button>
+        
+        <div className="relative z-10">
+          <h1 className="text-4xl font-medium mb-4">Attendance Management</h1>
+          <p className="text-xl text-purple-100 mb-6">
+            Track and manage worker attendance records efficiently
+          </p>
+          
+          <div className="flex flex-wrap gap-3">
+            <button
+              onClick={() => setShowAttendanceForm(true)}
+              className="inline-flex items-center gap-3 bg-white/20 backdrop-blur-sm text-white px-6 py-3 rounded-2xl font-medium hover:bg-white/30 transition-all duration-200"
+            >
+              <Plus className="h-5 w-5" />
+              Mark Attendance
+            </button>
+            <button
+              onClick={() => setShowBulkAttendanceForm(true)}
+              className="inline-flex items-center gap-3 bg-white/20 backdrop-blur-sm text-white px-6 py-3 rounded-2xl font-medium hover:bg-white/30 transition-all duration-200"
+            >
+              <Users className="h-5 w-5" />
+              Bulk Entry
+            </button>
+            <button
+              onClick={exportAttendanceData}
+              className="inline-flex items-center gap-3 bg-white/20 backdrop-blur-sm text-white px-6 py-3 rounded-2xl font-medium hover:bg-white/30 transition-all duration-200"
+            >
+              <Download className="h-5 w-5" />
+              Export CSV
+            </button>
+          </div>
         </div>
       </div>
 
-      {/* Filters */}
-      <div className="bg-white p-6 rounded-xl shadow-lg border border-gray-100">
-        <div className="flex items-center space-x-4">
-          <Filter className="h-5 w-5 text-purple-500" />
-          <div className="flex flex-wrap gap-4">
-            <select
-              value={filters.workerId}
-              onChange={(e) => setFilters(prev => ({ ...prev, workerId: e.target.value }))}
-              className="border border-gray-300 rounded-lg px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200 hover:border-gray-400"
-            >
-              <option value="">👥 All Workers</option>
-              {workers.map(worker => (
-                <option key={worker._id} value={worker._id}>{worker.name}</option>
-              ))}
-            </select>
+      {/* Stats Cards */}
+      <div>
+        <h2 className="text-2xl font-medium text-gray-900 mb-6">Attendance Overview</h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+            <div className="flex items-center justify-between mb-4">
+              <div className="w-12 h-12 bg-blue-100 rounded-2xl flex items-center justify-center">
+                <Calendar className="h-6 w-6 text-blue-600" />
+              </div>
+              <TrendingUp className="h-5 w-5 text-green-500" />
+            </div>
+            <h3 className="text-sm font-medium text-gray-500 mb-2">Total Records</h3>
+            <p className="text-3xl font-medium text-gray-900 mb-1">{totalRecords}</p>
+            <p className="text-sm text-gray-600">This period</p>
+          </div>
+
+          <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+            <div className="flex items-center justify-between mb-4">
+              <div className="w-12 h-12 bg-green-100 rounded-2xl flex items-center justify-center">
+                <CheckCircle className="h-6 w-6 text-green-600" />
+              </div>
+              <TrendingUp className="h-5 w-5 text-green-500" />
+            </div>
+            <h3 className="text-sm font-medium text-gray-500 mb-2">Present</h3>
+            <p className="text-3xl font-medium text-gray-900 mb-1">{presentCount}</p>
+            <p className="text-sm text-green-600">{attendanceRate}% rate</p>
+          </div>
+
+          <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+            <div className="flex items-center justify-between mb-4">
+              <div className="w-12 h-12 bg-red-100 rounded-2xl flex items-center justify-center">
+                <Clock className="h-6 w-6 text-red-600" />
+              </div>
+              <span className="text-sm text-red-600">-{Math.round((absentCount / totalRecords) * 100) || 0}%</span>
+            </div>
+            <h3 className="text-sm font-medium text-gray-500 mb-2">Absent</h3>
+            <p className="text-3xl font-medium text-gray-900 mb-1">{absentCount}</p>
+            <p className="text-sm text-red-600">Workers</p>
+          </div>
+
+          <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+            <div className="flex items-center justify-between mb-4">
+              <div className="w-12 h-12 bg-yellow-100 rounded-2xl flex items-center justify-center">
+                <span className="text-yellow-600 text-xl">🏖️</span>
+              </div>
+              <TrendingUp className="h-5 w-5 text-blue-500" />
+            </div>
+            <h3 className="text-sm font-medium text-gray-500 mb-2">On Leave</h3>
+            <p className="text-3xl font-medium text-gray-900 mb-1">{leaveCount}</p>
+            <p className="text-sm text-blue-600">Workers</p>
+          </div>
+        </div>
+      </div>
+
+      {/* Filters Section */}
+      <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+        <div className="flex flex-col lg:flex-row gap-4 items-center justify-between">
+          <div className="relative flex-1 max-w-md">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+            <input
+              type="text"
+              placeholder="Search workers by name or phone..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="pl-10 pr-4 py-3 w-full border border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+            />
+          </div>
+          
+          <div className="flex flex-wrap gap-4 items-center">
+            <div className="flex items-center gap-2">
+              <Filter className="h-5 w-5 text-gray-400" />
+              <select
+                value={filters.workerId}
+                onChange={(e) => setFilters(prev => ({ ...prev, workerId: e.target.value }))}
+                className="border border-gray-200 rounded-xl px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
+              >
+                <option value="">All Workers</option>
+                {workers.map(worker => (
+                  <option key={worker._id} value={worker._id}>{worker.name}</option>
+                ))}
+              </select>
+            </div>
+            
             <select
               value={filters.status}
               onChange={(e) => setFilters(prev => ({ ...prev, status: e.target.value }))}
-              className="border border-gray-300 rounded-lg px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200 hover:border-gray-400"
+              className="border border-gray-200 rounded-xl px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
             >
-              <option value="">📊 All Status</option>
-              <option value="present">✅ Present</option>
-              <option value="absent">❌ Absent</option>
-              <option value="half-day">⚠️ Half Day</option>
-              <option value="leave">🏖️ Leave</option>
+              <option value="">All Status</option>
+              <option value="present">Present</option>
+              <option value="absent">Absent</option>
+              <option value="half-day">Half Day</option>
+              <option value="leave">Leave</option>
             </select>
+            
             <input
               type="date"
               value={filters.startDate}
               onChange={(e) => setFilters(prev => ({ ...prev, startDate: e.target.value }))}
-              className="border border-gray-300 rounded-lg px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200 hover:border-gray-400"
+              className="border border-gray-200 rounded-xl px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
             />
+            
             <input
               type="date"
               value={filters.endDate}
               onChange={(e) => setFilters(prev => ({ ...prev, endDate: e.target.value }))}
-              className="border border-gray-300 rounded-lg px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200 hover:border-gray-400"
+              className="border border-gray-200 rounded-xl px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
             />
           </div>
         </div>
       </div>
 
-      {/* Attendance Summary */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-        <div className="bg-white overflow-hidden shadow-lg rounded-xl border border-gray-100 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
-          <div className="p-6">
-            <div className="flex items-center">
-              <div className="flex-shrink-0 p-3 bg-green-100 rounded-xl">
-                <Calendar className="h-6 w-6 text-green-600" />
-              </div>
-              <div className="ml-4 flex-1">
-                <dt className="text-sm font-medium text-gray-500 truncate">Total Records</dt>
-                <dd className="text-2xl font-bold text-gray-900">{attendance.length}</dd>
-              </div>
-            </div>
+      {/* Attendance Records */}
+      <div>
+        <div className="flex items-center justify-between mb-6">
+          <h2 className="text-2xl font-medium text-gray-900">Attendance Records ({filteredAttendance.length})</h2>
+          <div className="text-sm text-gray-500">
+            Showing {filteredAttendance.length} of {totalRecords} records
           </div>
         </div>
 
-        <div className="bg-white overflow-hidden shadow-lg rounded-xl border border-gray-100 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
-          <div className="p-6">
-            <div className="flex items-center">
-              <div className="flex-shrink-0 p-3 bg-green-100 rounded-xl">
-                <span className="text-2xl">✅</span>
-              </div>
-              <div className="ml-4 flex-1">
-                <dt className="text-sm font-medium text-gray-500 truncate">Present</dt>
-                <dd className="text-2xl font-bold text-gray-900">
-                  {attendance.filter(a => a.status === 'present').length}
-                </dd>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-white overflow-hidden shadow-lg rounded-xl border border-gray-100 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
-          <div className="p-6">
-            <div className="flex items-center">
-              <div className="flex-shrink-0 p-3 bg-red-100 rounded-xl">
-                <span className="text-2xl">❌</span>
-              </div>
-              <div className="ml-4 flex-1">
-                <dt className="text-sm font-medium text-gray-500 truncate">Absent</dt>
-                <dd className="text-2xl font-bold text-gray-900">
-                  {attendance.filter(a => a.status === 'absent').length}
-                </dd>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-white overflow-hidden shadow-lg rounded-xl border border-gray-100 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
-          <div className="p-6">
-            <div className="flex items-center">
-              <div className="flex-shrink-0 p-3 bg-blue-100 rounded-xl">
-                <span className="text-2xl">🏖️</span>
-              </div>
-              <div className="ml-4 flex-1">
-                <dt className="text-sm font-medium text-gray-500 truncate">Leave</dt>
-                <dd className="text-2xl font-bold text-gray-900">
-                  {attendance.filter(a => a.status === 'leave').length}
-                </dd>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Attendance List */}
-      <div className="bg-white shadow-lg rounded-xl border border-gray-100">
-        <div className="px-6 py-6">
-          <div className="flex items-center justify-between mb-6">
-            <h3 className="text-xl font-semibold text-gray-900">📊 Attendance Records</h3>
-            <div className="text-sm text-gray-500">
-              Total: {attendance.length} record{attendance.length !== 1 ? 's' : ''}
-            </div>
-          </div>
+        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
           <div className="overflow-x-auto">
             <table className="min-w-full divide-y divide-gray-200">
               <thead className="bg-gray-50">
                 <tr>
-                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Date</th>
-                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Worker</th>
-                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Status</th>
-                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Check In</th>
-                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Check Out</th>
-                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Hours</th>
-                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Notes</th>
-                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Actions</th>
+                  <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
+                  <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Worker</th>
+                  <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                  <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Check In</th>
+                  <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Check Out</th>
+                  <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Hours</th>
+                  <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Notes</th>
+                  <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                 </tr>
               </thead>
-              <tbody className="bg-white divide-y divide-gray-100">
-                {attendance.map((record) => (
-                  <tr key={record._id} className="hover:bg-gray-50 transition-colors duration-150">
+              <tbody className="bg-white divide-y divide-gray-200">
+                {filteredAttendance.map((record) => (
+                  <tr key={record._id} className="hover:bg-gray-50 transition-colors">
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="text-sm font-medium text-gray-900">
                         {format(new Date(record.date), 'dd/MMM/yyyy')}
@@ -360,32 +389,32 @@ const Attendance = () => {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="flex items-center">
-                        <div className="w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center mr-3">
-                          <span className="text-purple-600 font-semibold text-sm">
+                        <div className="w-10 h-10 bg-purple-100 rounded-xl flex items-center justify-center mr-3">
+                          <span className="text-purple-600 font-medium text-sm">
                             {record.workerId.name.charAt(0).toUpperCase()}
                           </span>
                         </div>
                         <div>
-                          <div className="text-sm font-semibold text-gray-900">{record.workerId.name}</div>
-                          <div className="text-xs text-gray-500">{record.workerId.phone}</div>
+                          <div className="text-sm font-medium text-gray-900">{record.workerId.name}</div>
+                          <div className="text-sm text-gray-500">{record.workerId.phone}</div>
                         </div>
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="flex items-center space-x-2">
                         <span className="text-lg">{getStatusIcon(record.status)}</span>
-                        <span className={`inline-flex px-3 py-1 text-xs font-semibold rounded-full border ${getStatusColor(record.status)}`}>
+                        <span className={`inline-flex px-3 py-1 text-xs font-medium rounded-full ${getStatusColor(record.status)}`}>
                           {record.status.charAt(0).toUpperCase() + record.status.slice(1)}
                         </span>
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm font-medium text-gray-900">
+                      <div className="text-sm text-gray-900">
                         {record.checkInTime ? format(new Date(`2000-01-01T${record.checkInTime}`), 'HH:mm') : '-'}
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm font-medium text-gray-900">
+                      <div className="text-sm text-gray-900">
                         {record.checkOutTime ? format(new Date(`2000-01-01T${record.checkOutTime}`), 'HH:mm') : '-'}
                       </div>
                     </td>
@@ -399,8 +428,8 @@ const Attendance = () => {
                         {record.notes || '-'}
                       </div>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                      <div className="flex items-center space-x-3">
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="flex items-center gap-2">
                         <button
                           onClick={() => {
                             setEditingAttendance(record)
@@ -415,14 +444,14 @@ const Attendance = () => {
                             })
                             setShowAttendanceForm(true)
                           }}
-                          className="text-blue-600 hover:text-blue-800 p-2 rounded-lg hover:bg-blue-50 transition-colors duration-150"
+                          className="p-2 text-blue-600 hover:bg-blue-50 rounded-xl transition-colors"
                           title="Edit"
                         >
                           <Edit className="h-4 w-4" />
                         </button>
                         <button
                           onClick={() => deleteAttendance(record._id)}
-                          className="text-red-600 hover:text-red-800 p-2 rounded-lg hover:bg-red-50 transition-colors duration-150"
+                          className="p-2 text-red-600 hover:bg-red-50 rounded-xl transition-colors"
                           title="Delete"
                         >
                           <Trash2 className="h-4 w-4" />
@@ -433,22 +462,12 @@ const Attendance = () => {
                 ))}
               </tbody>
             </table>
-            {attendance.length === 0 && (
+            
+            {filteredAttendance.length === 0 && (
               <div className="text-center py-12">
-                <div className="text-gray-400 mb-4">
-                  <svg className="mx-auto h-12 w-12" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
-                  </svg>
-                </div>
-                <h3 className="text-lg font-medium text-gray-900 mb-2">No attendance records found</h3>
-                <p className="text-gray-500 mb-4">No attendance records match the selected filters.</p>
-                <button
-                  onClick={() => setShowAttendanceForm(true)}
-                  className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-lg shadow-sm text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2"
-                >
-                  <Plus className="h-4 w-4 mr-2" />
-                  Add First Record
-                </button>
+                <Calendar className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                <p className="text-gray-500 text-lg">No attendance records found</p>
+                <p className="text-gray-400 text-sm">Try adjusting your search or filter criteria</p>
               </div>
             )}
           </div>
@@ -463,7 +482,7 @@ const Attendance = () => {
             <div className="bg-gradient-to-r from-purple-500 to-purple-600 px-6 py-4">
               <div className="flex items-center justify-between">
                 <h3 className="text-xl font-semibold text-white">
-                  {editingAttendance ? 'Edit Attendance' : 'Add New Attendance'}
+                  {editingAttendance ? 'Edit Attendance' : 'Mark Attendance'}
                 </h3>
                 <button
                   onClick={() => {
@@ -498,7 +517,7 @@ const Attendance = () => {
                     required
                     value={attendanceForm.workerId}
                     onChange={(e) => setAttendanceForm(prev => ({ ...prev, workerId: e.target.value }))}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200 hover:border-gray-400"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200"
                   >
                     <option value="">Choose a worker</option>
                     {workers.map(worker => (
@@ -516,7 +535,7 @@ const Attendance = () => {
                       required
                       value={attendanceForm.date}
                       onChange={(e) => setAttendanceForm(prev => ({ ...prev, date: e.target.value }))}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200 hover:border-gray-400"
+                      className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200"
                     />
                   </div>
                   <div>
@@ -525,7 +544,7 @@ const Attendance = () => {
                       required
                       value={attendanceForm.status}
                       onChange={(e) => setAttendanceForm(prev => ({ ...prev, status: e.target.value as 'present' | 'absent' | 'half-day' | 'leave' }))}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200 hover:border-gray-400"
+                      className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200"
                     >
                       <option value="present">✅ Present</option>
                       <option value="absent">❌ Absent</option>
@@ -543,7 +562,7 @@ const Attendance = () => {
                       type="time"
                       value={attendanceForm.checkInTime}
                       onChange={(e) => setAttendanceForm(prev => ({ ...prev, checkInTime: e.target.value }))}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200 hover:border-gray-400"
+                      className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200"
                     />
                   </div>
                   <div>
@@ -552,7 +571,7 @@ const Attendance = () => {
                       type="time"
                       value={attendanceForm.checkOutTime}
                       onChange={(e) => setAttendanceForm(prev => ({ ...prev, checkOutTime: e.target.value }))}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200 hover:border-gray-400"
+                      className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200"
                     />
                   </div>
                 </div>
@@ -568,7 +587,7 @@ const Attendance = () => {
                     placeholder="0.0"
                     value={attendanceForm.workingHours}
                     onChange={(e) => setAttendanceForm(prev => ({ ...prev, workingHours: e.target.value }))}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200 hover:border-gray-400"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200"
                   />
                 </div>
 
@@ -576,21 +595,21 @@ const Attendance = () => {
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">📝 Notes</label>
                   <textarea
-                    placeholder="Add any additional notes or comments..."
+                    placeholder="Add any additional notes..."
                     value={attendanceForm.notes}
                     onChange={(e) => setAttendanceForm(prev => ({ ...prev, notes: e.target.value }))}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200 hover:border-gray-400 resize-none"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200 resize-none"
                     rows={3}
                   />
                 </div>
 
-                {/* Action Buttons */}
+                {/* Buttons */}
                 <div className="flex space-x-4 pt-4 border-t border-gray-200">
                   <button
                     type="submit"
-                    className="flex-1 bg-gradient-to-r from-purple-500 to-purple-600 text-white px-6 py-3 rounded-lg font-medium hover:from-purple-600 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 transition-all duration-200 transform hover:scale-105 shadow-lg"
+                    className="flex-1 bg-gradient-to-r from-purple-500 to-purple-600 text-white px-6 py-3 rounded-xl font-medium hover:from-purple-600 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 transition-all duration-200 transform hover:scale-105 shadow-lg"
                   >
-                    {editingAttendance ? '🔄 Update Attendance' : '📝 Add Attendance'}
+                    {editingAttendance ? '🔄 Update Attendance' : '📝 Mark Attendance'}
                   </button>
                   <button
                     type="button"
@@ -607,7 +626,7 @@ const Attendance = () => {
                         notes: ''
                       })
                     }}
-                    className="flex-1 bg-gray-100 text-gray-700 px-6 py-3 rounded-lg font-medium hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-all duration-200"
+                    className="flex-1 bg-gray-100 text-gray-700 px-6 py-3 rounded-xl font-medium hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-all duration-200"
                   >
                     Cancel
                   </button>
@@ -656,20 +675,20 @@ const Attendance = () => {
                     required
                     value={bulkAttendanceForm.date}
                     onChange={(e) => setBulkAttendanceForm(prev => ({ ...prev, date: e.target.value }))}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-200 hover:border-gray-400"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-200"
                   />
                 </div>
                 
                 {/* Worker Attendance List */}
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-3">👥 Worker Attendance Status</label>
-                  <div className="max-h-96 overflow-y-auto border border-gray-300 rounded-lg p-4 bg-gray-50">
+                  <div className="max-h-96 overflow-y-auto border border-gray-300 rounded-xl p-4 bg-gray-50">
                     {workers.map((worker) => {
                       const existingRecord = bulkAttendanceForm.attendanceData.find(
                         record => record.workerId === worker._id
                       )
                       return (
-                        <div key={worker._id} className="flex items-center justify-between py-3 px-4 border-b border-gray-200 last:border-b-0 bg-white rounded-lg mb-2 hover:bg-gray-50 transition-colors duration-150">
+                        <div key={worker._id} className="flex items-center justify-between py-3 px-4 border-b border-gray-200 last:border-b-0 bg-white rounded-xl mb-2 hover:bg-gray-50 transition-colors">
                           <div className="flex-1">
                             <div className="font-medium text-gray-900">{worker.name}</div>
                             <div className="text-sm text-gray-500">{worker.phone}</div>
@@ -691,7 +710,7 @@ const Attendance = () => {
                               
                               setBulkAttendanceForm(prev => ({ ...prev, attendanceData: newData }))
                             }}
-                            className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-200"
+                            className="px-3 py-2 border border-gray-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-200"
                           >
                             <option value="present">✅ Present</option>
                             <option value="absent">❌ Absent</option>
@@ -707,11 +726,11 @@ const Attendance = () => {
                   </p>
                 </div>
 
-                {/* Action Buttons */}
+                {/* Buttons */}
                 <div className="flex space-x-4 pt-4 border-t border-gray-200">
                   <button
                     type="submit"
-                    className="flex-1 bg-gradient-to-r from-indigo-500 to-indigo-600 text-white px-6 py-3 rounded-lg font-medium hover:from-indigo-600 hover:to-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition-all duration-200 transform hover:scale-105 shadow-lg"
+                    className="flex-1 bg-gradient-to-r from-indigo-500 to-indigo-600 text-white px-6 py-3 rounded-xl font-medium hover:from-indigo-600 hover:to-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition-all duration-200 transform hover:scale-105 shadow-lg"
                   >
                     💾 Save All Attendance
                   </button>
@@ -724,7 +743,7 @@ const Attendance = () => {
                         attendanceData: []
                       })
                     }}
-                    className="flex-1 bg-gray-100 text-gray-700 px-6 py-3 rounded-lg font-medium hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-all duration-200"
+                    className="flex-1 bg-gray-100 text-gray-700 px-6 py-3 rounded-xl font-medium hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-all duration-200"
                   >
                     Cancel
                   </button>

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
-import { Plus, Edit, Trash2, DollarSign, Calendar, Users } from 'lucide-react'
+import { Plus, Edit, Trash2, DollarSign, Calendar, Users, Search, Filter, Phone, MapPin, TrendingUp, Clock, Eye } from 'lucide-react'
 import { api } from '../lib/api'
 import { format } from 'date-fns'
 
@@ -49,16 +49,9 @@ const Workers = () => {
   const [attendance, setAttendance] = useState<Attendance[]>([])
   const [loading, setLoading] = useState(true)
   const [showWorkerForm, setShowWorkerForm] = useState(false)
-  const [showPaymentForm, setShowPaymentForm] = useState(false)
-  const [showAttendanceForm, setShowAttendanceForm] = useState(false)
-  const [showBulkAttendanceForm, setShowBulkAttendanceForm] = useState(false)
-  const [showWorkerAttendanceView, setShowWorkerAttendanceView] = useState(false)
-  const [selectedWorker, setSelectedWorker] = useState<Worker | null>(null)
   const [editingWorker, setEditingWorker] = useState<Worker | null>(null)
-  const [editingPayment, setEditingPayment] = useState<Payment | null>(null)
-  const [editingAttendance, setEditingAttendance] = useState<Attendance | null>(null)
-  const [workerAttendanceData, setWorkerAttendanceData] = useState<Attendance[]>([])
-  const [workerAttendanceSummary, setWorkerAttendanceSummary] = useState<any>(null)
+  const [searchTerm, setSearchTerm] = useState('')
+  const [statusFilter, setStatusFilter] = useState<'all' | 'active' | 'inactive'>('all')
 
   const [workerForm, setWorkerForm] = useState({
     name: '',
@@ -67,36 +60,6 @@ const Workers = () => {
     joiningDate: format(new Date(), 'yyyy-MM-dd'),
     salary: '',
     notes: ''
-  })
-
-  const [paymentForm, setPaymentForm] = useState({
-    workerId: '',
-    amount: '',
-    date: format(new Date(), 'yyyy-MM-dd'),
-    paymentMode: 'cash' as 'cash' | 'UPI',
-    description: ''
-  })
-
-  const [attendanceForm, setAttendanceForm] = useState({
-    workerId: '',
-    date: format(new Date(), 'yyyy-MM-dd'),
-    status: 'present' as 'present' | 'absent' | 'half-day' | 'leave',
-    checkInTime: '',
-    checkOutTime: '',
-    workingHours: '',
-    notes: ''
-  })
-
-  const [bulkAttendanceForm, setBulkAttendanceForm] = useState({
-    date: format(new Date(), 'yyyy-MM-dd'),
-    attendanceData: [] as Array<{
-      workerId: string
-      status: 'present' | 'absent' | 'half-day' | 'leave'
-      checkInTime?: string
-      checkOutTime?: string
-      workingHours?: string
-      notes?: string
-    }>
   })
 
   useEffect(() => {
@@ -158,29 +121,6 @@ const Workers = () => {
     }
   }
 
-  const handlePaymentSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    try {
-      if (editingPayment) {
-        await api.put(`/payments/${editingPayment._id}`, paymentForm)
-      } else {
-        await api.post('/payments', paymentForm)
-      }
-      setShowPaymentForm(false)
-      setEditingPayment(null)
-      setPaymentForm({
-        workerId: '',
-        amount: '',
-        date: format(new Date(), 'yyyy-MM-dd'),
-        paymentMode: 'cash',
-        description: ''
-      })
-      fetchPayments()
-    } catch (error) {
-      console.error('Error saving payment:', error)
-    }
-  }
-
   const deleteWorker = async (id: string) => {
     if (window.confirm('Are you sure you want to delete this worker?')) {
       try {
@@ -188,89 +128,6 @@ const Workers = () => {
         fetchWorkers()
       } catch (error) {
         console.error('Error deleting worker:', error)
-      }
-    }
-  }
-
-  const handleAttendanceSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    try {
-      if (editingAttendance) {
-        await api.put(`/attendance/${editingAttendance._id}`, attendanceForm)
-      } else {
-        await api.post('/attendance', attendanceForm)
-      }
-      setShowAttendanceForm(false)
-      setEditingAttendance(null)
-      setAttendanceForm({
-        workerId: '',
-        date: format(new Date(), 'yyyy-MM-dd'),
-        status: 'present',
-        checkInTime: '',
-        checkOutTime: '',
-        workingHours: '',
-        notes: ''
-      })
-      fetchAttendance()
-      fetchWorkers() // Refresh workers to update totalWorkingDays
-    } catch (error) {
-      console.error('Error saving attendance:', error)
-    }
-  }
-
-  const handleBulkAttendanceSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    try {
-      await api.post('/attendance/bulk', bulkAttendanceForm)
-      setShowBulkAttendanceForm(false)
-      setBulkAttendanceForm({
-        date: format(new Date(), 'yyyy-MM-dd'),
-        attendanceData: []
-      })
-      fetchAttendance()
-      fetchWorkers() // Refresh workers to update totalWorkingDays
-    } catch (error) {
-      console.error('Error saving bulk attendance:', error)
-    }
-  }
-
-  const deleteAttendance = async (id: string) => {
-    if (window.confirm('Are you sure you want to delete this attendance record?')) {
-      try {
-        await api.delete(`/attendance/${id}`)
-        fetchAttendance()
-        fetchWorkers() // Refresh workers to update totalWorkingDays
-      } catch (error) {
-        console.error('Error deleting attendance:', error)
-      }
-    }
-  }
-
-  const viewWorkerAttendance = async (worker: Worker) => {
-    try {
-      setSelectedWorker(worker)
-      
-      // Fetch attendance data for this specific worker
-      const attendanceResponse = await api.get(`/attendance?workerId=${worker._id}`)
-      setWorkerAttendanceData(attendanceResponse.data)
-      
-      // Fetch attendance summary for this worker
-      const summaryResponse = await api.get(`/attendance/summary/worker/${worker._id}`)
-      setWorkerAttendanceSummary(summaryResponse.data)
-      
-      setShowWorkerAttendanceView(true)
-    } catch (error) {
-      console.error('Error fetching worker attendance:', error)
-    }
-  }
-
-  const deletePayment = async (id: string) => {
-    if (window.confirm('Are you sure you want to delete this payment?')) {
-      try {
-        await api.delete(`/payments/${id}`)
-        fetchPayments()
-      } catch (error) {
-        console.error('Error deleting payment:', error)
       }
     }
   }
@@ -288,18 +145,6 @@ const Workers = () => {
     setShowWorkerForm(true)
   }
 
-  const editPayment = (payment: Payment) => {
-    setEditingPayment(payment)
-    setPaymentForm({
-      workerId: payment.workerId._id,
-      amount: payment.amount.toString(),
-      date: format(new Date(payment.date), 'yyyy-MM-dd'),
-      paymentMode: payment.paymentMode,
-      description: payment.description || ''
-    })
-    setShowPaymentForm(true)
-  }
-
   const getWorkerPayments = (workerId: string) => {
     return payments.filter(p => p.workerId._id === workerId)
   }
@@ -308,263 +153,264 @@ const Workers = () => {
     return getWorkerPayments(workerId).reduce((sum, p) => sum + p.amount, 0)
   }
 
+  const getWorkerAttendance = (workerId: string) => {
+    return attendance.filter(a => a.workerId._id === workerId)
+  }
+
+  const getWorkerAttendanceStats = (workerId: string) => {
+    const workerAttendance = getWorkerAttendance(workerId)
+    const present = workerAttendance.filter(a => a.status === 'present').length
+    const total = workerAttendance.length
+    return { present, total, percentage: total > 0 ? Math.round((present / total) * 100) : 0 }
+  }
+
+  // Filter workers based on search and status
+  const filteredWorkers = workers.filter(worker => {
+    const matchesSearch = worker.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         worker.phone.includes(searchTerm) ||
+                         worker.address.toLowerCase().includes(searchTerm.toLowerCase())
+    const matchesStatus = statusFilter === 'all' || 
+                         (statusFilter === 'active' && worker.isActive) ||
+                         (statusFilter === 'inactive' && !worker.isActive)
+    return matchesSearch && matchesStatus
+  })
+
+  // Calculate summary stats
+  const totalWorkers = workers.length
+  const activeWorkers = workers.filter(w => w.isActive).length
+  const totalSalaryExpense = workers.reduce((sum, w) => sum + w.salary, 0)
+  const totalPaymentsMade = payments.reduce((sum, p) => sum + p.amount, 0)
+
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600"></div>
+      <div className="flex items-center justify-center min-h-[60vh]">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-green-500 mx-auto mb-4"></div>
+          <p className="text-gray-600 text-lg">Loading workers...</p>
+        </div>
       </div>
     )
   }
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">Workers Management</h1>
-          <p className="mt-1 text-sm text-gray-500">
-            Manage your workers and track their payments
-          </p>
+    <div className="space-y-8">
+      {/* Header Section */}
+      <div className="bg-gradient-to-r from-blue-500 to-blue-600 rounded-3xl p-8 text-white relative overflow-hidden">
+        <div className="absolute inset-0 opacity-10">
+          <div className="absolute top-4 right-4 w-32 h-32 bg-white rounded-full"></div>
+          <div className="absolute bottom-4 left-4 w-24 h-24 bg-white rounded-full"></div>
         </div>
-        <div className="mt-4 sm:mt-0 flex space-x-3">
+        
+        <div className="relative z-10">
+          <h1 className="text-4xl font-medium mb-4">Workers Management</h1>
+          <p className="text-xl text-blue-100 mb-6">
+            Manage your workforce and track their performance
+          </p>
+          
           <button
             onClick={() => setShowWorkerForm(true)}
-            className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700"
+            className="inline-flex items-center gap-3 bg-white/20 backdrop-blur-sm text-white px-6 py-3 rounded-2xl font-medium hover:bg-white/30 transition-all duration-200"
           >
-            <Plus className="h-4 w-4 mr-2" />
-            Add Worker
-          </button>
-          <button
-            onClick={() => setShowPaymentForm(true)}
-            className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-green-600 hover:bg-green-700"
-          >
-            <DollarSign className="h-4 w-4 mr-2" />
-            Add Payment
-          </button>
-          <button
-            onClick={() => setShowAttendanceForm(true)}
-            className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-purple-600 hover:bg-purple-700"
-          >
-            <Calendar className="h-4 w-4 mr-2" />
-            Add Attendance
-          </button>
-          <button
-            onClick={() => setShowBulkAttendanceForm(true)}
-            className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700"
-          >
-            <Users className="h-4 w-4 mr-2" />
-            Bulk Attendance
+            <Plus className="h-5 w-5" />
+            Add New Worker
           </button>
         </div>
       </div>
 
-      {/* Workers List */}
-      <div className="bg-white shadow rounded-lg">
-        <div className="px-4 py-5 sm:p-6">
-          <h3 className="text-lg font-medium text-gray-900 mb-4">Workers</h3>
-          <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-gray-50">
-                <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Phone</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Salary</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total Paid</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Working Days</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
-                </tr>
-              </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
-                {workers.map((worker) => (
-                  <tr key={worker._id}>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <Link
-                        to={`/workers/${worker._id}`}
-                        className="text-sm font-medium text-blue-600 hover:text-blue-800 hover:underline cursor-pointer transition-colors duration-150"
-                      >
-                        {worker.name}
-                      </Link>
-                      <div className="text-sm text-gray-500">{worker.address}</div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{worker.phone}</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">₹{worker.salary.toLocaleString()}</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      ₹{getWorkerTotalPayments(worker._id).toLocaleString()}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      {0 || 0} days
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+      {/* Stats Cards */}
+      <div>
+        <h2 className="text-2xl font-medium text-gray-900 mb-6">Overview</h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+            <div className="flex items-center justify-between mb-4">
+              <div className="w-12 h-12 bg-blue-100 rounded-2xl flex items-center justify-center">
+                <Users className="h-6 w-6 text-blue-600" />
+              </div>
+              <TrendingUp className="h-5 w-5 text-green-500" />
+            </div>
+            <h3 className="text-sm font-medium text-gray-500 mb-2">Total Workers</h3>
+            <p className="text-3xl font-medium text-gray-900 mb-1">{totalWorkers}</p>
+            <p className="text-sm text-green-600">{activeWorkers} active</p>
+          </div>
+
+          <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+            <div className="flex items-center justify-between mb-4">
+              <div className="w-12 h-12 bg-green-100 rounded-2xl flex items-center justify-center">
+                <DollarSign className="h-6 w-6 text-green-600" />
+              </div>
+              <TrendingUp className="h-5 w-5 text-green-500" />
+            </div>
+            <h3 className="text-sm font-medium text-gray-500 mb-2">Total Payments</h3>
+            <p className="text-3xl font-medium text-gray-900 mb-1">₹{totalPaymentsMade.toLocaleString()}</p>
+            <p className="text-sm text-green-600">This month</p>
+          </div>
+
+          <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+            <div className="flex items-center justify-between mb-4">
+              <div className="w-12 h-12 bg-purple-100 rounded-2xl flex items-center justify-center">
+                <Calendar className="h-6 w-6 text-purple-600" />
+              </div>
+              <TrendingUp className="h-5 w-5 text-green-500" />
+            </div>
+            <h3 className="text-sm font-medium text-gray-500 mb-2">Attendance Rate</h3>
+            <p className="text-3xl font-medium text-gray-900 mb-1">87%</p>
+            <p className="text-sm text-green-600">This week</p>
+          </div>
+
+          <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+            <div className="flex items-center justify-between mb-4">
+              <div className="w-12 h-12 bg-yellow-100 rounded-2xl flex items-center justify-center">
+                <Clock className="h-6 w-6 text-yellow-600" />
+              </div>
+              <TrendingUp className="h-5 w-5 text-green-500" />
+            </div>
+            <h3 className="text-sm font-medium text-gray-500 mb-2">Monthly Salary</h3>
+            <p className="text-3xl font-medium text-gray-900 mb-1">₹{totalSalaryExpense.toLocaleString()}</p>
+            <p className="text-sm text-gray-600">Total expense</p>
+          </div>
+        </div>
+      </div>
+
+      {/* Search and Filter Section */}
+      <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+        <div className="flex flex-col sm:flex-row gap-4 items-center justify-between">
+          <div className="relative flex-1 max-w-md">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+            <input
+              type="text"
+              placeholder="Search workers by name, phone, or address..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="pl-10 pr-4 py-3 w-full border border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            />
+          </div>
+          
+          <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2">
+              <Filter className="h-5 w-5 text-gray-400" />
+              <select
+                value={statusFilter}
+                onChange={(e) => setStatusFilter(e.target.value as 'all' | 'active' | 'inactive')}
+                className="border border-gray-200 rounded-xl px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                <option value="all">All Workers</option>
+                <option value="active">Active Only</option>
+                <option value="inactive">Inactive Only</option>
+              </select>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Workers Grid */}
+      <div>
+        <div className="flex items-center justify-between mb-6">
+          <h2 className="text-2xl font-medium text-gray-900">Workers ({filteredWorkers.length})</h2>
+          <div className="text-sm text-gray-500">
+            Showing {filteredWorkers.length} of {totalWorkers} workers
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {filteredWorkers.map((worker) => {
+            const attendanceStats = getWorkerAttendanceStats(worker._id)
+            const totalPayments = getWorkerTotalPayments(worker._id)
+            const pendingAmount = (worker.salary * 12) - totalPayments // Simplified calculation
+
+            return (
+              <div key={worker._id} className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 hover:shadow-md transition-all duration-300 cursor-pointer group">
+                <div className="flex items-start justify-between mb-4">
+                  <div className="flex-1">
+                    <Link 
+                      to={`/workers/${worker._id}`}
+                      className="text-xl font-medium text-gray-900 hover:text-blue-600 transition-colors"
+                    >
+                      {worker.name}
+                    </Link>
+                    <div className="flex items-center gap-2 mt-2">
+                      <span className={`inline-flex px-3 py-1 text-xs font-medium rounded-full ${
                         worker.isActive 
-                          ? 'bg-green-100 text-green-800' 
-                          : 'bg-red-100 text-red-800'
+                          ? 'bg-green-100 text-green-700' 
+                          : 'bg-red-100 text-red-700'
                       }`}>
                         {worker.isActive ? 'Active' : 'Inactive'}
                       </span>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
-                      <button
-                        onClick={() => viewWorkerAttendance(worker)}
-                        className="text-purple-600 hover:text-purple-900"
-                        title="View Attendance"
-                      >
-                        <Calendar className="h-4 w-4" />
-                      </button>
-                      <button
-                        onClick={() => editWorker(worker)}
-                        className="text-blue-600 hover:text-blue-900"
-                        title="Edit Worker"
-                      >
-                        <Edit className="h-4 w-4" />
-                      </button>
-                      <button
-                        onClick={() => deleteWorker(worker._id)}
-                        className="text-red-600 hover:text-red-900"
-                        title="Delete Worker"
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </div>
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <button
+                      onClick={() => editWorker(worker)}
+                      className="p-2 text-blue-600 hover:bg-blue-50 rounded-xl transition-colors"
+                      title="Edit Worker"
+                    >
+                      <Edit className="h-4 w-4" />
+                    </button>
+                    <button
+                      onClick={() => deleteWorker(worker._id)}
+                      className="p-2 text-red-600 hover:bg-red-50 rounded-xl transition-colors"
+                      title="Delete Worker"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </button>
+                  </div>
+                </div>
 
-      {/* Payments List */}
-      <div className="bg-white shadow rounded-lg">
-        <div className="px-4 py-5 sm:p-6">
-          <h3 className="text-lg font-medium text-gray-900 mb-4">Recent Payments</h3>
-          <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-gray-50">
-                <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Worker</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Amount</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Mode</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
-                </tr>
-              </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
-                {payments.slice(0, 10).map((payment) => (
-                  <tr key={payment._id}>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm font-medium text-gray-900">{payment.workerId.name}</div>
-                      <div className="text-sm text-gray-500">{payment.workerId.phone}</div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">₹{payment.amount.toLocaleString()}</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      {format(new Date(payment.date), 'dd/MMM/yyyy')}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                        payment.paymentMode === 'cash' 
-                          ? 'bg-green-100 text-green-800' 
-                          : 'bg-blue-100 text-blue-800'
-                      }`}>
-                        {payment.paymentMode.toUpperCase()}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
-                      <button
-                        onClick={() => editPayment(payment)}
-                        className="text-blue-600 hover:text-blue-900"
-                      >
-                        <Edit className="h-4 w-4" />
-                      </button>
-                      <button
-                        onClick={() => deletePayment(payment._id)}
-                        className="text-red-600 hover:text-red-900"
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </div>
+                <div className="space-y-3 mb-6">
+                  <div className="flex items-center gap-2 text-gray-600">
+                    <Phone className="h-4 w-4" />
+                    <span className="text-sm">{worker.phone}</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-gray-600">
+                    <MapPin className="h-4 w-4" />
+                    <span className="text-sm truncate">{worker.address}</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-gray-600">
+                    <Calendar className="h-4 w-4" />
+                    <span className="text-sm">Joined {format(new Date(worker.joiningDate), 'MMM yyyy')}</span>
+                  </div>
+                </div>
 
-      {/* Attendance List */}
-      <div className="bg-white shadow rounded-lg">
-        <div className="px-4 py-5 sm:p-6">
-          <h3 className="text-lg font-medium text-gray-900 mb-4">Recent Attendance</h3>
-          <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-gray-50">
-                <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Worker</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Working Hours</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
-                </tr>
-              </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
-                {attendance.slice(0, 10).map((record) => (
-                  <tr key={record._id}>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm font-medium text-gray-900">{record.workerId.name}</div>
-                      <div className="text-sm text-gray-500">{record.workerId.phone}</div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      {format(new Date(record.date), 'dd/MM/yyyy')}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                        record.status === 'present' 
-                          ? 'bg-green-100 text-green-800'
-                          : record.status === 'absent'
-                          ? 'bg-red-100 text-red-800'
-                          : record.status === 'half-day'
-                          ? 'bg-yellow-100 text-yellow-800'
-                          : 'bg-blue-100 text-blue-800'
-                      }`}>
-                        {record.status.charAt(0).toUpperCase() + record.status.slice(1)}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      {record.workingHours ? `${record.workingHours}h` : '-'}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
-                      <button
-                        onClick={() => {
-                          setEditingAttendance(record)
-                          setAttendanceForm({
-                            workerId: record.workerId._id,
-                            date: format(new Date(record.date), 'yyyy-MM-dd'),
-                            status: record.status,
-                            checkInTime: record.checkInTime ? format(new Date(record.checkInTime), 'HH:mm') : '',
-                            checkOutTime: record.checkOutTime ? format(new Date(record.checkOutTime), 'HH:mm') : '',
-                            workingHours: record.workingHours?.toString() || '',
-                            notes: record.notes || ''
-                          })
-                          setShowAttendanceForm(true)
-                        }}
-                        className="text-blue-600 hover:text-blue-900"
-                      >
-                        <Edit className="h-4 w-4" />
-                      </button>
-                      <button
-                        onClick={() => deleteAttendance(record._id)}
-                        className="text-red-600 hover:text-red-900"
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                <div className="grid grid-cols-2 gap-4 pt-4 border-t border-gray-100">
+                  <div>
+                    <p className="text-sm text-gray-500">Monthly Salary</p>
+                    <p className="text-lg font-medium text-gray-900">₹{worker.salary.toLocaleString()}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-500">Total Paid</p>
+                    <p className="text-lg font-medium text-green-600">₹{totalPayments.toLocaleString()}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-500">Attendance</p>
+                    <p className="text-lg font-medium text-blue-600">{attendanceStats.percentage}%</p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-500">Working Days</p>
+                    <p className="text-lg font-medium text-gray-900">{attendanceStats.total}</p>
+                  </div>
+                </div>
+
+                <div className="mt-4 pt-4 border-t border-gray-100">
+                  <Link
+                    to={`/workers/${worker._id}`}
+                    className="inline-flex items-center gap-2 text-blue-600 hover:text-blue-700 font-medium text-sm"
+                  >
+                    <Eye className="h-4 w-4" />
+                    View Details
+                  </Link>
+                </div>
+              </div>
+            )
+          })}
         </div>
+
+        {filteredWorkers.length === 0 && (
+          <div className="text-center py-12 bg-white rounded-2xl border border-gray-100">
+            <Users className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+            <p className="text-gray-500 text-lg">No workers found</p>
+            <p className="text-gray-400 text-sm">Try adjusting your search or filter criteria</p>
+          </div>
+        )}
       </div>
 
       {/* Worker Form Modal */}
@@ -602,7 +448,7 @@ const Workers = () => {
             {/* Form Content */}
             <div className="p-6">
               <form onSubmit={handleWorkerSubmit} className="space-y-6">
-                {/* Basic Information Section */}
+                {/* Basic Information */}
                 <div className="space-y-4">
                   <h4 className="text-lg font-medium text-gray-900 border-b border-gray-200 pb-2">👤 Basic Information</h4>
                   <div className="grid grid-cols-2 gap-4">
@@ -614,7 +460,7 @@ const Workers = () => {
                         placeholder="Enter worker's full name"
                         value={workerForm.name}
                         onChange={(e) => setWorkerForm(prev => ({ ...prev, name: e.target.value }))}
-                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 hover:border-gray-400"
+                        className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
                       />
                     </div>
                     <div>
@@ -625,15 +471,15 @@ const Workers = () => {
                         placeholder="Enter phone number"
                         value={workerForm.phone}
                         onChange={(e) => setWorkerForm(prev => ({ ...prev, phone: e.target.value }))}
-                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 hover:border-gray-400"
+                        className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
                       />
                     </div>
                   </div>
                 </div>
 
-                {/* Address Section */}
+                {/* Address */}
                 <div className="space-y-4">
-                  <h4 className="text-lg font-medium text-gray-900 border-b border-gray-200 pb-2">🏠 Address Details</h4>
+                  <h4 className="text-lg font-medium text-gray-900 border-b border-gray-200 pb-2">🏠 Address</h4>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">Complete Address *</label>
                     <textarea
@@ -641,13 +487,13 @@ const Workers = () => {
                       placeholder="Enter complete address"
                       value={workerForm.address}
                       onChange={(e) => setWorkerForm(prev => ({ ...prev, address: e.target.value }))}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 hover:border-gray-400 resize-none"
+                      className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 resize-none"
                       rows={3}
                     />
                   </div>
                 </div>
 
-                {/* Employment Details Section */}
+                {/* Employment Details */}
                 <div className="space-y-4">
                   <h4 className="text-lg font-medium text-gray-900 border-b border-gray-200 pb-2">💼 Employment Details</h4>
                   <div className="grid grid-cols-2 gap-4">
@@ -658,7 +504,7 @@ const Workers = () => {
                         required
                         value={workerForm.joiningDate}
                         onChange={(e) => setWorkerForm(prev => ({ ...prev, joiningDate: e.target.value }))}
-                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 hover:border-gray-400"
+                        className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
                       />
                     </div>
                     <div>
@@ -672,33 +518,33 @@ const Workers = () => {
                           placeholder="0"
                           value={workerForm.salary}
                           onChange={(e) => setWorkerForm(prev => ({ ...prev, salary: e.target.value }))}
-                          className="w-full pl-8 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 hover:border-gray-400"
+                          className="w-full pl-8 pr-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
                         />
                       </div>
                     </div>
                   </div>
                 </div>
 
-                {/* Additional Information Section */}
+                {/* Notes */}
                 <div className="space-y-4">
-                  <h4 className="text-lg font-medium text-gray-900 border-b border-gray-200 pb-2">📝 Additional Information</h4>
+                  <h4 className="text-lg font-medium text-gray-900 border-b border-gray-200 pb-2">📝 Notes</h4>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Notes</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Additional Notes</label>
                     <textarea
-                      placeholder="Add any additional notes or comments..."
+                      placeholder="Add any additional notes..."
                       value={workerForm.notes}
                       onChange={(e) => setWorkerForm(prev => ({ ...prev, notes: e.target.value }))}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 hover:border-gray-400 resize-none"
+                      className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 resize-none"
                       rows={3}
                     />
                   </div>
                 </div>
 
-                {/* Action Buttons */}
+                {/* Buttons */}
                 <div className="flex space-x-4 pt-4 border-t border-gray-200">
                   <button
                     type="submit"
-                    className="flex-1 bg-gradient-to-r from-blue-500 to-blue-600 text-white px-6 py-3 rounded-lg font-medium hover:from-blue-600 hover:to-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-200 transform hover:scale-105 shadow-lg"
+                    className="flex-1 bg-gradient-to-r from-blue-500 to-blue-600 text-white px-6 py-3 rounded-xl font-medium hover:from-blue-600 hover:to-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-200 transform hover:scale-105 shadow-lg"
                   >
                     {editingWorker ? '🔄 Update Worker' : '👷 Add Worker'}
                   </button>
@@ -716,566 +562,12 @@ const Workers = () => {
                         notes: ''
                       })
                     }}
-                    className="flex-1 bg-gray-100 text-gray-700 px-6 py-3 rounded-lg font-medium hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-all duration-200"
+                    className="flex-1 bg-gray-100 text-gray-700 px-6 py-3 rounded-xl font-medium hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-all duration-200"
                   >
                     Cancel
                   </button>
                 </div>
               </form>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Attendance Form Modal */}
-      {showAttendanceForm && (
-        <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
-          <div className="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
-            <div className="mt-3">
-              <h3 className="text-lg font-medium text-gray-900 mb-4">
-                {editingAttendance ? 'Edit Attendance' : 'Add New Attendance'}
-              </h3>
-              <form onSubmit={handleAttendanceSubmit} className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">Worker</label>
-                  <select
-                    required
-                    value={attendanceForm.workerId}
-                    onChange={(e) => setAttendanceForm(prev => ({ ...prev, workerId: e.target.value }))}
-                    className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                  >
-                    <option value="">Select Worker</option>
-                    {workers.map(worker => (
-                      <option key={worker._id} value={worker._id}>{worker.name}</option>
-                    ))}
-                  </select>
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">Date</label>
-                  <input
-                    type="date"
-                    required
-                    value={attendanceForm.date}
-                    onChange={(e) => setAttendanceForm(prev => ({ ...prev, date: e.target.value }))}
-                    className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">Status</label>
-                  <select
-                    required
-                    value={attendanceForm.status}
-                    onChange={(e) => setAttendanceForm(prev => ({ ...prev, status: e.target.value as 'present' | 'absent' | 'half-day' | 'leave' }))}
-                    className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                  >
-                    <option value="present">Present</option>
-                    <option value="absent">Absent</option>
-                    <option value="half-day">Half Day</option>
-                    <option value="leave">Leave</option>
-                  </select>
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">Check In Time</label>
-                  <input
-                    type="time"
-                    value={attendanceForm.checkInTime}
-                    onChange={(e) => setAttendanceForm(prev => ({ ...prev, checkInTime: e.target.value }))}
-                    className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">Check Out Time</label>
-                  <input
-                    type="time"
-                    value={attendanceForm.checkOutTime}
-                    onChange={(e) => setAttendanceForm(prev => ({ ...prev, checkOutTime: e.target.value }))}
-                    className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">Working Hours</label>
-                  <input
-                    type="number"
-                    step="0.5"
-                    min="0"
-                    max="24"
-                    value={attendanceForm.workingHours}
-                    onChange={(e) => setAttendanceForm(prev => ({ ...prev, workingHours: e.target.value }))}
-                    className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">Notes</label>
-                  <textarea
-                    value={attendanceForm.notes}
-                    onChange={(e) => setAttendanceForm(prev => ({ ...prev, notes: e.target.value }))}
-                    className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                    rows={2}
-                  />
-                </div>
-                <div className="flex space-x-3">
-                  <button
-                    type="submit"
-                    className="flex-1 bg-purple-600 text-white px-4 py-2 rounded-md hover:bg-purple-700"
-                  >
-                    {editingAttendance ? 'Update' : 'Add'} Attendance
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setShowAttendanceForm(false)
-                      setEditingAttendance(null)
-                      setAttendanceForm({
-                        workerId: '',
-                        date: format(new Date(), 'yyyy-MM-dd'),
-                        status: 'present',
-                        checkInTime: '',
-                        checkOutTime: '',
-                        workingHours: '',
-                        notes: ''
-                      })
-                    }}
-                    className="flex-1 bg-gray-300 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-400"
-                  >
-                    Cancel
-                  </button>
-                </div>
-              </form>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Payment Form Modal */}
-      {showPaymentForm && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm overflow-y-auto h-full w-full z-50">
-          <div className="relative top-10 mx-auto p-0 border-0 w-[500px] shadow-2xl rounded-2xl bg-white overflow-hidden">
-            {/* Header */}
-            <div className="bg-gradient-to-r from-green-500 to-green-600 px-6 py-4">
-              <div className="flex items-center justify-between">
-                <h3 className="text-xl font-semibold text-white">
-                  {editingPayment ? 'Edit Payment' : 'Add New Payment'}
-                </h3>
-                <button
-                  onClick={() => {
-                    setShowPaymentForm(false)
-                    setEditingPayment(null)
-                    setPaymentForm({
-                      workerId: '',
-                      amount: '',
-                      date: format(new Date(), 'yyyy-MM-dd'),
-                      paymentMode: 'cash',
-                      description: ''
-                    })
-                  }}
-                  className="text-white hover:text-green-100 transition-colors"
-                >
-                  <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                  </svg>
-                </button>
-              </div>
-            </div>
-
-            {/* Form Content */}
-            <div className="p-6">
-              <form onSubmit={handlePaymentSubmit} className="space-y-6">
-                {/* Worker Selection */}
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">👷 Select Worker *</label>
-                  <select
-                    required
-                    value={paymentForm.workerId}
-                    onChange={(e) => setPaymentForm(prev => ({ ...prev, workerId: e.target.value }))}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200 hover:border-gray-400"
-                  >
-                    <option value="">Choose a worker</option>
-                    {workers.map(worker => (
-                      <option key={worker._id} value={worker._id}>{worker.name} - {worker.phone}</option>
-                    ))}
-                  </select>
-                </div>
-
-                {/* Payment Details */}
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">💰 Amount *</label>
-                    <div className="relative">
-                      <span className="absolute left-3 top-3 text-gray-500">₹</span>
-                      <input
-                        type="number"
-                        required
-                        min="0"
-                        step="0.01"
-                        placeholder="0.00"
-                        value={paymentForm.amount}
-                        onChange={(e) => setPaymentForm(prev => ({ ...prev, amount: e.target.value }))}
-                        className="w-full pl-8 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200 hover:border-gray-400"
-                      />
-                    </div>
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">📅 Payment Date *</label>
-                    <input
-                      type="date"
-                      required
-                      value={paymentForm.date}
-                      onChange={(e) => setPaymentForm(prev => ({ ...prev, date: e.target.value }))}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200 hover:border-gray-400"
-                    />
-                  </div>
-                </div>
-
-                {/* Payment Mode */}
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">💳 Payment Mode *</label>
-                  <select
-                    required
-                    value={paymentForm.paymentMode}
-                    onChange={(e) => setPaymentForm(prev => ({ ...prev, paymentMode: e.target.value as 'cash' | 'UPI' }))}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200 hover:border-gray-400"
-                  >
-                    <option value="cash">💵 Cash</option>
-                    <option value="UPI">📱 UPI</option>
-                  </select>
-                </div>
-
-                {/* Description */}
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">📝 Description</label>
-                  <textarea
-                    placeholder="Add payment description or notes..."
-                    value={paymentForm.description}
-                    onChange={(e) => setPaymentForm(prev => ({ ...prev, description: e.target.value }))}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200 hover:border-gray-400 resize-none"
-                    rows={3}
-                  />
-                </div>
-
-                {/* Action Buttons */}
-                <div className="flex space-x-4 pt-4 border-t border-gray-200">
-                  <button
-                    type="submit"
-                    className="flex-1 bg-gradient-to-r from-green-500 to-green-600 text-white px-6 py-3 rounded-lg font-medium hover:from-green-600 hover:to-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition-all duration-200 transform hover:scale-105 shadow-lg"
-                  >
-                    {editingPayment ? '🔄 Update Payment' : '💸 Add Payment'}
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setShowPaymentForm(false)
-                      setEditingPayment(null)
-                      setPaymentForm({
-                        workerId: '',
-                        amount: '',
-                        date: format(new Date(), 'yyyy-MM-dd'),
-                        paymentMode: 'cash',
-                        description: ''
-                      })
-                    }}
-                    className="flex-1 bg-gray-100 text-gray-700 px-6 py-3 rounded-lg font-medium hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-all duration-200"
-                  >
-                    Cancel
-                  </button>
-                </div>
-              </form>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Bulk Attendance Form Modal */}
-      {showBulkAttendanceForm && (
-        <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
-          <div className="relative top-20 mx-auto p-5 border w-[600px] shadow-lg rounded-md bg-white">
-            <div className="mt-3">
-              <h3 className="text-lg font-medium text-gray-900 mb-4">Bulk Attendance Entry</h3>
-              <form onSubmit={handleBulkAttendanceSubmit} className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">Date</label>
-                  <input
-                    type="date"
-                    required
-                    value={bulkAttendanceForm.date}
-                    onChange={(e) => setBulkAttendanceForm(prev => ({ ...prev, date: e.target.value }))}
-                    className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                  />
-                </div>
-                
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Worker Attendance</label>
-                  <div className="max-h-96 overflow-y-auto border border-gray-300 rounded-md p-4">
-                    {workers.map((worker) => {
-                      const existingRecord = bulkAttendanceForm.attendanceData.find(
-                        record => record.workerId === worker._id
-                      )
-                      return (
-                        <div key={worker._id} className="flex items-center space-x-4 py-2 border-b border-gray-200 last:border-b-0">
-                          <div className="flex-1">
-                            <div className="font-medium text-sm">{worker.name}</div>
-                            <div className="text-xs text-gray-500">{worker.phone}</div>
-                          </div>
-                          <select
-                            value={existingRecord?.status || 'present'}
-                            onChange={(e) => {
-                              const newData = [...bulkAttendanceForm.attendanceData]
-                              const existingIndex = newData.findIndex(record => record.workerId === worker._id)
-                              
-                              if (existingIndex >= 0) {
-                                newData[existingIndex].status = e.target.value as 'present' | 'absent' | 'half-day' | 'leave'
-                              } else {
-                                newData.push({
-                                  workerId: worker._id,
-                                  status: e.target.value as 'present' | 'absent' | 'half-day' | 'leave'
-                                })
-                              }
-                              
-                              setBulkAttendanceForm(prev => ({ ...prev, attendanceData: newData }))
-                            }}
-                            className="border border-gray-300 rounded-md px-2 py-1 text-sm"
-                          >
-                            <option value="present">Present</option>
-                            <option value="absent">Absent</option>
-                            <option value="half-day">Half Day</option>
-                            <option value="leave">Leave</option>
-                          </select>
-                        </div>
-                      )
-                    })}
-                  </div>
-                </div>
-
-                <div className="flex space-x-3">
-                  <button
-                    type="submit"
-                    className="flex-1 bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-700"
-                  >
-                    Save All Attendance
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setShowBulkAttendanceForm(false)
-                      setBulkAttendanceForm({
-                        date: format(new Date(), 'yyyy-MM-dd'),
-                        attendanceData: []
-                      })
-                    }}
-                    className="flex-1 bg-gray-300 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-400"
-                  >
-                    Cancel
-                  </button>
-                </div>
-              </form>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Worker Attendance View Modal */}
-      {showWorkerAttendanceView && selectedWorker && (
-        <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
-          <div className="relative top-10 mx-auto p-5 border w-[800px] shadow-lg rounded-md bg-white">
-            <div className="mt-3">
-              <div className="flex items-center justify-between mb-6">
-                <h3 className="text-xl font-medium text-gray-900">
-                  Attendance Record for {selectedWorker.name}
-                </h3>
-                <button
-                  onClick={() => {
-                    setShowWorkerAttendanceView(false)
-                    setSelectedWorker(null)
-                    setWorkerAttendanceData([])
-                    setWorkerAttendanceSummary(null)
-                  }}
-                  className="text-gray-400 hover:text-gray-600"
-                >
-                  <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                  </svg>
-                </button>
-              </div>
-
-              {/* Attendance Summary Cards */}
-              {workerAttendanceSummary && (
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-                  <div className="bg-green-50 p-4 rounded-lg border border-green-200">
-                    <div className="text-2xl font-bold text-green-600">{workerAttendanceSummary.presentDays}</div>
-                    <div className="text-sm text-green-600">Present Days</div>
-                  </div>
-                  <div className="bg-red-50 p-4 rounded-lg border border-red-200">
-                    <div className="text-2xl font-bold text-red-600">{workerAttendanceSummary.absentDays}</div>
-                    <div className="text-sm text-red-600">Absent Days</div>
-                  </div>
-                  <div className="bg-yellow-50 p-4 rounded-lg border border-yellow-200">
-                    <div className="text-2xl font-bold text-yellow-600">{workerAttendanceSummary.halfDays}</div>
-                    <div className="text-sm text-yellow-600">Half Days</div>
-                  </div>
-                  <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
-                    <div className="text-2xl font-bold text-blue-600">{workerAttendanceSummary.leaveDays}</div>
-                    <div className="text-sm text-blue-600">Leave Days</div>
-                  </div>
-                </div>
-              )}
-
-              {/* Quick Add Attendance */}
-              <div className="bg-gray-50 p-4 rounded-lg mb-6">
-                <h4 className="text-lg font-medium text-gray-900 mb-3">Quick Add Today's Attendance</h4>
-                <div className="flex items-center space-x-4">
-                  <select
-                    value={attendanceForm.status}
-                    onChange={(e) => setAttendanceForm(prev => ({ ...prev, status: e.target.value as 'present' | 'absent' | 'half-day' | 'leave' }))}
-                    className="border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                  >
-                    <option value="present">Present</option>
-                    <option value="absent">Absent</option>
-                    <option value="half-day">Half Day</option>
-                    <option value="leave">Leave</option>
-                  </select>
-                  <input
-                    type="time"
-                    value={attendanceForm.checkInTime}
-                    onChange={(e) => setAttendanceForm(prev => ({ ...prev, checkInTime: e.target.value }))}
-                    placeholder="Check In"
-                    className="border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                  />
-                  <input
-                    type="time"
-                    value={attendanceForm.checkOutTime}
-                    onChange={(e) => setAttendanceForm(prev => ({ ...prev, checkOutTime: e.target.value }))}
-                    placeholder="Check Out"
-                    className="border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                  />
-                  <input
-                    type="number"
-                    step="0.5"
-                    min="0"
-                    max="24"
-                    value={attendanceForm.workingHours}
-                    onChange={(e) => setAttendanceForm(prev => ({ ...prev, workingHours: e.target.value }))}
-                    placeholder="Hours"
-                    className="border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-blue-500 focus:border-blue-500 w-20"
-                  />
-                  <button
-                    onClick={async () => {
-                      try {
-                        await api.post('/attendance', {
-                          ...attendanceForm,
-                          workerId: selectedWorker._id,
-                          date: format(new Date(), 'yyyy-MM-dd')
-                        })
-                        // Refresh attendance data
-                        viewWorkerAttendance(selectedWorker)
-                        // Reset form
-                        setAttendanceForm({
-                          workerId: '',
-                          date: format(new Date(), 'yyyy-MM-dd'),
-                          status: 'present',
-                          checkInTime: '',
-                          checkOutTime: '',
-                          workingHours: '',
-                          notes: ''
-                        })
-                      } catch (error) {
-                        console.error('Error adding attendance:', error)
-                      }
-                    }}
-                    className="bg-purple-600 text-white px-4 py-2 rounded-md hover:bg-purple-700"
-                  >
-                    Add Today
-                  </button>
-                </div>
-              </div>
-
-              {/* Attendance Records Table */}
-              <div className="bg-white border rounded-lg overflow-hidden">
-                <div className="px-4 py-3 border-b bg-gray-50">
-                  <h4 className="text-lg font-medium text-gray-900">Attendance History</h4>
-                </div>
-                <div className="overflow-x-auto">
-                  <table className="min-w-full divide-y divide-gray-200">
-                    <thead className="bg-gray-50">
-                      <tr>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Check In</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Check Out</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Hours</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Notes</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
-                      </tr>
-                    </thead>
-                    <tbody className="bg-white divide-y divide-gray-200">
-                      {workerAttendanceData.map((record) => (
-                        <tr key={record._id}>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                            {format(new Date(record.date), 'dd/MMM/yyyy')}
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap">
-                            <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                              record.status === 'present' 
-                                ? 'bg-green-100 text-green-800'
-                                : record.status === 'absent'
-                                ? 'bg-red-100 text-red-800'
-                                : record.status === 'half-day'
-                                ? 'bg-yellow-100 text-yellow-800'
-                                : 'bg-blue-100 text-blue-800'
-                            }`}>
-                              {record.status.charAt(0).toUpperCase() + record.status.slice(1)}
-                            </span>
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                            {record.checkInTime ? format(new Date(`2000-01-01T${record.checkInTime}`), 'HH:mm') : '-'}
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                            {record.checkOutTime ? format(new Date(`2000-01-01T${record.checkOutTime}`), 'HH:mm') : '-'}
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                            {record.workingHours ? `${record.workingHours}h` : '-'}
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 max-w-xs truncate">
-                            {record.notes || '-'}
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
-                            <button
-                              onClick={() => {
-                                setEditingAttendance(record)
-                                setAttendanceForm({
-                                  workerId: record.workerId._id,
-                                  date: format(new Date(record.date), 'yyyy-MM-dd'),
-                                  status: record.status,
-                                  checkInTime: record.checkInTime ? format(new Date(`2000-01-01T${record.checkInTime}`), 'HH:mm') : '',
-                                  checkOutTime: record.checkOutTime ? format(new Date(`2000-01-01T${record.checkOutTime}`), 'HH:mm') : '',
-                                  workingHours: record.workingHours?.toString() || '',
-                                  notes: record.notes || ''
-                                })
-                                setShowAttendanceForm(true)
-                                setShowWorkerAttendanceView(false)
-                              }}
-                              className="text-blue-600 hover:text-blue-900"
-                              title="Edit"
-                            >
-                              <Edit className="h-4 w-4" />
-                            </button>
-                            <button
-                              onClick={() => deleteAttendance(record._id)}
-                              className="text-red-600 hover:text-red-900"
-                              title="Delete"
-                            >
-                              <Trash2 className="h-4 w-4" />
-                            </button>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-                {workerAttendanceData.length === 0 && (
-                  <div className="text-center py-8 text-gray-500">
-                    No attendance records found for this worker.
-                  </div>
-                )}
-              </div>
             </div>
           </div>
         </div>
