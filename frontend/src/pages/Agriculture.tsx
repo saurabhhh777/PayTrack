@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
-import { Plus, Edit, Trash2, TrendingUp, TrendingDown, Search, Sprout, DollarSign, Users, Calendar } from 'lucide-react'
+import { Plus, Edit, Trash2, TrendingUp, TrendingDown, Search, Sprout, DollarSign, Calendar } from 'lucide-react'
 import { api } from '../lib/api'
 import { format } from 'date-fns'
 import { 

@@ -153,14 +153,11 @@ const Workers = () => {
     return getWorkerPayments(workerId).reduce((sum, p) => sum + p.amount, 0)
   }
 
-  const getWorkerAttendance = (workerId: string) => {
-    return attendance.filter(a => a.workerId._id === workerId)
-  }
-
   const getWorkerAttendanceStats = (workerId: string) => {
-    const workerAttendance = getWorkerAttendance(workerId)
-    const present = workerAttendance.filter(a => a.status === 'present').length
+    const workerAttendance = attendance.filter(record => record.workerId._id === workerId)
+    const present = workerAttendance.filter(record => record.status === 'present').length
     const total = workerAttendance.length
+    
     return { present, total, percentage: total > 0 ? Math.round((present / total) * 100) : 0 }
   }
 
@@ -315,7 +312,6 @@ const Workers = () => {
           {filteredWorkers.map((worker) => {
             const attendanceStats = getWorkerAttendanceStats(worker._id)
             const totalPayments = getWorkerTotalPayments(worker._id)
-            const pendingAmount = (worker.salary * 12) - totalPayments // Simplified calculation
 
             return (
               <div key={worker._id} className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 hover:shadow-md transition-all duration-300 cursor-pointer group">
