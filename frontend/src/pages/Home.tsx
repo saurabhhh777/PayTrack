@@ -4,8 +4,6 @@ import {
   Users, 
   Sprout, 
   DollarSign, 
-  TrendingUp, 
-  CheckCircle, 
   ArrowRight, 
   Star,
   ChevronDown,
@@ -14,7 +12,6 @@ import {
   Mail,
   MapPin,
   Shield,
-  Clock,
   BarChart3,
   FileText,
   Play
