@@ -3,21 +3,22 @@ import { Link } from 'react-router-dom'
 import { useAuthStore } from '../stores/authStore'
 import { Eye, EyeOff, Loader2, ArrowRight } from 'lucide-react'
 
-const Login = () => {
+const Signup = () => {
   const [showPassword, setShowPassword] = useState(false)
   const [formData, setFormData] = useState({
+    username: '',
     email: '',
     password: ''
   })
   
-  const { login, isLoading, error, clearError } = useAuthStore()
+  const { register, isLoading, error, clearError } = useAuthStore()
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     clearError()
     
     try {
-      await login(formData.email, formData.password)
+      await register(formData.username, formData.email, formData.password)
     } catch (error) {
       // Error is handled by the store
     }
@@ -40,10 +41,10 @@ const Login = () => {
               <span className="text-2xl font-medium text-gray-900">PayTrack</span>
             </Link>
             <Link
-              to="/signup"
+              to="/login"
               className="bg-white border border-gray-300 text-gray-700 px-6 py-2.5 rounded-full font-medium hover:bg-gray-50 transition-all duration-200"
             >
-              Sign up
+              Sign in
             </Link>
           </div>
         </div>
@@ -60,10 +61,10 @@ const Login = () => {
         <div className="bg-white rounded-3xl shadow-sm border border-gray-100 p-12">
           <div className="text-center mb-12">
             <h1 className="text-4xl font-medium text-gray-900 mb-4">
-              Welcome back
+              Create account
             </h1>
             <p className="text-lg text-gray-600">
-              Sign in to your PayTrack account
+              Start managing your operations with PayTrack
             </p>
           </div>
           
@@ -73,6 +74,22 @@ const Login = () => {
                 {error}
               </div>
             )}
+            
+            <div>
+              <label htmlFor="username" className="block text-sm font-medium text-gray-700 mb-2">
+                Username
+              </label>
+              <input
+                id="username"
+                name="username"
+                type="text"
+                required
+                value={formData.username}
+                onChange={handleInputChange}
+                className="w-full px-4 py-3 border border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200 text-gray-900 bg-gray-50 hover:bg-white"
+                placeholder="Choose a username"
+              />
+            </div>
             
             <div>
               <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
@@ -100,12 +117,12 @@ const Login = () => {
                   id="password"
                   name="password"
                   type={showPassword ? 'text' : 'password'}
-                  autoComplete="current-password"
+                  autoComplete="new-password"
                   required
                   value={formData.password}
                   onChange={handleInputChange}
                   className="w-full px-4 py-3 pr-12 border border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200 text-gray-900 bg-gray-50 hover:bg-white"
-                  placeholder="Enter your password"
+                  placeholder="Create a password"
                 />
                 <button
                   type="button"
@@ -119,26 +136,29 @@ const Login = () => {
                   )}
                 </button>
               </div>
+              <p className="mt-2 text-sm text-gray-500">
+                Password should be at least 6 characters long
+              </p>
             </div>
 
-            <div className="flex items-center justify-between">
-              <div className="flex items-center">
-                <input
-                  id="remember-me"
-                  name="remember-me"
-                  type="checkbox"
-                  className="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded"
-                />
-                <label htmlFor="remember-me" className="ml-2 block text-sm text-gray-700">
-                  Remember me
-                </label>
-              </div>
-
-              <div className="text-sm">
+            <div className="flex items-start">
+              <input
+                id="terms"
+                name="terms"
+                type="checkbox"
+                required
+                className="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded mt-1"
+              />
+              <label htmlFor="terms" className="ml-2 block text-sm text-gray-700">
+                I agree to the{' '}
                 <a href="#" className="font-medium text-green-600 hover:text-green-500 transition-colors">
-                  Forgot your password?
+                  Terms of Service
+                </a>{' '}
+                and{' '}
+                <a href="#" className="font-medium text-green-600 hover:text-green-500 transition-colors">
+                  Privacy Policy
                 </a>
-              </div>
+              </label>
             </div>
 
             <button
@@ -150,7 +170,7 @@ const Login = () => {
                 <Loader2 className="h-5 w-5 animate-spin" />
               ) : (
                 <>
-                  Sign in
+                  Create account
                   <ArrowRight className="h-5 w-5" />
                 </>
               )}
@@ -159,12 +179,12 @@ const Login = () => {
 
           <div className="mt-8 text-center">
             <p className="text-gray-600">
-              Don't have an account?{' '}
+              Already have an account?{' '}
               <Link
-                to="/signup"
+                to="/login"
                 className="font-medium text-green-600 hover:text-green-500 transition-colors"
               >
-                Create one here
+                Sign in here
               </Link>
             </p>
           </div>
@@ -174,4 +194,4 @@ const Login = () => {
   )
 }
 
-export default Login 
+export default Signup 

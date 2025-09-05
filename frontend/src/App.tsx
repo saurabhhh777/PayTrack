@@ -3,6 +3,7 @@ import { useAuthStore } from './stores/authStore'
 import Home from "./pages/Home"
 import Layout from './components/Layout'
 import Login from './pages/Login'
+import Signup from './pages/Signup'
 import Dashboard from './pages/Dashboard'
 import Workers from './pages/Workers'
 import WorkerDetail from './pages/WorkerDetail'
@@ -22,6 +23,10 @@ function App() {
     <Routes>
       <Route path="/login" element={
         isAuthenticated ? <Navigate to="/" replace /> : <Login />
+      } />
+      
+      <Route path="/signup" element={
+        isAuthenticated ? <Navigate to="/" replace /> : <Signup />
       } />
       
       {/* Home page - standalone without sidebar and no authentication required */}
