@@ -188,6 +188,7 @@ const WorkerDetail = () => {
           <button
             onClick={() => {
               console.log('Add Attendance clicked, current state:', showAttendanceForm)
+              console.log('Worker data:', worker)
               setShowAttendanceForm(!showAttendanceForm)
             }}
             className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-green-600 hover:bg-green-700"
@@ -410,8 +411,8 @@ const WorkerDetail = () => {
 
       {/* Add Attendance Form */}
       {showAttendanceForm && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm overflow-y-auto h-full w-full z-50">
-          <div className="relative top-10 mx-auto p-0 border-0 w-[500px] shadow-2xl rounded-2xl bg-white overflow-hidden">
+        <div className="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm overflow-y-auto h-full w-full z-50 flex items-center justify-center">
+          <div className="relative mx-auto p-0 border-0 w-[500px] max-w-[90vw] shadow-2xl rounded-2xl bg-white overflow-hidden">
             {/* Header */}
             <div className="bg-gradient-to-r from-green-500 to-green-600 px-6 py-4">
               <div className="flex items-center justify-between">
@@ -432,18 +433,13 @@ const WorkerDetail = () => {
             {/* Form Content */}
             <div className="p-6">
               <form onSubmit={handleAttendanceSubmit} className="space-y-6">
-                {/* Worker Selection */}
+                {/* Worker Selection - Pre-filled since we're on worker detail page */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">👷 Select Worker *</label>
-                  <select
-                    required
-                    value={attendanceForm.workerId}
-                    onChange={(e) => setAttendanceForm(prev => ({ ...prev, workerId: e.target.value }))}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200"
-                  >
-                    <option value="">Choose a worker</option>
-                    <option value={worker?._id}>{worker?.name} - {worker?.phone}</option>
-                  </select>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">👷 Worker *</label>
+                  <div className="w-full px-4 py-3 border border-gray-300 rounded-xl bg-gray-50 text-gray-700">
+                    {worker?.name} - {worker?.phone}
+                  </div>
+                  <input type="hidden" value={worker?._id || ''} />
                 </div>
 
                 {/* Date and Status */}
