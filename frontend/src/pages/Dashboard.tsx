@@ -27,6 +27,16 @@ import {
   Clock
 } from 'lucide-react'
 
+interface RecentActivity {
+  id: string
+  name: string
+  type: 'Payment' | 'Expense' | 'Income' | 'Attendance'
+  amount?: string
+  date: string
+  status: 'Paid' | 'Pending' | 'Received' | 'Present' | 'Absent' | 'HalfDay'
+  category: 'Worker' | 'Agriculture' | 'Real Estate' | 'Meel'
+}
+
 interface DashboardData {
   summary: {
     totalExpenses: number
@@ -53,6 +63,7 @@ interface DashboardData {
     presentWorkers: number
     absentWorkers: number
   }>
+  recentActivities: RecentActivity[]
 }
 
 const Dashboard = () => {
@@ -78,19 +89,33 @@ const Dashboard = () => {
       setDashboardData(response.data)
     } catch (error) {
       console.error('Error fetching dashboard data:', error)
+      // If API fails, set empty data instead of dummy data
+      setDashboardData({
+        summary: {
+          totalExpenses: 0,
+          totalIncome: 0,
+          netProfit: 0,
+          totalPending: 0,
+          totalWorkers: 0,
+          totalWorkingDays: 0,
+          totalAbsentDays: 0
+        },
+        paymentModes: {
+          cash: 0,
+          UPI: 0
+        },
+        categoryTotals: {
+          workers: {},
+          agriculture: {},
+          realEstate: {}
+        },
+        timeSeriesData: [],
+        recentActivities: []
+      })
     } finally {
       setLoading(false)
     }
   }
-
-  // Mock recent activity data
-  const recentActivities = [
-    { id: 1, name: "Ramesh Kumar", type: "Payment", amount: "₹2,500", date: "Today", status: "Paid", category: "Worker" },
-    { id: 2, name: "Wheat Cultivation", type: "Expense", amount: "₹15,000", date: "Yesterday", status: "Pending", category: "Agriculture" },
-    { id: 3, name: "Priya Singh", type: "Payment", amount: "₹3,200", date: "2 days ago", status: "Paid", category: "Worker" },
-    { id: 4, name: "Property Rent", type: "Income", amount: "₹25,000", date: "3 days ago", status: "Received", category: "Real Estate" },
-    { id: 5, name: "Suresh Patel", type: "Payment", amount: "₹2,800", date: "4 days ago", status: "Paid", category: "Worker" }
-  ]
 
   if (loading) {
     return (
@@ -238,34 +263,49 @@ const Dashboard = () => {
             </div>
             
             <div className="p-6">
-              <div className="space-y-4">
-                {recentActivities.map((activity) => (
-                  <div key={activity.id} className="flex items-center justify-between p-4 bg-gray-50 rounded-2xl hover:bg-gray-100 transition-colors cursor-pointer">
-                    <div className="flex items-center space-x-4">
-                      <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${
-                        activity.category === 'Worker' ? 'bg-purple-100' :
-                        activity.category === 'Agriculture' ? 'bg-green-100' : 'bg-blue-100'
-                      }`}>
-                        {activity.category === 'Worker' && <Users className="h-5 w-5 text-purple-600" />}
-                        {activity.category === 'Agriculture' && <Sprout className="h-5 w-5 text-green-600" />}
-                        {activity.category === 'Real Estate' && <Building2 className="h-5 w-5 text-blue-600" />}
+              {dashboardData.recentActivities && dashboardData.recentActivities.length > 0 ? (
+                <div className="space-y-4">
+                  {dashboardData.recentActivities.map((activity) => (
+                    <div key={activity.id} className="flex items-center justify-between p-4 bg-gray-50 rounded-2xl hover:bg-gray-100 transition-colors cursor-pointer">
+                      <div className="flex items-center space-x-4">
+                        <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${
+                          activity.category === 'Worker' ? 'bg-purple-100' :
+                          activity.category === 'Agriculture' ? 'bg-green-100' : 
+                          activity.category === 'Real Estate' ? 'bg-blue-100' : 'bg-orange-100'
+                        }`}>
+                          {activity.category === 'Worker' && <Users className="h-5 w-5 text-purple-600" />}
+                          {activity.category === 'Agriculture' && <Sprout className="h-5 w-5 text-green-600" />}
+                          {activity.category === 'Real Estate' && <Building2 className="h-5 w-5 text-blue-600" />}
+                          {activity.category === 'Meel' && <Clock className="h-5 w-5 text-orange-600" />}
+                        </div>
+                        <div>
+                          <p className="font-medium text-gray-900">{activity.name}</p>
+                          <p className="text-sm text-gray-500">{activity.type} • {activity.date}</p>
+                        </div>
                       </div>
-                      <div>
-                        <p className="font-medium text-gray-900">{activity.name}</p>
-                        <p className="text-sm text-gray-500">{activity.type} • {activity.date}</p>
+                      <div className="text-right">
+                        {activity.amount && (
+                          <p className="font-medium text-gray-900">{activity.amount}</p>
+                        )}
+                        <p className={`text-sm font-medium ${
+                          activity.status === 'Paid' || activity.status === 'Received' || activity.status === 'Present' ? 'text-green-600' : 
+                          activity.status === 'Absent' ? 'text-red-600' : 'text-yellow-600'
+                        }`}>
+                          {activity.status}
+                        </p>
                       </div>
                     </div>
-                    <div className="text-right">
-                      <p className="font-medium text-gray-900">{activity.amount}</p>
-                      <p className={`text-sm font-medium ${
-                        activity.status === 'Paid' || activity.status === 'Received' ? 'text-green-600' : 'text-yellow-600'
-                      }`}>
-                        {activity.status}
-                      </p>
-                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="text-center py-12">
+                  <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <Clock className="h-8 w-8 text-gray-400" />
                   </div>
-                ))}
-              </div>
+                  <h3 className="text-lg font-medium text-gray-900 mb-2">No recent activity</h3>
+                  <p className="text-gray-500">Start adding workers, payments, or attendance to see activity here.</p>
+                </div>
+              )}
             </div>
           </div>
         </div>

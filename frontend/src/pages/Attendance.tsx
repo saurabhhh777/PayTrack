@@ -74,6 +74,7 @@ const Attendance = () => {
         api.get('/workers'),
         api.get('/attendance', { params: filters })
       ])
+      console.log('Workers fetched:', workersRes.data) // Debug log
       setWorkers(workersRes.data)
       setAttendance(attendanceRes.data)
     } catch (error) {

@@ -399,7 +399,7 @@ const WorkerDetail = () => {
 
       {/* Add Attendance Form */}
       {showAttendanceForm && (
-        <div className="bg-white shadow-lg rounded-xl border border-gray-100">
+        <div className="bg-white shadow-lg rounded-xl border border-gray-100 border-4 border-green-500">
           <div className="px-6 py-6">
             <h3 className="text-lg font-medium text-gray-900 mb-4">Add New Attendance</h3>
             <form onSubmit={handleAttendanceSubmit} className="space-y-4">
