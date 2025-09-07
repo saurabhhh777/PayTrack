@@ -264,13 +264,13 @@ const Meel: React.FC = () => {
             Track crop trading with individual and partner collaborations
           </p>
           
-          <button
-            onClick={() => setShowForm(true)}
+        <button
+          onClick={() => setShowForm(true)}
             className="inline-flex items-center gap-3 bg-white/20 backdrop-blur-sm text-white px-6 py-3 rounded-2xl font-medium hover:bg-white/30 transition-all duration-200"
-          >
+        >
             <Plus className="h-5 w-5" />
             Add Trading Record
-          </button>
+        </button>
         </div>
       </div>
 
@@ -361,17 +361,17 @@ const Meel: React.FC = () => {
           <div className="flex flex-wrap gap-4 items-center">
             <div className="flex items-center gap-2">
               <Filter className="h-5 w-5 text-gray-400" />
-              <select
-                value={filters.transactionType}
-                onChange={(e) => setFilters(prev => ({ ...prev, transactionType: e.target.value }))}
+            <select
+              value={filters.transactionType}
+              onChange={(e) => setFilters(prev => ({ ...prev, transactionType: e.target.value }))}
                 className="border border-gray-200 rounded-xl px-3 py-2 focus:outline-none focus:ring-2 focus:ring-orange-500"
-              >
-                <option value="">All Types</option>
-                <option value="Buy">Buy</option>
-                <option value="Sell">Sell</option>
-              </select>
-            </div>
-            
+            >
+              <option value="">All Types</option>
+              <option value="Buy">Buy</option>
+              <option value="Sell">Sell</option>
+            </select>
+          </div>
+          
             <select
               value={filters.transactionMode}
               onChange={(e) => setFilters(prev => ({ ...prev, transactionMode: e.target.value }))}
@@ -381,7 +381,7 @@ const Meel: React.FC = () => {
               <option value="Individual">Individual</option>
               <option value="With Partner">With Partner</option>
             </select>
-            
+          
             <input
               type="text"
               placeholder="Filter by tag..."
@@ -397,7 +397,7 @@ const Meel: React.FC = () => {
       </div>
 
       {/* Trading Records */}
-      <div>
+                <div>
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-2xl font-medium text-gray-900">Trading Records ({filteredRecords.length})</h2>
           <div className="text-sm text-gray-500">
@@ -406,10 +406,10 @@ const Meel: React.FC = () => {
         </div>
 
         <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-          <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-gray-50">
-                <tr>
+        <div className="overflow-x-auto">
+          <table className="min-w-full divide-y divide-gray-200">
+            <thead className="bg-gray-50">
+              <tr>
                   <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Crop Name</th>
                   <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Transaction Type</th>
                   <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Mode</th>
@@ -418,9 +418,9 @@ const Meel: React.FC = () => {
                   <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tag</th>
                   <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
                   <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
-                </tr>
-              </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
+              </tr>
+            </thead>
+            <tbody className="bg-white divide-y divide-gray-200">
                 {filteredRecords.map((record) => (
                   <tr key={record._id} className="hover:bg-gray-50 transition-colors">
                     <td className="px-6 py-4 whitespace-nowrap">
@@ -430,8 +430,8 @@ const Meel: React.FC = () => {
                             {record.cropName.charAt(0).toUpperCase()}
                           </span>
                         </div>
-                        <div className="text-sm font-medium text-gray-900">
-                          {record.cropName}
+                      <div className="text-sm font-medium text-gray-900">
+                        {record.cropName}
                         </div>
                       </div>
                     </td>
@@ -498,8 +498,8 @@ const Meel: React.FC = () => {
                     </td>
                   </tr>
                 ))}
-              </tbody>
-            </table>
+            </tbody>
+          </table>
 
             {meelRecords.length === 0 && (
               <div className="text-center py-12">
@@ -517,7 +517,7 @@ const Meel: React.FC = () => {
             )}
           </div>
         </div>
-      </div>
+        </div>
 
       {/* Trading Form Modal */}
       {showForm && (
@@ -529,7 +529,7 @@ const Meel: React.FC = () => {
                 <h3 className="text-xl font-semibold text-white">
                   {editingMeel ? 'Edit Trading Record' : 'Add New Trading Record'}
                 </h3>
-                <button
+              <button
                   onClick={() => {
                     setShowForm(false);
                     setEditingMeel(null);
@@ -540,7 +540,7 @@ const Meel: React.FC = () => {
                   <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                   </svg>
-                </button>
+              </button>
               </div>
             </div>
 
@@ -589,7 +589,7 @@ const Meel: React.FC = () => {
                       </select>
                     </div>
 
-                    <div>
+              <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">Total Cost *</label>
                       <div className="relative">
                         <span className="absolute left-3 top-3 text-gray-500">₹</span>
@@ -605,9 +605,9 @@ const Meel: React.FC = () => {
                         />
                       </div>
                     </div>
-                  </div>
+              </div>
 
-                  <div>
+              <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">Tag *</label>
                     <input
                       type="text"
@@ -672,13 +672,13 @@ const Meel: React.FC = () => {
                             </div>
                             <div className="text-right">
                               <div className="font-medium">₹{partner.contribution.toLocaleString()}</div>
-                              <button
+                    <button
                                 type="button"
                                 onClick={() => removePartner(index)}
                                 className="text-red-600 hover:text-red-800 text-sm"
-                              >
+                    >
                                 Remove
-                              </button>
+                    </button>
                             </div>
                           </div>
                         ))}
@@ -711,10 +711,10 @@ const Meel: React.FC = () => {
                   </button>
                 </div>
               </form>
+              </div>
             </div>
           </div>
-        </div>
-      )}
+        )}
     </div>
   );
 };

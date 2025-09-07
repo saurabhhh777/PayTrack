@@ -1,3 +1,4 @@
+import React from "react"
 import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { Plus, Edit, Trash2, DollarSign, Calendar, Users, Search, Filter, Phone, MapPin, TrendingUp, Clock, Eye } from 'lucide-react'
@@ -317,12 +318,12 @@ const Workers = () => {
               <div key={worker._id} className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 hover:shadow-md transition-all duration-300 cursor-pointer group">
                 <div className="flex items-start justify-between mb-4">
                   <div className="flex-1">
-                    <Link 
-                      to={`/workers/${worker._id}`}
+                      <Link
+                        to={`/workers/${worker._id}`}
                       className="text-xl font-medium text-gray-900 hover:text-blue-600 transition-colors"
-                    >
-                      {worker.name}
-                    </Link>
+                      >
+                        {worker.name}
+                      </Link>
                     <div className="flex items-center gap-2 mt-2">
                       <span className={`inline-flex px-3 py-1 text-xs font-medium rounded-full ${
                         worker.isActive 
@@ -335,21 +336,21 @@ const Workers = () => {
                   </div>
                   
                   <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                    <button
-                      onClick={() => editWorker(worker)}
+                      <button
+                        onClick={() => editWorker(worker)}
                       className="p-2 text-blue-600 hover:bg-blue-50 rounded-xl transition-colors"
-                      title="Edit Worker"
-                    >
-                      <Edit className="h-4 w-4" />
-                    </button>
-                    <button
-                      onClick={() => deleteWorker(worker._id)}
+                        title="Edit Worker"
+                      >
+                        <Edit className="h-4 w-4" />
+                      </button>
+                      <button
+                        onClick={() => deleteWorker(worker._id)}
                       className="p-2 text-red-600 hover:bg-red-50 rounded-xl transition-colors"
-                      title="Delete Worker"
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </button>
-                  </div>
+                        title="Delete Worker"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </button>
+          </div>
                 </div>
 
                 <div className="space-y-3 mb-6">
@@ -364,14 +365,14 @@ const Workers = () => {
                   <div className="flex items-center gap-2 text-gray-600">
                     <Calendar className="h-4 w-4" />
                     <span className="text-sm">Joined {format(new Date(worker.joiningDate), 'MMM yyyy')}</span>
-                  </div>
-                </div>
+        </div>
+      </div>
 
                 <div className="grid grid-cols-2 gap-4 pt-4 border-t border-gray-100">
                   <div>
                     <p className="text-sm text-gray-500">Monthly Salary</p>
                     <p className="text-lg font-medium text-gray-900">₹{worker.salary.toLocaleString()}</p>
-                  </div>
+          </div>
                   <div>
                     <p className="text-sm text-gray-500">Total Paid</p>
                     <p className="text-lg font-medium text-green-600">₹{totalPayments.toLocaleString()}</p>
@@ -383,8 +384,8 @@ const Workers = () => {
                   <div>
                     <p className="text-sm text-gray-500">Working Days</p>
                     <p className="text-lg font-medium text-gray-900">{attendanceStats.total}</p>
-                  </div>
-                </div>
+        </div>
+      </div>
 
                 <div className="mt-4 pt-4 border-t border-gray-100">
                   <Link
@@ -394,8 +395,8 @@ const Workers = () => {
                     <Eye className="h-4 w-4" />
                     View Details
                   </Link>
-                </div>
-              </div>
+          </div>
+        </div>
             )
           })}
         </div>
@@ -568,7 +569,7 @@ const Workers = () => {
           </div>
         </div>
       )}
-    </div>
+                </div>
   )
 }
 

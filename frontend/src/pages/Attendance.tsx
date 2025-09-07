@@ -218,27 +218,27 @@ const Attendance = () => {
           </p>
           
           <div className="flex flex-wrap gap-3">
-            <button
-              onClick={() => setShowAttendanceForm(true)}
+          <button
+            onClick={() => setShowAttendanceForm(true)}
               className="inline-flex items-center gap-3 bg-white/20 backdrop-blur-sm text-white px-6 py-3 rounded-2xl font-medium hover:bg-white/30 transition-all duration-200"
-            >
+          >
               <Plus className="h-5 w-5" />
               Mark Attendance
-            </button>
-            <button
-              onClick={() => setShowBulkAttendanceForm(true)}
+          </button>
+          <button
+            onClick={() => setShowBulkAttendanceForm(true)}
               className="inline-flex items-center gap-3 bg-white/20 backdrop-blur-sm text-white px-6 py-3 rounded-2xl font-medium hover:bg-white/30 transition-all duration-200"
-            >
+          >
               <Users className="h-5 w-5" />
               Bulk Entry
-            </button>
-            <button
-              onClick={exportAttendanceData}
+          </button>
+          <button
+            onClick={exportAttendanceData}
               className="inline-flex items-center gap-3 bg-white/20 backdrop-blur-sm text-white px-6 py-3 rounded-2xl font-medium hover:bg-white/30 transition-all duration-200"
-            >
+          >
               <Download className="h-5 w-5" />
-              Export CSV
-            </button>
+            Export CSV
+          </button>
           </div>
         </div>
       </div>
@@ -314,16 +314,16 @@ const Attendance = () => {
           <div className="flex flex-wrap gap-4 items-center">
             <div className="flex items-center gap-2">
               <Filter className="h-5 w-5 text-gray-400" />
-              <select
-                value={filters.workerId}
-                onChange={(e) => setFilters(prev => ({ ...prev, workerId: e.target.value }))}
+            <select
+              value={filters.workerId}
+              onChange={(e) => setFilters(prev => ({ ...prev, workerId: e.target.value }))}
                 className="border border-gray-200 rounded-xl px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
-              >
+            >
                 <option value="">All Workers</option>
-                {workers.map(worker => (
-                  <option key={worker._id} value={worker._id}>{worker.name}</option>
-                ))}
-              </select>
+              {workers.map(worker => (
+                <option key={worker._id} value={worker._id}>{worker.name}</option>
+              ))}
+            </select>
             </div>
             
             <select

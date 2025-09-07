@@ -216,13 +216,13 @@ const RealEstate = () => {
             Manage your property transactions and track real estate investments
           </p>
           
-          <button
-            onClick={() => setShowForm(true)}
+        <button
+          onClick={() => setShowForm(true)}
             className="inline-flex items-center gap-3 bg-white/20 backdrop-blur-sm text-white px-6 py-3 rounded-2xl font-medium hover:bg-white/30 transition-all duration-200"
-          >
+        >
             <Plus className="h-5 w-5" />
             Add Property Deal
-          </button>
+        </button>
         </div>
       </div>
 
@@ -240,7 +240,7 @@ const RealEstate = () => {
             <h3 className="text-sm font-medium text-gray-500 mb-2">Total Properties</h3>
             <p className="text-3xl font-medium text-gray-900 mb-1">{properties.length}</p>
             <p className="text-sm text-gray-600">{getBuyProperties()} Buy • {getSellProperties()} Sell</p>
-          </div>
+        </div>
 
           <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
             <div className="flex items-center justify-between mb-4">
@@ -252,7 +252,7 @@ const RealEstate = () => {
             <h3 className="text-sm font-medium text-gray-500 mb-2">Total Investment</h3>
             <p className="text-3xl font-medium text-gray-900 mb-1">₹{getTotalInvestment().toLocaleString()}</p>
             <p className="text-sm text-gray-600">Property purchases</p>
-          </div>
+        </div>
 
           <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
             <div className="flex items-center justify-between mb-4">
@@ -264,7 +264,7 @@ const RealEstate = () => {
             <h3 className="text-sm font-medium text-gray-500 mb-2">Total Revenue</h3>
             <p className="text-3xl font-medium text-gray-900 mb-1">₹{getTotalRevenue().toLocaleString()}</p>
             <p className="text-sm text-green-600">Property sales</p>
-          </div>
+        </div>
 
           <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
             <div className="flex items-center justify-between mb-4">
@@ -277,7 +277,7 @@ const RealEstate = () => {
             </div>
             <h3 className="text-sm font-medium text-gray-500 mb-2">Net Profit</h3>
             <p className={`text-3xl font-medium mb-1 ${getTotalProfit() >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-              ₹{getTotalProfit().toLocaleString()}
+                    ₹{getTotalProfit().toLocaleString()}
             </p>
             <p className="text-sm text-gray-600">Total return</p>
           </div>
@@ -300,17 +300,17 @@ const RealEstate = () => {
       {propertyAnalytics && (
         <div>
           <h2 className="text-2xl font-medium text-gray-900 mb-6">Analytics & Insights</h2>
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {/* Partner Analytics Chart */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {/* Partner Analytics Chart */}
             <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
               <h3 className="text-xl font-medium text-gray-900 mb-6">📊 Partner-wise Transaction Analysis</h3>
-              <ResponsiveContainer width="100%" height={300}>
-                <BarChart data={Object.entries(propertyAnalytics).map(([partner, data]: [string, any]) => ({
-                  partner,
-                  investment: data.totalInvestment,
-                  revenue: data.totalRevenue,
-                  profit: data.profit
-                }))}>
+            <ResponsiveContainer width="100%" height={300}>
+              <BarChart data={Object.entries(propertyAnalytics).map(([partner, data]: [string, any]) => ({
+                partner,
+                investment: data.totalInvestment,
+                revenue: data.totalRevenue,
+                profit: data.profit
+              }))}>
                   <CartesianGrid strokeDasharray="3 3" stroke="#f3f4f6" />
                   <XAxis dataKey="partner" stroke="#6b7280" fontSize={12} />
                   <YAxis stroke="#6b7280" fontSize={12} />
@@ -323,35 +323,35 @@ const RealEstate = () => {
                       boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)'
                     }}
                   />
-                  <Legend />
+                <Legend />
                   <Bar dataKey="investment" fill="#EF4444" name="Investment" radius={[4, 4, 0, 0]} />
                   <Bar dataKey="revenue" fill="#3B82F6" name="Revenue" radius={[4, 4, 0, 0]} />
                   <Bar dataKey="profit" fill="#10B981" name="Profit" radius={[4, 4, 0, 0]} />
-                </BarChart>
-              </ResponsiveContainer>
-            </div>
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
 
-            {/* Property Type Distribution */}
+          {/* Property Type Distribution */}
             <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
               <h3 className="text-xl font-medium text-gray-900 mb-6">🏠 Property Type Distribution</h3>
-              <ResponsiveContainer width="100%" height={300}>
-                <PieChart>
-                  <Pie
-                    data={[
+            <ResponsiveContainer width="100%" height={300}>
+              <PieChart>
+                <Pie
+                  data={[
                       { name: 'Buy', value: getBuyProperties() },
                       { name: 'Sell', value: getSellProperties() }
-                    ]}
-                    cx="50%"
-                    cy="50%"
-                    labelLine={false}
-                    label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                  ]}
+                  cx="50%"
+                  cy="50%"
+                  labelLine={false}
+                  label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
                     outerRadius={100}
-                    fill="#8884d8"
-                    dataKey="value"
-                  >
-                    <Cell fill="#EF4444" />
-                    <Cell fill="#10B981" />
-                  </Pie>
+                  fill="#8884d8"
+                  dataKey="value"
+                >
+                  <Cell fill="#EF4444" />
+                  <Cell fill="#10B981" />
+                </Pie>
                   <Tooltip 
                     formatter={(value: number) => [`${value} properties`, '']}
                     contentStyle={{
@@ -361,8 +361,8 @@ const RealEstate = () => {
                       boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)'
                     }}
                   />
-                </PieChart>
-              </ResponsiveContainer>
+              </PieChart>
+            </ResponsiveContainer>
             </div>
           </div>
         </div>
@@ -445,12 +445,12 @@ const RealEstate = () => {
                           </span>
                         </div>
                         <div>
-                          <div className="text-sm font-medium text-gray-900">{property.partnerName}</div>
-                          <div className="text-sm text-gray-500">
-                            {property.propertyType === 'buy' 
+                      <div className="text-sm font-medium text-gray-900">{property.partnerName}</div>
+                      <div className="text-sm text-gray-500">
+                        {property.propertyType === 'buy' 
                               ? `From: ${property.sellerName || 'N/A'}`
                               : `To: ${property.buyerName || 'N/A'}`
-                            }
+                        }
                           </div>
                         </div>
                       </div>
@@ -470,20 +470,20 @@ const RealEstate = () => {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="flex items-center gap-2">
-                        <button
-                          onClick={() => editProperty(property)}
+                      <button
+                        onClick={() => editProperty(property)}
                           className="p-2 text-blue-600 hover:bg-blue-50 rounded-xl transition-colors"
                           title="Edit Property"
-                        >
-                          <Edit className="h-4 w-4" />
-                        </button>
-                        <button
-                          onClick={() => deleteProperty(property._id)}
+                      >
+                        <Edit className="h-4 w-4" />
+                      </button>
+                      <button
+                        onClick={() => deleteProperty(property._id)}
                           className="p-2 text-red-600 hover:bg-red-50 rounded-xl transition-colors"
                           title="Delete Property"
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </button>
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </button>
                       </div>
                     </td>
                   </tr>

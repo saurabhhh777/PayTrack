@@ -259,31 +259,31 @@ const Agriculture = () => {
             Manage your crop cultivations and track agricultural investments
           </p>
           
-          <button
-            onClick={() => setShowForm(true)}
+        <button
+          onClick={() => setShowForm(true)}
             className="inline-flex items-center gap-3 bg-white/20 backdrop-blur-sm text-white px-6 py-3 rounded-2xl font-medium hover:bg-white/30 transition-all duration-200"
-          >
+        >
             <Plus className="h-5 w-5" />
-            Add Cultivation
-          </button>
+          Add Cultivation
+        </button>
         </div>
       </div>
 
       {/* Stats Cards */}
       <div>
         <h2 className="text-2xl font-medium text-gray-900 mb-6">Agriculture Overview</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
           <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
             <div className="flex items-center justify-between mb-4">
               <div className="w-12 h-12 bg-green-100 rounded-2xl flex items-center justify-center">
                 <Sprout className="h-6 w-6 text-green-600" />
               </div>
               <TrendingUp className="h-5 w-5 text-green-500" />
-            </div>
+              </div>
             <h3 className="text-sm font-medium text-gray-500 mb-2">Total Area</h3>
             <p className="text-3xl font-medium text-gray-900 mb-1">{getTotalCultivatedArea()}</p>
             <p className="text-sm text-gray-600">Bigha</p>
-          </div>
+        </div>
 
           <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
             <div className="flex items-center justify-between mb-4">
@@ -291,11 +291,11 @@ const Agriculture = () => {
                 <TrendingDown className="h-6 w-6 text-red-600" />
               </div>
               <span className="text-sm text-red-600">Investment</span>
-            </div>
+              </div>
             <h3 className="text-sm font-medium text-gray-500 mb-2">Total Investment</h3>
             <p className="text-3xl font-medium text-gray-900 mb-1">₹{getTotalInvestment().toLocaleString()}</p>
             <p className="text-sm text-gray-600">Total cost</p>
-          </div>
+        </div>
 
           <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
             <div className="flex items-center justify-between mb-4">
@@ -303,11 +303,11 @@ const Agriculture = () => {
                 <DollarSign className="h-6 w-6 text-blue-600" />
               </div>
               <TrendingUp className="h-5 w-5 text-blue-500" />
-            </div>
+              </div>
             <h3 className="text-sm font-medium text-gray-500 mb-2">Total Revenue</h3>
             <p className="text-3xl font-medium text-gray-900 mb-1">₹{getTotalRevenue().toLocaleString()}</p>
             <p className="text-sm text-blue-600">Received</p>
-          </div>
+        </div>
 
           <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
             <div className="flex items-center justify-between mb-4">
@@ -320,10 +320,10 @@ const Agriculture = () => {
             </div>
             <h3 className="text-sm font-medium text-gray-500 mb-2">Total Profit</h3>
             <p className={`text-3xl font-medium mb-1 ${getTotalProfit() >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-              ₹{getTotalProfit().toLocaleString()}
+                  ₹{getTotalProfit().toLocaleString()}
             </p>
             <p className="text-sm text-gray-600">Net profit</p>
-          </div>
+        </div>
 
           <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
             <div className="flex items-center justify-between mb-4">
@@ -331,7 +331,7 @@ const Agriculture = () => {
                 <Calendar className="h-6 w-6 text-orange-600" />
               </div>
               <span className="text-sm text-orange-600">Pending</span>
-            </div>
+              </div>
             <h3 className="text-sm font-medium text-gray-500 mb-2">Pending Amount</h3>
             <p className="text-3xl font-medium text-gray-900 mb-1">₹{getTotalPending().toLocaleString()}</p>
             <p className="text-sm text-orange-600">Outstanding</p>
@@ -343,89 +343,89 @@ const Agriculture = () => {
       {cropAnalytics && (
         <div>
           <h2 className="text-2xl font-medium text-gray-900 mb-6">Analytics & Insights</h2>
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {/* Crop Profit Chart */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {/* Crop Profit Chart */}
             <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
-              <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center justify-between mb-6">
                 <h3 className="text-xl font-medium text-gray-900">📊 Crop-wise Profit Analysis</h3>
-                <div className="flex space-x-2">
-                  <div className="flex items-center space-x-2">
-                    <div className="w-3 h-3 bg-green-500 rounded-full"></div>
-                    <span className="text-sm text-gray-600">Profit</span>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <div className="w-3 h-3 bg-red-500 rounded-full"></div>
-                    <span className="text-sm text-gray-600">Cost</span>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <div className="w-3 h-3 bg-blue-500 rounded-full"></div>
-                    <span className="text-sm text-gray-600">Revenue</span>
-                  </div>
+              <div className="flex space-x-2">
+                <div className="flex items-center space-x-2">
+                  <div className="w-3 h-3 bg-green-500 rounded-full"></div>
+                  <span className="text-sm text-gray-600">Profit</span>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <div className="w-3 h-3 bg-red-500 rounded-full"></div>
+                  <span className="text-sm text-gray-600">Cost</span>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <div className="w-3 h-3 bg-blue-500 rounded-full"></div>
+                  <span className="text-sm text-gray-600">Revenue</span>
                 </div>
               </div>
-              <ResponsiveContainer width="100%" height={300}>
-                <BarChart data={Object.entries(cropAnalytics).map(([crop, data]: [string, any]) => ({
-                  crop,
-                  profit: data.profit,
-                  cost: data.totalCost,
-                  revenue: data.totalReceived
-                }))}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#f3f4f6" />
-                  <XAxis dataKey="crop" stroke="#6b7280" fontSize={12} />
-                  <YAxis stroke="#6b7280" fontSize={12} />
-                  <Tooltip 
-                    formatter={(value: number) => [`₹${value.toLocaleString()}`, '']}
-                    contentStyle={{
-                      backgroundColor: 'white',
-                      border: '1px solid #e5e7eb',
-                      borderRadius: '12px',
-                      boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)'
-                    }}
-                  />
-                  <Legend />
-                  <Bar dataKey="profit" fill="#10B981" name="Profit" radius={[4, 4, 0, 0]} />
-                  <Bar dataKey="cost" fill="#EF4444" name="Cost" radius={[4, 4, 0, 0]} />
-                  <Bar dataKey="revenue" fill="#3B82F6" name="Revenue" radius={[4, 4, 0, 0]} />
-                </BarChart>
-              </ResponsiveContainer>
             </div>
-
-            {/* Crop Area Distribution */}
-            <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
-              <div className="flex items-center justify-between mb-6">
-                <h3 className="text-xl font-medium text-gray-900">🥧 Crop Area Distribution</h3>
-                <div className="text-sm text-gray-500">Total: {Object.values(cropAnalytics).reduce((sum: any, data: any) => sum + (data as any).totalArea, 0) as number} Bigha</div>
-              </div>
-              <ResponsiveContainer width="100%" height={300}>
-                <PieChart>
-                  <Pie
-                    data={Object.entries(cropAnalytics).map(([crop, data]: [string, any]) => ({
-                      name: crop,
-                      value: data.totalArea
-                    }))}
-                    cx="50%"
-                    cy="50%"
-                    labelLine={false}
-                    label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
-                    outerRadius={100}
-                    fill="#8884d8"
-                    dataKey="value"
-                  >
-                    {Object.entries(cropAnalytics).map((_, index) => (
-                      <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                    ))}
-                  </Pie>
-                  <Tooltip 
-                    formatter={(value: number) => [`${value} Bigha`, '']}
-                    contentStyle={{
-                      backgroundColor: 'white',
-                      border: '1px solid #e5e7eb',
+            <ResponsiveContainer width="100%" height={300}>
+              <BarChart data={Object.entries(cropAnalytics).map(([crop, data]: [string, any]) => ({
+                crop,
+                profit: data.profit,
+                cost: data.totalCost,
+                revenue: data.totalReceived
+              }))}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#f3f4f6" />
+                <XAxis dataKey="crop" stroke="#6b7280" fontSize={12} />
+                <YAxis stroke="#6b7280" fontSize={12} />
+                <Tooltip 
+                  formatter={(value: number) => [`₹${value.toLocaleString()}`, '']}
+                  contentStyle={{
+                    backgroundColor: 'white',
+                    border: '1px solid #e5e7eb',
                       borderRadius: '12px',
-                      boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)'
-                    }}
-                  />
-                </PieChart>
-              </ResponsiveContainer>
+                    boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)'
+                  }}
+                />
+                <Legend />
+                <Bar dataKey="profit" fill="#10B981" name="Profit" radius={[4, 4, 0, 0]} />
+                <Bar dataKey="cost" fill="#EF4444" name="Cost" radius={[4, 4, 0, 0]} />
+                <Bar dataKey="revenue" fill="#3B82F6" name="Revenue" radius={[4, 4, 0, 0]} />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+
+          {/* Crop Area Distribution */}
+            <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
+            <div className="flex items-center justify-between mb-6">
+                <h3 className="text-xl font-medium text-gray-900">🥧 Crop Area Distribution</h3>
+              <div className="text-sm text-gray-500">Total: {Object.values(cropAnalytics).reduce((sum: any, data: any) => sum + (data as any).totalArea, 0) as number} Bigha</div>
+            </div>
+            <ResponsiveContainer width="100%" height={300}>
+              <PieChart>
+                <Pie
+                  data={Object.entries(cropAnalytics).map(([crop, data]: [string, any]) => ({
+                    name: crop,
+                    value: data.totalArea
+                  }))}
+                  cx="50%"
+                  cy="50%"
+                  labelLine={false}
+                  label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                  outerRadius={100}
+                  fill="#8884d8"
+                  dataKey="value"
+                >
+                  {Object.entries(cropAnalytics).map((_, index) => (
+                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                  ))}
+                </Pie>
+                <Tooltip 
+                  formatter={(value: number) => [`${value} Bigha`, '']}
+                  contentStyle={{
+                    backgroundColor: 'white',
+                    border: '1px solid #e5e7eb',
+                      borderRadius: '12px',
+                    boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)'
+                  }}
+                />
+              </PieChart>
+            </ResponsiveContainer>
             </div>
           </div>
         </div>
@@ -435,27 +435,27 @@ const Agriculture = () => {
       <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
         <div className="relative max-w-md">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
-          <input
-            type="text"
+                <input
+                  type="text"
             placeholder="Search by person name or crop..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
             className="pl-10 pr-4 py-3 w-full border border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
-          />
-        </div>
+                />
+                </div>
         <p className="text-sm text-gray-500 mt-2">
-          Showing {filteredCultivations.length} of {cultivations.length} cultivations
-        </p>
+                Showing {filteredCultivations.length} of {cultivations.length} cultivations
+              </p>
       </div>
 
       {/* Cultivations List */}
       <div>
-        <div className="flex items-center justify-between mb-6">
+          <div className="flex items-center justify-between mb-6">
           <h2 className="text-2xl font-medium text-gray-900">Cultivation Records ({filteredCultivations.length})</h2>
-          <div className="text-sm text-gray-500">
+            <div className="text-sm text-gray-500">
             Total entries: {cultivations.length}
+            </div>
           </div>
-        </div>
 
         <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
           <div className="overflow-x-auto">

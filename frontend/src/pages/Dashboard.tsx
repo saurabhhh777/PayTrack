@@ -106,7 +106,7 @@ const Dashboard = () => {
   if (!dashboardData) {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
-        <div className="text-center py-12">
+      <div className="text-center py-12">
           <p className="text-gray-500 text-lg">No data available</p>
         </div>
       </div>
@@ -135,23 +135,23 @@ const Dashboard = () => {
           <p className="text-xl text-green-100 mb-6">
             Here's what's happening with your operations today
           </p>
-          
-          {/* Date Range Picker */}
+        
+        {/* Date Range Picker */}
           <div className="flex items-center space-x-3 bg-white/20 backdrop-blur-sm rounded-2xl px-4 py-3 w-fit">
             <Calendar className="h-5 w-5 text-white" />
-            <input
-              type="date"
-              value={dateRange.startDate}
-              onChange={(e) => setDateRange(prev => ({ ...prev, startDate: e.target.value }))}
+          <input
+            type="date"
+            value={dateRange.startDate}
+            onChange={(e) => setDateRange(prev => ({ ...prev, startDate: e.target.value }))}
               className="bg-transparent text-white placeholder-green-200 border-none focus:outline-none text-sm"
-            />
+          />
             <span className="text-green-200">to</span>
-            <input
-              type="date"
-              value={dateRange.endDate}
-              onChange={(e) => setDateRange(prev => ({ ...prev, endDate: e.target.value }))}
+          <input
+            type="date"
+            value={dateRange.endDate}
+            onChange={(e) => setDateRange(prev => ({ ...prev, endDate: e.target.value }))}
               className="bg-transparent text-white placeholder-green-200 border-none focus:outline-none text-sm"
-            />
+          />
           </div>
         </div>
       </div>
@@ -159,7 +159,7 @@ const Dashboard = () => {
       {/* Quick Stats Cards */}
       <div>
         <h2 className="text-2xl font-medium text-gray-900 mb-8">Quick Overview</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {/* Total Cultivation Area */}
           <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 hover:shadow-md transition-shadow cursor-pointer">
             <div className="flex items-center justify-between mb-4">
@@ -173,7 +173,7 @@ const Dashboard = () => {
               {dashboardData.categoryTotals.agriculture?.totalCultivations || 0} fields
             </p>
             <p className="text-sm text-green-600">+2 this month</p>
-          </div>
+        </div>
 
           {/* Total Payments Received */}
           <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 hover:shadow-md transition-shadow cursor-pointer">
@@ -188,7 +188,7 @@ const Dashboard = () => {
               ₹{dashboardData.summary.totalIncome.toLocaleString()}
             </p>
             <p className="text-sm text-green-600">+8% from last month</p>
-          </div>
+        </div>
 
           {/* Pending Amounts */}
           <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 hover:shadow-md transition-shadow cursor-pointer">
@@ -203,7 +203,7 @@ const Dashboard = () => {
               ₹{dashboardData.summary.totalPending.toLocaleString()}
             </p>
             <p className="text-sm text-red-600">-12% from last month</p>
-          </div>
+        </div>
 
           {/* Active Workers */}
           <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 hover:shadow-md transition-shadow cursor-pointer">
@@ -215,12 +215,12 @@ const Dashboard = () => {
             </div>
             <h3 className="text-sm font-medium text-gray-500 mb-2">Active Workers</h3>
             <p className="text-3xl font-medium text-gray-900 mb-1">
-              {dashboardData.summary.totalWorkers || 0}
+                    {dashboardData.summary.totalWorkers || 0}
             </p>
             <p className="text-sm text-green-600">+3 this month</p>
+            </div>
           </div>
         </div>
-      </div>
 
       {/* Main Content Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
