@@ -22,7 +22,7 @@ interface AuthState {
 }
 
 export const useAuthStore = create<AuthState>()(
-  persist(
+  persist<AuthState, [], [], Partial<AuthState>>(
     (set) => ({
       user: null,
       token: null,
@@ -35,21 +35,20 @@ export const useAuthStore = create<AuthState>()(
         try {
           const response = await api.post('/auth/login', { email, password })
           const { token, user } = response.data
-          
+
           set({
             user,
             token,
             isAuthenticated: true,
             isLoading: false,
-            error: null
+            error: null,
           })
-          
-          // Set token in API headers
+
           api.defaults.headers.common['Authorization'] = `Bearer ${token}`
         } catch (error: any) {
           set({
             isLoading: false,
-            error: error.response?.data?.message || 'Login failed'
+            error: error.response?.data?.message || 'Login failed',
           })
           throw error
         }
@@ -58,23 +57,26 @@ export const useAuthStore = create<AuthState>()(
       register: async (username: string, email: string, password: string) => {
         set({ isLoading: true, error: null })
         try {
-          const response = await api.post('/auth/register', { username, email, password })
+          const response = await api.post('/auth/register', {
+            username,
+            email,
+            password,
+          })
           const { token, user } = response.data
-          
+
           set({
             user,
             token,
             isAuthenticated: true,
             isLoading: false,
-            error: null
+            error: null,
           })
-          
-          // Set token in API headers
+
           api.defaults.headers.common['Authorization'] = `Bearer ${token}`
         } catch (error: any) {
           set({
             isLoading: false,
-            error: error.response?.data?.message || 'Registration failed'
+            error: error.response?.data?.message || 'Registration failed',
           })
           throw error
         }
@@ -85,22 +87,22 @@ export const useAuthStore = create<AuthState>()(
           user: null,
           token: null,
           isAuthenticated: false,
-          error: null
+          isLoading: false,
+          error: null,
         })
-        
-        // Remove token from API headers
         delete api.defaults.headers.common['Authorization']
       },
 
-      clearError: () => set({ error: null })
+      clearError: () => set({ error: null }),
     }),
     {
       name: 'auth-storage',
-      partialize: (state) => ({ 
-        user: state.user, 
-        token: state.token, 
-        isAuthenticated: state.isAuthenticated 
-      })
+      // ✅ only persist a partial state
+      partialize: (state) => ({
+        user: state.user,
+        token: state.token,
+        isAuthenticated: state.isAuthenticated,
+      }),
     }
   )
-) 
+)
