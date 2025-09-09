@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Plus, Edit, Trash2, Search, Filter, TrendingUp, TrendingDown, DollarSign, Wheat, Users } from 'lucide-react';
+import { api } from '../lib/api';
 
 interface Partner {
   name: string;
@@ -97,18 +98,10 @@ const Meel: React.FC = () => {
         limit: pagination.limit.toString()
       });
 
-      const response = await fetch(`/api/meel?${queryParams}`, {
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        }
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        setMeelRecords(data.meelRecords);
-        setFilteredRecords(data.meelRecords);
-        setPagination(data.pagination);
-      }
+      const response = await api.get(`/meel?${queryParams}`);
+      setMeelRecords(response.data.meelRecords);
+      setFilteredRecords(response.data.meelRecords);
+      setPagination(response.data.pagination);
     } catch (error) {
       console.error('Error fetching meel records:', error);
     } finally {
@@ -120,37 +113,29 @@ const Meel: React.FC = () => {
     e.preventDefault();
     
     try {
-      const url = editingMeel 
-        ? `/api/meel/${editingMeel._id}`
-        : '/api/meel';
-      
-      const method = editingMeel ? 'PUT' : 'POST';
-      
-      const response = await fetch(url, {
-        method,
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        },
-        body: JSON.stringify({
-          ...formData,
-          totalCost: parseFloat(formData.totalCost),
-          partners: formData.transactionMode === 'With Partner' ? formData.partners : undefined
-        })
-      });
+      const data = {
+        ...formData,
+        totalCost: parseFloat(formData.totalCost),
+        partners: formData.transactionMode === 'With Partner' ? formData.partners : undefined
+      };
 
-      if (response.ok) {
-        setShowForm(false);
-        setEditingMeel(null);
-        resetForm();
-        fetchMeelRecords();
+      console.log('Form data being submitted:', data);
+      console.log('Partners array:', formData.partners);
+      console.log('Transaction mode:', formData.transactionMode);
+
+      if (editingMeel) {
+        await api.put(`/meel/${editingMeel._id}`, data);
       } else {
-        const error = await response.json();
-        alert(error.message || 'Error saving meel record');
+        await api.post('/meel', data);
       }
-    } catch (error) {
+
+      setShowForm(false);
+      setEditingMeel(null);
+      resetForm();
+      fetchMeelRecords();
+    } catch (error: any) {
       console.error('Error saving meel record:', error);
-      alert('Error saving meel record');
+      alert(error.response?.data?.message || 'Error saving meel record');
     }
   };
 
@@ -158,22 +143,11 @@ const Meel: React.FC = () => {
     if (!confirm('Are you sure you want to delete this meel record?')) return;
 
     try {
-      const response = await fetch(`/api/meel/${id}`, {
-        method: 'DELETE',
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        }
-      });
-
-      if (response.ok) {
-        fetchMeelRecords();
-      } else {
-        const error = await response.json();
-        alert(error.message || 'Error deleting meel record');
-      }
-    } catch (error) {
+      await api.delete(`/meel/${id}`);
+      fetchMeelRecords();
+    } catch (error: any) {
       console.error('Error deleting meel record:', error);
-      alert('Error deleting meel record');
+      alert(error.response?.data?.message || 'Error deleting meel record');
     }
   };
 
@@ -207,16 +181,25 @@ const Meel: React.FC = () => {
   };
 
   const addPartner = () => {
+    console.log('Adding partner:', partnerForm);
     if (partnerForm.name && partnerForm.mobile && partnerForm.contribution) {
-      setFormData(prev => ({
-        ...prev,
-        partners: [...prev.partners, {
-          name: partnerForm.name,
-          mobile: partnerForm.mobile,
-          contribution: parseFloat(partnerForm.contribution)
-        }]
-      }));
+      const newPartner = {
+        name: partnerForm.name,
+        mobile: partnerForm.mobile,
+        contribution: parseFloat(partnerForm.contribution)
+      };
+      
+      setFormData(prev => {
+        const updatedPartners = [...prev.partners, newPartner];
+        console.log('Updated partners array:', updatedPartners);
+        return {
+          ...prev,
+          partners: updatedPartners
+        };
+      });
       setPartnerForm({ name: '', mobile: '', contribution: '' });
+    } else {
+      console.log('Partner form validation failed:', partnerForm);
     }
   };
 
@@ -654,11 +637,23 @@ const Meel: React.FC = () => {
                         <button
                           type="button"
                           onClick={addPartner}
-                          className="bg-green-600 hover:bg-green-700 text-white px-4 py-3 rounded-xl transition-all duration-200"
+                          className="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-xl transition-all duration-200 font-medium min-w-[80px]"
                         >
-                          Add
+                          + Add
                         </button>
                       </div>
+                    </div>
+
+                    {/* Add Partner Button - More Prominent */}
+                    <div className="mb-4">
+                      <button
+                        type="button"
+                        onClick={addPartner}
+                        className="w-full bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-xl transition-all duration-200 font-medium flex items-center justify-center gap-2"
+                      >
+                        <Plus className="h-5 w-5" />
+                        Add Partner to List
+                      </button>
                     </div>
 
                     {/* Partners List */}

@@ -64,21 +64,42 @@ const Attendance = () => {
   })
 
   useEffect(() => {
+    console.log('Attendance page useEffect triggered, filters:', filters)
     fetchData()
   }, [filters])
 
+  // Add another useEffect for initial load
+  useEffect(() => {
+    console.log('Attendance page initial load')
+    fetchData()
+  }, [])
+
   const fetchData = async () => {
+    console.log('fetchData function called')
     try {
       setLoading(true)
+      console.log('Fetching workers and attendance data...')
+      
       const [workersRes, attendanceRes] = await Promise.all([
         api.get('/workers'),
         api.get('/attendance', { params: filters })
       ])
-      console.log('Workers fetched:', workersRes.data) // Debug log
-      setWorkers(workersRes.data)
-      setAttendance(attendanceRes.data)
-    } catch (error) {
+      
+      console.log('Workers API response:', workersRes)
+      console.log('Workers data:', workersRes.data)
+      console.log('Workers count:', workersRes.data?.length || 0)
+      
+      setWorkers(workersRes.data || [])
+      setAttendance(attendanceRes.data || [])
+    } catch (error: any) {
       console.error('Error fetching data:', error)
+      console.error('Error details:', error.response?.data)
+      console.error('Error status:', error.response?.status)
+      console.error('Error message:', error.message)
+      
+      // Set empty arrays on error to prevent crashes
+      setWorkers([])
+      setAttendance([])
     } finally {
       setLoading(false)
     }
@@ -521,10 +542,17 @@ const Attendance = () => {
                     className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200"
                   >
                     <option value="">Choose a worker</option>
-                    {workers.map(worker => (
-                      <option key={worker._id} value={worker._id}>{worker.name} - {worker.phone}</option>
-                    ))}
+                    {workers.length > 0 ? (
+                      workers.map(worker => (
+                        <option key={worker._id} value={worker._id}>{worker.name} - {worker.phone}</option>
+                      ))
+                    ) : (
+                      <option value="" disabled>No workers found</option>
+                    )}
                   </select>
+                  {workers.length === 0 && (
+                    <p className="text-red-500 text-sm mt-1">No workers available. Please add workers first.</p>
+                  )}
                 </div>
 
                 {/* Date and Status */}
