@@ -81,6 +81,75 @@ router.post('/',
   }
 );
 
+// ADD: Bulk attendance create/update
+router.post('/bulk',
+  auth,
+  [
+    body('date')
+      .isISO8601()
+      .withMessage('Valid date is required'),
+    body('attendanceData')
+      .isArray({ min: 1 })
+      .withMessage('attendanceData must be a non-empty array'),
+    body('attendanceData.*.workerId')
+      .isMongoId()
+      .withMessage('Valid worker ID is required for each record'),
+    body('attendanceData.*.status')
+      .isIn(['Present', 'Absent', 'HalfDay'])
+      .withMessage('Status must be Present, Absent, or HalfDay')
+  ],
+  async (req: AuthRequest, res: Response) => {
+    try {
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) {
+        return res.status(400).json({ errors: errors.array() });
+      }
+
+      const { date, attendanceData } = req.body as { date: string; attendanceData: Array<{ workerId: string; status: 'Present' | 'Absent' | 'HalfDay'; notes?: string }>; };
+
+      const results: Array<{ workerId: string; isUpdate: boolean }> = [];
+
+      for (const item of attendanceData) {
+        // Ensure worker exists
+        const worker = await Worker.findById(item.workerId);
+        if (!worker) {
+          results.push({ workerId: item.workerId, isUpdate: false });
+          continue;
+        }
+
+        const existing = await Attendance.findOne({ workerId: item.workerId, date });
+        if (existing) {
+          existing.status = item.status;
+          existing.notes = item.notes;
+          await existing.save();
+          results.push({ workerId: item.workerId, isUpdate: true });
+        } else {
+          const created = new Attendance({
+            workerId: item.workerId,
+            date,
+            status: item.status,
+            notes: item.notes
+          });
+          await created.save();
+          results.push({ workerId: item.workerId, isUpdate: false });
+        }
+      }
+
+      res.json({
+        message: 'Bulk attendance processed successfully',
+        counts: {
+          total: results.length,
+          updated: results.filter(r => r.isUpdate).length,
+          created: results.filter(r => !r.isUpdate).length
+        }
+      });
+    } catch (error) {
+      console.error('Error saving bulk attendance:', error);
+      res.status(500).json({ message: 'Failed to save bulk attendance' });
+    }
+  }
+);
+
 // Get attendance history for a specific worker
 router.get('/:workerId',
   auth,

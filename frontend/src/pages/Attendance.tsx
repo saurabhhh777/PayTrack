@@ -44,7 +44,7 @@ const Attendance = () => {
   const [attendanceForm, setAttendanceForm] = useState({
     workerId: '',
     date: format(new Date(), 'yyyy-MM-dd'),
-    status: 'present' as 'present' | 'absent' | 'half-day' | 'leave',
+    status: 'Present' as 'Present' | 'Absent' | 'HalfDay',
     checkInTime: '',
     checkOutTime: '',
     workingHours: '',
@@ -64,42 +64,29 @@ const Attendance = () => {
   })
 
   useEffect(() => {
-    console.log('Attendance page useEffect triggered, filters:', filters)
     fetchData()
   }, [filters])
-
-  // Add another useEffect for initial load
-  useEffect(() => {
-    console.log('Attendance page initial load')
-    fetchData()
-  }, [])
 
   const fetchData = async () => {
     console.log('fetchData function called')
     try {
       setLoading(true)
-      console.log('Fetching workers and attendance data...')
-      
-      const [workersRes, attendanceRes] = await Promise.all([
-        api.get('/workers'),
-        api.get('/attendance', { params: filters })
-      ])
-      
-      console.log('Workers API response:', workersRes)
-      console.log('Workers data:', workersRes.data)
-      console.log('Workers count:', workersRes.data?.length || 0)
-      
+
+      const workersRes = await api.get('/workers')
       setWorkers(workersRes.data || [])
-      setAttendance(attendanceRes.data || [])
+
+      if (filters.workerId) {
+        const attendanceRes = await api.get(`/attendance/${filters.workerId}`, {
+          params: { startDate: filters.startDate, endDate: filters.endDate, limit: 200 }
+        })
+        // backend returns { worker, attendance, total }
+        setAttendance(attendanceRes.data.attendance || [])
+      } else {
+        setAttendance([])
+      }
     } catch (error: any) {
       console.error('Error fetching data:', error)
       console.error('Error details:', error.response?.data)
-      console.error('Error status:', error.response?.status)
-      console.error('Error message:', error.message)
-      
-      // Set empty arrays on error to prevent crashes
-      setWorkers([])
-      setAttendance([])
     } finally {
       setLoading(false)
     }
@@ -107,18 +94,29 @@ const Attendance = () => {
 
   const handleAttendanceSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    if (!attendanceForm.workerId) {
+      alert('Please choose a worker first')
+      return
+    }
     try {
+      const payload = {
+        workerId: attendanceForm.workerId,
+        date: attendanceForm.date,           // yyyy-MM-dd (ISO)
+        status: attendanceForm.status,       // 'Present' | 'Absent' | 'HalfDay'
+        notes: attendanceForm.notes || undefined
+      }
       if (editingAttendance) {
-        await api.put(`/attendance/${editingAttendance._id}`, attendanceForm)
+        await api.put(`/attendance/${editingAttendance._id}`, payload)
       } else {
-        await api.post('/attendance', attendanceForm)
+        await api.post('/attendance', payload)
       }
       setShowAttendanceForm(false)
       setEditingAttendance(null)
+      setFilters(prev => ({ ...prev, workerId: attendanceForm.workerId }))
       setAttendanceForm({
         workerId: '',
         date: format(new Date(), 'yyyy-MM-dd'),
-        status: 'present',
+        status: 'Present',
         checkInTime: '',
         checkOutTime: '',
         workingHours: '',
@@ -224,6 +222,15 @@ const Attendance = () => {
     )
   }
 
+  const fetchWorkersOnly = async () => {
+    try {
+      const res = await api.get('/workers');
+      setWorkers(res.data || []);
+    } catch (e) {
+      console.error('Error fetching workers-only:', e);
+    }
+  };
+
   return (
     <div className="space-y-8">
       {/* Header Section */}
@@ -241,7 +248,10 @@ const Attendance = () => {
           
           <div className="flex flex-wrap gap-3">
           <button
-            onClick={() => setShowAttendanceForm(true)}
+            onClick={() => {
+              fetchWorkersOnly();
+              setShowAttendanceForm(true);
+            }}
               className="inline-flex items-center gap-3 bg-white/20 backdrop-blur-sm text-white px-6 py-3 rounded-2xl font-medium hover:bg-white/30 transition-all duration-200"
           >
               <Plus className="h-5 w-5" />
@@ -458,7 +468,10 @@ const Attendance = () => {
                             setAttendanceForm({
                               workerId: record.workerId._id,
                               date: format(new Date(record.date), 'yyyy-MM-dd'),
-                              status: record.status,
+                              status: (record.status === 'present' ? 'Present'
+                                     : record.status === 'absent' ? 'Absent'
+                                     : record.status === 'half-day' ? 'HalfDay'
+                                     : (record.status as 'Present' | 'Absent' | 'HalfDay')),
                               checkInTime: record.checkInTime || '',
                               checkOutTime: record.checkOutTime || '',
                               workingHours: record.workingHours?.toString() || '',
@@ -513,7 +526,7 @@ const Attendance = () => {
                     setAttendanceForm({
                       workerId: '',
                       date: format(new Date(), 'yyyy-MM-dd'),
-                      status: 'present',
+                      status: 'Present',
                       checkInTime: '',
                       checkOutTime: '',
                       workingHours: '',
@@ -572,13 +585,13 @@ const Attendance = () => {
                     <select
                       required
                       value={attendanceForm.status}
-                      onChange={(e) => setAttendanceForm(prev => ({ ...prev, status: e.target.value as 'present' | 'absent' | 'half-day' | 'leave' }))}
+                      onChange={(e) => setAttendanceForm(p => ({ ...p, status: e.target.value as 'Present' | 'Absent' | 'HalfDay' }))}
                       className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200"
                     >
-                      <option value="present">✅ Present</option>
-                      <option value="absent">❌ Absent</option>
-                      <option value="half-day">⚠️ Half Day</option>
-                      <option value="leave">🏖️ Leave</option>
+                      <option value="Present">✅ Present</option>
+                      <option value="Absent">❌ Absent</option>
+                      <option value="HalfDay">⚠️ Half Day</option>
+                      <option value="Leave">🏖️ Leave</option>
                     </select>
                   </div>
                 </div>
@@ -638,7 +651,7 @@ const Attendance = () => {
                     type="submit"
                     className="flex-1 bg-gradient-to-r from-purple-500 to-purple-600 text-white px-6 py-3 rounded-xl font-medium hover:from-purple-600 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 transition-all duration-200 transform hover:scale-105 shadow-lg"
                   >
-                    {editingAttendance ? '🔄 Update Attendance' : '📝 Mark Attendance'}
+                    {editingAttendance ? '✏️ Update Attendance' : '📝 Mark Attendance'}
                   </button>
                   <button
                     type="button"
@@ -648,7 +661,7 @@ const Attendance = () => {
                       setAttendanceForm({
                         workerId: '',
                         date: format(new Date(), 'yyyy-MM-dd'),
-                        status: 'present',
+                        status: 'Present',
                         checkInTime: '',
                         checkOutTime: '',
                         workingHours: '',
