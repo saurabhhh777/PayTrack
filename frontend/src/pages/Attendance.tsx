@@ -144,7 +144,7 @@ const Attendance = () => {
         'leave': 'Absent'
       }
 
-      const payload = {
+      let payload = {
         date: bulkAttendanceForm.date,
         attendanceData: bulkAttendanceForm.attendanceData
           .filter(item => !!item.workerId)
@@ -154,9 +154,12 @@ const Attendance = () => {
           }))
       }
 
+      // If user didn't touch any rows, assume "All Present" convenience default
       if (payload.attendanceData.length === 0) {
-        alert('Please select at least one worker to save bulk attendance')
-        return
+        payload = {
+          date: bulkAttendanceForm.date,
+          attendanceData: workers.map(w => ({ workerId: w._id, status: 'Present' as const }))
+        }
       }
 
       await api.post('/attendance/bulk', payload)
@@ -165,6 +168,10 @@ const Attendance = () => {
         date: format(new Date(), 'yyyy-MM-dd'),
         attendanceData: []
       })
+      // Focus the view on a worker so records are visible right away
+      if (workers.length > 0) {
+        setFilters(prev => ({ ...prev, workerId: prev.workerId || workers[0]._id }))
+      }
       fetchData()
     } catch (error: any) {
       console.error('Error saving bulk attendance:', error)
@@ -189,6 +196,7 @@ const Attendance = () => {
     if (up === 'present') return 'Present'
     if (up === 'absent') return 'Absent'
     if (up === 'half-day' || up === 'halfday') return 'HalfDay'
+    if (up === 'leave') return 'Absent'
     return s
   }
 
@@ -244,9 +252,9 @@ const Attendance = () => {
 
   // Calculate stats
   const totalRecords = attendance.length
-  const presentCount = attendance.filter(a => a.status === 'Present').length
-  const absentCount = attendance.filter(a => a.status === 'Absent').length
-  const halfDayCount = attendance.filter(a => a.status === 'HalfDay').length
+  const presentCount = attendance.filter(a => normalizeStatus(a.status) === 'Present').length
+  const absentCount = attendance.filter(a => normalizeStatus(a.status) === 'Absent').length
+  const halfDayCount = attendance.filter(a => normalizeStatus(a.status) === 'HalfDay').length
   const attendanceRate = totalRecords > 0 ? Math.round((presentCount / totalRecords) * 100) : 0
 
   if (loading) {

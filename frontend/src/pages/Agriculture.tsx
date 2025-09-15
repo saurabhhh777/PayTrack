@@ -50,6 +50,7 @@ const Agriculture = () => {
 
   const initialFormState = {
     personId: '',
+    personName: '',
     cropName: '',
     area: '',
     ratePerBigha: '',
@@ -157,7 +158,9 @@ const Agriculture = () => {
       ratePerBigha: parseFloat(form.ratePerBigha) || 0,
       totalCost: parseFloat(form.totalCost) || 0,
       amountReceived: parseFloat(form.amountReceived) || 0,
-      amountPending: parseFloat(form.amountPending) || 0
+      amountPending: parseFloat(form.amountPending) || 0,
+      // backend supports legacy `name`; send it when no personId is chosen
+      name: form.personId ? undefined : form.personName || undefined
     }
     
     console.log('Submitting form data:', formData)
@@ -194,6 +197,7 @@ const Agriculture = () => {
     setEditingCultivation(cultivation)
     setForm({
       personId: cultivation.personId?._id || '',
+      personName: cultivation.personId?.name || cultivation.name || '',
       cropName: cultivation.cropName,
       area: cultivation.area.toString(),
       ratePerBigha: cultivation.ratePerBigha.toString(),
@@ -595,17 +599,29 @@ const Agriculture = () => {
                   <h4 className="text-lg font-medium text-gray-900 border-b border-gray-200 pb-2">Basic Information</h4>
                   
                   {/* Person Selection Field */}
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Person *</label>
-                    <select
-                      required
-                      value={form.personId}
-                      onChange={(e) => setForm(prev => ({ ...prev, personId: e.target.value }))}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200"
-                    >
-                      <option value="">Select a person</option>
-                      {/* TODO: Add person options here */}
-                    </select>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">Person (select if already added)</label>
+                      <select
+                        value={form.personId}
+                        onChange={(e) => setForm(prev => ({ ...prev, personId: e.target.value }))}
+                        className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200"
+                      >
+                        <option value="">-- None --</option>
+                        {/* TODO: Add person options here */}
+                      </select>
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">Or enter Person Name *</label>
+                      <input
+                        type="text"
+                        required={!form.personId}
+                        placeholder="Enter person's name"
+                        value={form.personName}
+                        onChange={(e) => setForm(prev => ({ ...prev, personName: e.target.value }))}
+                        className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200"
+                      />
+                    </div>
                   </div>
                   
                   <div className="grid grid-cols-2 gap-4">
@@ -651,7 +667,7 @@ const Agriculture = () => {
                           placeholder="0"
                           value={form.ratePerBigha}
                           onChange={(e) => setForm(prev => ({ ...prev, ratePerBigha: e.target.value }))}
-                          className="w-full pl-8 pr-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200"
+                          className="no-spin w-full pl-8 pr-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200"
                         />
                       </div>
                     </div>
@@ -669,7 +685,7 @@ const Agriculture = () => {
                           placeholder="0"
                           value={form.totalCost}
                           onChange={(e) => setForm(prev => ({ ...prev, totalCost: e.target.value }))}
-                          className="w-full pl-8 pr-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200 bg-gray-50"
+                          className="no-spin w-full pl-8 pr-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200 bg-gray-50"
                           title="This field is automatically calculated from Area × Rate. You can edit it manually if needed."
                         />
                       </div>
@@ -710,7 +726,7 @@ const Agriculture = () => {
                           placeholder="0"
                           value={form.amountReceived}
                           onChange={(e) => setForm(prev => ({ ...prev, amountReceived: e.target.value }))}
-                          className={`w-full pl-8 pr-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200 ${
+                          className={`no-spin w-full pl-8 pr-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200 ${
                             parseFloat(form.amountReceived) > parseFloat(form.totalCost) ? 'border-red-300 bg-red-50' : 'border-gray-300'
                           }`}
                         />

@@ -119,7 +119,7 @@ const Profile = () => {
     setMessage(null);
 
     try {
-      await api.post('/telegram/add-telegram', { telegramUsername: null });
+      await api.post('/telegram/remove-telegram');
       setMessage({ type: 'success', text: 'Telegram username removed successfully' });
       await fetchTelegramStatus();
       setTelegramUsername('');

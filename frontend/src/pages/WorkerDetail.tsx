@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { ArrowLeft, Plus, CheckCircle, AlertCircle, Calendar, DollarSign, Users, Phone, MapPin } from 'lucide-react'
+import { Edit } from 'lucide-react'
 import { api } from '../lib/api'
 import { format } from 'date-fns'
 
@@ -52,6 +53,7 @@ const WorkerDetail = () => {
   const [loading, setLoading] = useState(true)
   const [showPaymentForm, setShowPaymentForm] = useState(false)
   const [showAttendanceForm, setShowAttendanceForm] = useState(false)
+  const [editingPayment, setEditingPayment] = useState<WorkerPayment | null>(null)
   const [paymentForm, setPaymentForm] = useState({
     amount: '',
     date: format(new Date(), 'yyyy-MM-dd'),
@@ -96,8 +98,11 @@ const WorkerDetail = () => {
         workerId: worker._id,
         amount: parseFloat(paymentForm.amount)
       }
-      
-      await api.post('/worker-payments', paymentData)
+      if (editingPayment) {
+        await api.put(`/worker-payments/${editingPayment._id}`, paymentData)
+      } else {
+        await api.post('/worker-payments', paymentData)
+      }
       
       // Reset form and refresh worker data
       setPaymentForm({
@@ -107,6 +112,7 @@ const WorkerDetail = () => {
         description: ''
       })
       setShowPaymentForm(false)
+      setEditingPayment(null)
       fetchWorker()
     } catch (error) {
       console.error('Error adding payment:', error)
@@ -331,7 +337,7 @@ const WorkerDetail = () => {
       {showPaymentForm && (
         <div className="bg-white shadow-lg rounded-xl border border-gray-100">
           <div className="px-6 py-6">
-            <h3 className="text-lg font-medium text-gray-900 mb-4">Add New Payment</h3>
+            <h3 className="text-lg font-medium text-gray-900 mb-4">{editingPayment ? 'Edit Payment' : 'Add New Payment'}</h3>
             <form onSubmit={handlePaymentSubmit} className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
@@ -563,6 +569,9 @@ const WorkerDetail = () => {
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Description
                   </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Actions
+                  </th>
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
@@ -585,6 +594,25 @@ const WorkerDetail = () => {
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                         {payment.description || '-'}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setEditingPayment(payment)
+                            setPaymentForm({
+                              amount: String(payment.amount),
+                              date: format(new Date(payment.date), 'yyyy-MM-dd'),
+                              paymentMode: payment.paymentMode,
+                              description: payment.description || ''
+                            })
+                            setShowPaymentForm(true)
+                          }}
+                          className="p-2 text-blue-600 hover:bg-blue-50 rounded-md"
+                          title="Edit Payment"
+                        >
+                          <Edit className="h-4 w-4" />
+                        </button>
                       </td>
                     </tr>
                   ))

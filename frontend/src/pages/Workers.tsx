@@ -18,7 +18,7 @@ interface Worker {
 
 interface Payment {
   _id: string
-  workerId: {
+  workerId: string | {
     _id: string
     name: string
     phone: string
@@ -53,6 +53,7 @@ const Workers = () => {
   const [editingWorker, setEditingWorker] = useState<Worker | null>(null)
   const [searchTerm, setSearchTerm] = useState('')
   const [statusFilter, setStatusFilter] = useState<'all' | 'active' | 'inactive'>('all')
+  const [attendanceSummary, setAttendanceSummary] = useState<Record<string, { present: number; total: number }>>({})
 
   const [workerForm, setWorkerForm] = useState({
     name: '',
@@ -65,7 +66,7 @@ const Workers = () => {
 
   useEffect(() => {
     fetchWorkers()
-    fetchPayments()
+    // fetchPayments depends on workers – it will be called inside fetchWorkers once workers are loaded
     fetchAttendance()
   }, [])
 
@@ -73,26 +74,37 @@ const Workers = () => {
     try {
       const response = await api.get('/workers')
       setWorkers(response.data)
+      // After workers are loaded, fetch their payments
+      await fetchPaymentsForWorkers(response.data)
     } catch (error) {
       console.error('Error fetching workers:', error)
     }
   }
 
-  const fetchPayments = async () => {
+  const fetchPaymentsForWorkers = async (workersList: Worker[]) => {
     try {
-      const response = await api.get('/payments')
-      setPayments(response.data)
+      const results = await Promise.all(
+        (workersList || []).map(w => api.get(`/worker-payments/worker/${w._id}`))
+      )
+      const allPayments = results.flatMap(r => r.data || [])
+      setPayments(allPayments)
     } catch (error) {
-      console.error('Error fetching payments:', error)
+      console.error('Error fetching worker payments:', error)
+      setPayments([])
     }
   }
 
   const fetchAttendance = async () => {
     try {
-      const response = await api.get('/attendance')
-      setAttendance(response.data)
-    } catch (error) {
-      console.error('Error fetching attendance:', error)
+      const res = await api.get('/attendance/summary/overview')
+      const map: Record<string, { present: number; total: number }> = {}
+      for (const item of (res.data?.summary || [])) {
+        map[item.workerId] = { present: item.present, total: item.total }
+      }
+      setAttendanceSummary(map)
+    } catch (e) {
+      console.error('Error fetching attendance summary:', e)
+      setAttendanceSummary({})
     } finally {
       setLoading(false)
     }
@@ -147,7 +159,10 @@ const Workers = () => {
   }
 
   const getWorkerPayments = (workerId: string) => {
-    return payments.filter(p => p.workerId._id === workerId)
+    return payments.filter(p => {
+      const wid = typeof (p.workerId as any) === 'string' ? (p.workerId as any) : (p.workerId as { _id: string })._id
+      return wid === workerId
+    })
   }
 
   const getWorkerTotalPayments = (workerId: string) => {
@@ -155,11 +170,9 @@ const Workers = () => {
   }
 
   const getWorkerAttendanceStats = (workerId: string) => {
-    const workerAttendance = attendance.filter(record => record.workerId._id === workerId)
-    const present = workerAttendance.filter(record => record.status === 'present').length
-    const total = workerAttendance.length
-    
-    return { present, total, percentage: total > 0 ? Math.round((present / total) * 100) : 0 }
+    const s = attendanceSummary[workerId] || { present: 0, total: 0 }
+    const percentage = s.total > 0 ? Math.round((s.present / s.total) * 100) : 0
+    return { present: s.present, total: s.total, percentage }
   }
 
   // Filter workers based on search and status
@@ -335,7 +348,7 @@ const Workers = () => {
                     </div>
                   </div>
                   
-                  <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <div className="flex items-center gap-2 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity">
                       <button
                         onClick={() => editWorker(worker)}
                       className="p-2 text-blue-600 hover:bg-blue-50 rounded-xl transition-colors"

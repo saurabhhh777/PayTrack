@@ -3,6 +3,7 @@ import { body, validationResult } from 'express-validator';
 import Cultivation from '../models/Cultivation';
 import Payment from '../models/Payment';
 import { auth } from '../middleware/auth';
+import Person from '../models/Person';
 
 const router = express.Router();
 
@@ -74,12 +75,14 @@ router.get('/:id', auth, async (req, res) => {
 // @access  Private
 router.post('/', [
   auth,
-  body('personId').notEmpty().withMessage('Person ID is required'),
   body('cropName').notEmpty().withMessage('Crop name is required'),
   body('area').isNumeric().withMessage('Area must be a number'),
   body('ratePerBigha').isNumeric().withMessage('Rate per Bigha must be a number'),
   body('totalCost').isNumeric().withMessage('Total cost must be a number'),
-  body('paymentMode').isIn(['cash', 'UPI']).withMessage('Payment mode must be cash or UPI')
+  body('paymentMode').isIn(['cash', 'UPI']).withMessage('Payment mode must be cash or UPI'),
+  // allow either personId or name
+  body('personId').optional(),
+  body('name').optional().isLength({ min: 1 }).withMessage('Name is required when personId is not provided')
 ], async (req: Request, res: Response) => {
   try {
     const errors = validationResult(req);
@@ -89,6 +92,7 @@ router.post('/', [
 
     const {
       personId,
+      name,
       cropName,
       area,
       ratePerBigha,
@@ -102,8 +106,22 @@ router.post('/', [
       notes
     } = req.body;
 
+    let resolvedPersonId = personId;
+    if (!resolvedPersonId) {
+      if (!name) {
+        return res.status(400).json({ message: 'Either personId or name is required' });
+      }
+      // find or create person for current user
+      const createdBy = (req as any).user?.userId || (req as any).user?._id;
+      let person = await Person.findOne({ name, createdBy });
+      if (!person) {
+        person = await Person.create({ name, createdBy });
+      }
+      resolvedPersonId = person._id;
+    }
+
     const cultivation = new Cultivation({
-      personId,
+      personId: resolvedPersonId,
       cropName,
       area,
       ratePerBigha,
@@ -130,12 +148,13 @@ router.post('/', [
 // @access  Private
 router.put('/:id', [
   auth,
-  body('personId').notEmpty().withMessage('Person ID is required'),
   body('cropName').notEmpty().withMessage('Crop name is required'),
   body('area').isNumeric().withMessage('Area must be a number'),
   body('ratePerBigha').isNumeric().withMessage('Rate per Bigha must be a number'),
   body('totalCost').isNumeric().withMessage('Total cost must be a number'),
-  body('paymentMode').isIn(['cash', 'UPI']).withMessage('Payment mode must be cash or UPI')
+  body('paymentMode').isIn(['cash', 'UPI']).withMessage('Payment mode must be cash or UPI'),
+  body('personId').optional(),
+  body('name').optional()
 ], async (req: Request, res: Response) => {
   try {
     const errors = validationResult(req);
@@ -145,6 +164,7 @@ router.put('/:id', [
 
     const {
       personId,
+      name,
       cropName,
       area,
       ratePerBigha,
@@ -158,10 +178,20 @@ router.put('/:id', [
       notes
     } = req.body;
 
+    let resolvedPersonId = personId;
+    if (!resolvedPersonId && name) {
+      const createdBy = (req as any).user?.userId || (req as any).user?._id;
+      let person = await Person.findOne({ name, createdBy });
+      if (!person) {
+        person = await Person.create({ name, createdBy });
+      }
+      resolvedPersonId = person._id;
+    }
+
     const cultivation = await Cultivation.findByIdAndUpdate(
       req.params.id,
       {
-        personId,
+        personId: resolvedPersonId,
         cropName,
         area,
         ratePerBigha,

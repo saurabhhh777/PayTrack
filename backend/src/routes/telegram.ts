@@ -51,6 +51,21 @@ router.post('/add-telegram',
   }
 );
 
+// Remove Telegram username
+router.post('/remove-telegram',
+  auth,
+  async (req: AuthRequest, res: Response) => {
+    try {
+      const userId = req.user?._id;
+      await User.findByIdAndUpdate(userId, { $set: { telegramUsername: null } });
+      res.json({ message: 'Telegram username removed successfully', telegramUsername: null });
+    } catch (error) {
+      console.error('Error removing Telegram username:', error);
+      res.status(500).json({ message: 'Failed to remove Telegram username' });
+    }
+  }
+);
+
 // Get user's Telegram username
 router.get('/status',
   auth,

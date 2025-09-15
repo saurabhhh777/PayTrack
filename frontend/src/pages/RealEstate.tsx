@@ -44,6 +44,7 @@ const RealEstate = () => {
 
   const [form, setForm] = useState({
     propertyType: 'buy' as 'buy' | 'sell',
+    transactionMode: 'Individual' as 'Individual' | 'With Partner',
     area: '',
     areaUnit: 'Bigha' as 'Bigha' | 'Gaj',
     partnerName: '',
@@ -107,15 +108,21 @@ const RealEstate = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     try {
+      // Build payload; when Individual, partnerName is auto-set to 'Self'
+      const payload = {
+        ...form,
+        partnerName: form.transactionMode === 'Individual' ? (form.partnerName || 'Self') : form.partnerName
+      }
       if (editingProperty) {
-        await api.put(`/properties/${editingProperty._id}`, form)
+        await api.put(`/properties/${editingProperty._id}`, payload)
       } else {
-        await api.post('/properties', form)
+        await api.post('/properties', payload)
       }
       setShowForm(false)
       setEditingProperty(null)
       setForm({
         propertyType: 'buy',
+        transactionMode: 'Individual',
         area: '',
         areaUnit: 'Bigha',
         partnerName: '',
@@ -151,6 +158,7 @@ const RealEstate = () => {
     setEditingProperty(property)
     setForm({
       propertyType: property.propertyType,
+      transactionMode: (property as any).transactionMode || 'Individual',
       area: property.area.toString(),
       areaUnit: property.areaUnit,
       partnerName: property.partnerName,
@@ -525,6 +533,7 @@ const RealEstate = () => {
                     setEditingProperty(null)
                     setForm({
                       propertyType: 'buy',
+                      transactionMode: 'Individual',
                       area: '',
                       areaUnit: 'Bigha',
                       partnerName: '',
@@ -565,6 +574,18 @@ const RealEstate = () => {
                       <option value="sell">🔴 Sell Property</option>
                     </select>
                   </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Transaction Mode *</label>
+                    <select
+                      required
+                      value={form.transactionMode}
+                      onChange={(e) => setForm(prev => ({ ...prev, transactionMode: e.target.value as 'Individual' | 'With Partner' }))}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200"
+                    >
+                      <option value="Individual">👤 Individual</option>
+                      <option value="With Partner">👥 With Partner</option>
+                    </select>
+                  </div>
                 </div>
 
                 {/* Property Details Section */}
@@ -580,7 +601,15 @@ const RealEstate = () => {
                         required
                         placeholder="0.00"
                         value={form.area}
-                        onChange={(e) => setForm(prev => ({ ...prev, area: e.target.value }))}
+                        onChange={(e) => {
+                          const area = e.target.value
+                          setForm(prev => {
+                            const rate = parseFloat(prev.ratePerUnit || '0')
+                            const areaNum = parseFloat(area || '0')
+                            const total = rate > 0 && areaNum > 0 ? String((rate * areaNum).toFixed(2)) : prev.totalCost
+                            return { ...prev, area, totalCost: total }
+                          })
+                        }}
                         className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200"
                       />
                     </div>
@@ -599,20 +628,22 @@ const RealEstate = () => {
                 </div>
 
                 {/* Partner Information Section */}
-                <div className="space-y-4">
-                  <h4 className="text-lg font-medium text-gray-900 border-b border-gray-200 pb-2">🤝 Partner Information</h4>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Partner Name *</label>
-                    <input
-                      type="text"
-                      required
-                      placeholder="Enter partner name"
-                      value={form.partnerName}
-                      onChange={(e) => setForm(prev => ({ ...prev, partnerName: e.target.value }))}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200"
-                    />
+                {form.transactionMode === 'With Partner' && (
+                  <div className="space-y-4">
+                    <h4 className="text-lg font-medium text-gray-900 border-b border-gray-200 pb-2">🤝 Partner Information</h4>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">Partner Name *</label>
+                      <input
+                        type="text"
+                        required={form.transactionMode === 'With Partner'}
+                        placeholder="Enter partner name"
+                        value={form.partnerName}
+                        onChange={(e) => setForm(prev => ({ ...prev, partnerName: e.target.value }))}
+                        className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200"
+                      />
+                    </div>
                   </div>
-                </div>
+                )}
 
                 {/* Transaction Party Section */}
                 <div className="space-y-4">
@@ -660,7 +691,15 @@ const RealEstate = () => {
                           step="0.01"
                           placeholder="0.00"
                           value={form.ratePerUnit}
-                          onChange={(e) => setForm(prev => ({ ...prev, ratePerUnit: e.target.value }))}
+                          onChange={(e) => {
+                            const ratePerUnit = e.target.value
+                            setForm(prev => {
+                              const areaNum = parseFloat(prev.area || '0')
+                              const rate = parseFloat(ratePerUnit || '0')
+                              const total = rate > 0 && areaNum > 0 ? String((rate * areaNum).toFixed(2)) : prev.totalCost
+                              return { ...prev, ratePerUnit, totalCost: total }
+                            })
+                          }}
                           className="w-full pl-8 pr-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200"
                         />
                       </div>
@@ -676,7 +715,17 @@ const RealEstate = () => {
                           step="0.01"
                           placeholder="0.00"
                           value={form.totalCost}
-                          onChange={(e) => setForm(prev => ({ ...prev, totalCost: e.target.value }))}
+                          onChange={(e) => {
+                            const totalCost = e.target.value
+                            setForm(prev => {
+                              const areaNum = parseFloat(prev.area || '0')
+                              const total = parseFloat(totalCost || '0')
+                              const rate = areaNum > 0 && total > 0 ? String((total / areaNum).toFixed(2)) : prev.ratePerUnit
+                              const paid = parseFloat(prev.amountPaid || '0')
+                              const pending = total >= 0 && paid >= 0 ? String(Math.max(total - paid, 0).toFixed(2)) : prev.amountPending
+                              return { ...prev, totalCost, ratePerUnit: rate, amountPending: pending }
+                            })
+                          }}
                           className="w-full pl-8 pr-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200"
                         />
                       </div>
@@ -694,7 +743,15 @@ const RealEstate = () => {
                           step="0.01"
                           placeholder="0.00"
                           value={form.amountPaid}
-                          onChange={(e) => setForm(prev => ({ ...prev, amountPaid: e.target.value }))}
+                          onChange={(e) => {
+                            const amountPaid = e.target.value
+                            setForm(prev => {
+                              const total = parseFloat(prev.totalCost || '0')
+                              const paid = parseFloat(amountPaid || '0')
+                              const pending = total >= 0 && paid >= 0 ? String(Math.max(total - paid, 0).toFixed(2)) : prev.amountPending
+                              return { ...prev, amountPaid, amountPending: pending }
+                            })
+                          }}
                           className="w-full pl-8 pr-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200"
                         />
                       </div>
@@ -710,7 +767,15 @@ const RealEstate = () => {
                           step="0.01"
                           placeholder="0.00"
                           value={form.amountPending}
-                          onChange={(e) => setForm(prev => ({ ...prev, amountPending: e.target.value }))}
+                          onChange={(e) => {
+                            const amountPending = e.target.value
+                            setForm(prev => {
+                              const total = parseFloat(prev.totalCost || '0')
+                              const pending = parseFloat(amountPending || '0')
+                              const paid = total >= 0 && pending >= 0 ? String(Math.max(total - pending, 0).toFixed(2)) : prev.amountPaid
+                              return { ...prev, amountPending, amountPaid: paid }
+                            })
+                          }}
                           className="w-full pl-8 pr-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200"
                         />
                       </div>
@@ -763,6 +828,7 @@ const RealEstate = () => {
                       setEditingProperty(null)
                       setForm({
                         propertyType: 'buy',
+                        transactionMode: 'Individual',
                         area: '',
                         areaUnit: 'Bigha',
                         partnerName: '',
