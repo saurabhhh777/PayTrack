@@ -75,6 +75,11 @@ const Attendance = () => {
       const workersRes = await api.get('/workers')
       setWorkers(workersRes.data || [])
 
+      if (!filters.workerId && workersRes.data?.length) {
+        setFilters(prev => ({ ...prev, workerId: workersRes.data[0]._id }))
+        return // let the useEffect re-run and fetch attendance for the worker
+      }
+
       if (filters.workerId) {
         const attendanceRes = await api.get(`/attendance/${filters.workerId}`, {
           params: { startDate: filters.startDate, endDate: filters.endDate, limit: 200 }
@@ -131,15 +136,39 @@ const Attendance = () => {
   const handleBulkAttendanceSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     try {
-      await api.post('/attendance/bulk', bulkAttendanceForm)
+      // Build payload expected by backend: { date, attendanceData: [{ workerId, status }] }
+      const statusMap: Record<string, 'Present' | 'Absent' | 'HalfDay'> = {
+        'present': 'Present',
+        'absent': 'Absent',
+        'half-day': 'HalfDay',
+        'leave': 'Absent'
+      }
+
+      const payload = {
+        date: bulkAttendanceForm.date,
+        attendanceData: bulkAttendanceForm.attendanceData
+          .filter(item => !!item.workerId)
+          .map(item => ({
+            workerId: item.workerId,
+            status: statusMap[item.status] || 'Absent'
+          }))
+      }
+
+      if (payload.attendanceData.length === 0) {
+        alert('Please select at least one worker to save bulk attendance')
+        return
+      }
+
+      await api.post('/attendance/bulk', payload)
       setShowBulkAttendanceForm(false)
       setBulkAttendanceForm({
         date: format(new Date(), 'yyyy-MM-dd'),
         attendanceData: []
       })
       fetchData()
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error saving bulk attendance:', error)
+      console.error('Bulk error details:', error.response?.data)
     }
   }
 
@@ -154,22 +183,31 @@ const Attendance = () => {
     }
   }
 
+  const normalizeStatus = (s: string) => {
+    if (!s) return ''
+    const up = s.toLowerCase()
+    if (up === 'present') return 'Present'
+    if (up === 'absent') return 'Absent'
+    if (up === 'half-day' || up === 'halfday') return 'HalfDay'
+    return s
+  }
+
   const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'present': return 'bg-green-100 text-green-800'
-      case 'absent': return 'bg-red-100 text-red-800'
-      case 'half-day': return 'bg-yellow-100 text-yellow-800'
-      case 'leave': return 'bg-blue-100 text-blue-800'
+    const s = normalizeStatus(status)
+    switch (s) {
+      case 'Present': return 'bg-green-100 text-green-800'
+      case 'Absent': return 'bg-red-100 text-red-800'
+      case 'HalfDay': return 'bg-yellow-100 text-yellow-800'
       default: return 'bg-gray-100 text-gray-800'
     }
   }
 
   const getStatusIcon = (status: string) => {
-    switch (status) {
-      case 'present': return '✅'
-      case 'absent': return '❌'
-      case 'half-day': return '⚠️'
-      case 'leave': return '🏖️'
+    const s = normalizeStatus(status)
+    switch (s) {
+      case 'Present': return '✅'
+      case 'Absent': return '❌'
+      case 'HalfDay': return '⚠️'
       default: return '❓'
     }
   }
@@ -206,9 +244,9 @@ const Attendance = () => {
 
   // Calculate stats
   const totalRecords = attendance.length
-  const presentCount = attendance.filter(a => a.status === 'present').length
-  const absentCount = attendance.filter(a => a.status === 'absent').length
-  const leaveCount = attendance.filter(a => a.status === 'leave').length
+  const presentCount = attendance.filter(a => a.status === 'Present').length
+  const absentCount = attendance.filter(a => a.status === 'Absent').length
+  const halfDayCount = attendance.filter(a => a.status === 'HalfDay').length
   const attendanceRate = totalRecords > 0 ? Math.round((presentCount / totalRecords) * 100) : 0
 
   if (loading) {
@@ -323,7 +361,7 @@ const Attendance = () => {
               <TrendingUp className="h-5 w-5 text-blue-500" />
             </div>
             <h3 className="text-sm font-medium text-gray-500 mb-2">On Leave</h3>
-            <p className="text-3xl font-medium text-gray-900 mb-1">{leaveCount}</p>
+            <p className="text-3xl font-medium text-gray-900 mb-1">{halfDayCount}</p>
             <p className="text-sm text-blue-600">Workers</p>
           </div>
         </div>
