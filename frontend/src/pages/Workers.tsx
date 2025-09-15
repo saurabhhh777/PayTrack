@@ -29,25 +29,9 @@ interface Payment {
   description?: string
 }
 
-interface Attendance {
-  _id: string
-  workerId: {
-    _id: string
-    name: string
-    phone: string
-  }
-  date: string
-  status: 'present' | 'absent' | 'half-day' | 'leave'
-  checkInTime?: string
-  checkOutTime?: string
-  workingHours?: number
-  notes?: string
-}
-
 const Workers = () => {
   const [workers, setWorkers] = useState<Worker[]>([])
   const [payments, setPayments] = useState<Payment[]>([])
-  const [attendance, setAttendance] = useState<Attendance[]>([])
   const [loading, setLoading] = useState(true)
   const [showWorkerForm, setShowWorkerForm] = useState(false)
   const [editingWorker, setEditingWorker] = useState<Worker | null>(null)
