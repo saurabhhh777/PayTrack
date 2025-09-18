@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { api } from '../lib/api';
 import { useAuthStore } from '../stores/authStore';
 import { MessageCircle, Shield, CheckCircle, XCircle, Trash2, User, Mail, Calendar, Settings, Activity, BarChart3, Edit } from 'lucide-react';
+import { format } from 'date-fns'
 
 interface TelegramStatus {
   telegramUsername: string | null;
@@ -38,10 +39,12 @@ const Profile = () => {
     recentActivities: []
   });
   const [statsLoading, setStatsLoading] = useState(true);
+  const [memberSince, setMemberSince] = useState<string>('');
 
   useEffect(() => {
     fetchTelegramStatus();
     fetchProfileStats();
+    fetchMemberSince();
   }, []);
 
   const fetchTelegramStatus = async () => {
@@ -81,6 +84,17 @@ const Profile = () => {
       setStatsLoading(false);
     }
   };
+
+  const fetchMemberSince = async () => {
+    try {
+      const me = await api.get('/auth/me');
+      if (me.data?.createdAt) {
+        setMemberSince(format(new Date(me.data.createdAt), 'MMMM yyyy'))
+      }
+    } catch (e) {
+      console.error('Error fetching member since:', e)
+    }
+  }
 
   const handleUpdateTelegram = async () => {
     if (!telegramUsername.trim()) {
@@ -241,7 +255,7 @@ const Profile = () => {
               <CheckCircle className="h-5 w-5 text-green-500" />
             </div>
             <h3 className="text-sm font-medium text-gray-500 mb-2">Member Since</h3>
-            <p className="text-lg font-medium text-gray-900">January 2024</p>
+            <p className="text-lg font-medium text-gray-900">{memberSince || '—'}</p>
           </div>
         </div>
       </div>
